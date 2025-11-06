@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkle, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Title from "./Title";
 
 const Features = () => {
