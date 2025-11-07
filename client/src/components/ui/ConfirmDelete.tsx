@@ -38,7 +38,7 @@ const colorStyles: Record<
     text: "text-blue-800",
     bg: "bg-blue-50",
     button: "bg-blue-800 hover:bg-blue-900 focus:ring-blue-200",
-    buttonHover: "hover:bg-blue-900",
+    buttonHover: "hover:bg-blue-900"
   },
   success: {
     border: "border-green-300",
