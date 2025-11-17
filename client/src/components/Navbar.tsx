@@ -31,7 +31,22 @@ const Navbar = () => {
           </svg>
         </Link>
         <div className="flex items-center gap-4 text-sm">
-          <p className="max-sm:hidden">Hi, {user?.name}</p>
+          <p className="max-sm:hidden relative inline-block">
+            Hi, {user?.name}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 10"
+              className="absolute left-0 -bottom-1 w-full"
+            >
+              <path
+                d="M0 5 Q50 10, 100 5 T200 5"
+                stroke="#9400D3"
+                stroke-width="7"
+                fill="transparent"
+              />
+            </svg>
+          </p>
+
           <button
             onClick={logoutUser}
             className="bg-white hover:bg-slate-50 border-gray-300 px-7 py-1.5 rounded-full active:scale-95 transition-all"
