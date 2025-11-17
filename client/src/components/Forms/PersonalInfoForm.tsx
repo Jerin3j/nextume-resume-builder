@@ -68,7 +68,7 @@ const PersonalInfoForm = ({
             />
           ) : (
             <div className="inline-flex items-center gap-2 mt-5 text-slate-600 hover:text-slate-700 cursor-pointer">
-              <User className="size-10 p-2.5 border rounded-full" />
+              <User className="size-10 p-2.5 border rounded-full bg-gray-100" />
               upload user image
             </div>
           )}
