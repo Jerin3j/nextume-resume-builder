@@ -1,12 +1,13 @@
+"use client";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { dummyResumeData } from "../assets/assets";
-import Loader from "../components/Loader";
-import ResumePreview from "../components/ResumePreview";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, Loader } from "lucide-react";
+import { useParams } from "next/navigation";
+import { dummyResumeData } from "@/assets/assets";
+import ResumePreview from "@/components/ResumePreview";
 
 const Preview = () => {
-  const { resumeId } = useParams();
+  const { resumeId } = useParams<{ resumeId: string }>();
+
   const [resumeData, setResumeData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {

@@ -1,3 +1,4 @@
+'use client';
 import {
   File,
   FilePenLineIcon,
@@ -8,9 +9,9 @@ import {
   XIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { dummyResumeData } from "../assets/assets";
-import { useNavigate } from "react-router-dom";
-import { ConfirmDelete } from "../components/ui/ConfirmDelete";
+import { useRouter } from "next/navigation";
+import { dummyResumeData } from "@/assets/assets";
+import { ConfirmDelete } from "@/components/ui/ConfirmDelete";
 
 const Dashboard = () => {
   const colors = ["#9333ea", "#3b82f6", "#10b981", "#f59e0b", "#ef4444"];
@@ -23,7 +24,7 @@ const Dashboard = () => {
   const [resume, setResume] = useState<any>();
   const [editResumeId, setEditResumeId] = useState<any>(false);
 
-  const navigate = useNavigate();
+  const router = useRouter();
   useEffect(() => {
     const loadAllResumes = async () => setAllResumes(dummyResumeData);
     loadAllResumes();
@@ -32,18 +33,18 @@ const Dashboard = () => {
   const createResume = async (event: any) => {
     event.preventDefault();
     setShowCreatedResume(false);
-    navigate("/app/builder/res123");
+    router.push("/dashboard/builder/res123");
   };
 
   const uploadResume = async (event: any) => {
     event.preventDefault();
     setShowUploadResume(false);
-    navigate("/app/builder/res123");
+    router.push("/dashboard/builder/res123");
   };
 
   const editResumeTitle = async (event: any) => {
     event.preventDefault();
-    navigate("/app/builder/res123");
+    router.push("/dashboard/builder/res123");
   };
 
   const deleteResume = async (ResumeId: any) => {
@@ -97,7 +98,7 @@ const Dashboard = () => {
             const baseColor = colors[index % colors.length];
             return (
               <button
-                onClick={() => navigate(`/app/builder/${resume._id}`)}
+                onClick={() => router.push(`/dashboard/builder/${resume._id}`)}
                 key={index}
                 className="relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg gap-2 bprder group hover:shadow-lg transition-all duration-300 cursor-pointer"
                 style={{
