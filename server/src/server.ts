@@ -16,7 +16,7 @@ app.get("/", async (_req, res) => {
 });
 
 // Routes
-app.use("/api/user", userRouter);
+app.use("/api/users", userRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on PORT: ${PORT}`);
