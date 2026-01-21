@@ -1,16 +1,17 @@
-import { Link, useNavigate } from "react-router-dom";
+'use client';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const user = { name: "Jerin J" };
-  const navigate = useNavigate();
-
+const router = useRouter();
   const logoutUser = () => {
-    navigate("/");
+    router.push("/");
   };
   return (
     <div className="shadow bg-white">
       <nav className="flex items-center justify-between max-w-7xl mx-auto px-4 py-3.5 text-slate-800 transition-all">
-        <Link to="/">
+        <Link href="/">
           <svg
             width="157"
             height="40"
@@ -21,10 +22,10 @@ const Navbar = () => {
             <text
               x="0"
               y="28"
-              font-family="Arial, sans-serif"
-              font-size="28"
+              fontFamily="Arial, sans-serif"
+              fontSize="28"
               fill="#020618"
-              font-weight="600"
+              fontWeight="600"
             >
               nextume<tspan fill="#4F39F6">.</tspan>
             </text>
@@ -41,7 +42,7 @@ const Navbar = () => {
               <path
                 d="M0 5 Q50 10, 100 5 T200 5"
                 stroke="#9400D3"
-                stroke-width="7"
+                strokeWidth="7"
                 fill="transparent"
               />
             </svg>

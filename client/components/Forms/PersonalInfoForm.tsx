@@ -8,6 +8,8 @@ import {
   User,
 } from "lucide-react";
 import React from "react";
+import { fileToBase64 } from "../libs/fileToBase64";
+import { getImageSrc } from "../libs/getImageSrc";
 
 type PersonalInfoFormProps = {
   data: {
@@ -41,11 +43,23 @@ const PersonalInfoForm = ({
     { key: "phone", label: "Phone Number", icon: Phone, type: "tel" },
     { key: "location", label: "Location", icon: MapPin, type: "text" },
     {
-      key: "profession", label: "Profession", icon: BriefcaseBusiness, type: "text",
+      key: "profession",
+      label: "Profession",
+      icon: BriefcaseBusiness,
+      type: "text",
     },
     { key: "linkedin", label: "LinkedIn Profile", icon: Linkedin, type: "url" },
     { key: "website", label: "Personal Website", icon: Globe, type: "url" },
   ];
+
+
+  const handleImageUpload = async (file: File) => {
+    const base64 = await fileToBase64(file);
+    onChange({ ...data, image: base64 });
+  };
+
+const imageSrc = getImageSrc(data.image);
+
   return (
     <div>
       <h3 className="text-lg font-semibold text-gray-900">
@@ -56,13 +70,9 @@ const PersonalInfoForm = ({
       </p>
       <div className="flex items-center gap-2">
         <label>
-          {data.image ? (
+          {imageSrc ? (
             <img
-              src={
-                typeof data.image === "string"
-                  ? data.image
-                  : URL.createObjectURL(data.image)
-              }
+              src={imageSrc}
               alt="user image"
               className="w-16 h-16 rounded-full object-cover mt-5 ring ring-slate-300 hover:opacity-80"
             />
@@ -76,7 +86,10 @@ const PersonalInfoForm = ({
             type="file"
             accept="image/jpeg, image/png"
             className="hidden"
-            onChange={(e) => handleChange("image", e.target.files?.[0] || null)}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImageUpload(file);
+            }}
           />
         </label>
         {typeof data.image === "object" && (

@@ -17,10 +17,10 @@ const Footer = () => {
                 <text
                   x="0"
                   y="28"
-                  font-family="Arial, sans-serif"
-                  font-size="28"
+                  fontFamily="Arial, sans-serif"
+                  fontSize="28"
                   fill="#020618"
-                  font-weight="600"
+                  fontWeight="600"
                 >
                   nextume<tspan fill="#4F39F6">.</tspan>
                 </text>

@@ -1,3 +1,4 @@
+'use client';
 import React from "react";
 import { Sparkles } from "lucide-react";
 import Title from "./Title";

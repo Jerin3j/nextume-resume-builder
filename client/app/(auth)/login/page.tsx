@@ -1,3 +1,4 @@
+'use client';
 import { Lock, Mail, User2Icon } from "lucide-react";
 import { useState } from "react";
 

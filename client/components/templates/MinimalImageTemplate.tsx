@@ -1,40 +1,41 @@
 import React from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import type { TemplateProps } from "./types";
+import { getImageSrc } from "../libs/getImageSrc";
 
-const MinimalImageTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
+const MinimalImageTemplate: React.FC<TemplateProps> = ({
+  data,
+  accentColor,
+}) => {
   const formatDate = (dateStr?: string): string => {
     if (!dateStr) return "";
     const [year, month] = dateStr.split("-");
-    return new Date(Number(year), Number(month) - 1).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-    });
+    return new Date(Number(year), Number(month) - 1).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "short",
+      }
+    );
   };
+
+  const imageSrc = getImageSrc(data.personal_info?.image);
 
   return (
     <div className="max-w-5xl mx-auto bg-white text-zinc-800">
       <div className="grid grid-cols-3">
         {/* Left Image Section */}
         <div className="col-span-1 py-10">
-          {data.personal_info?.image && typeof data.personal_info.image === "string" ? (
-            <div className="mb-6">
+          <div className="mb-6">
+            {imageSrc && (
               <img
-                src={data.personal_info.image}
+                src={imageSrc}
                 alt="Profile"
                 className="w-32 h-32 object-cover rounded-full mx-auto"
                 style={{ background: accentColor + "70" }}
               />
-            </div>
-          ) : data.personal_info?.image && typeof data.personal_info.image === "object" ? (
-            <div className="mb-6">
-              <img
-                src={URL.createObjectURL(data.personal_info.image)}
-                alt="Profile"
-                className="w-32 h-32 object-cover rounded-full mx-auto"
-              />
-            </div>
-          ) : null}
+            )}
+          </div>
         </div>
 
         {/* Name + Profession */}
@@ -122,7 +123,7 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({ data, accentColor }) =>
               >
                 SUMMARY
               </h2>
-              <p className="text-zinc-700 leading-relaxed">
+              <p className="text-zinc-700 leading-relaxed  break-words">
                 {data.professional_summary}
               </p>
             </section>
@@ -141,7 +142,9 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({ data, accentColor }) =>
                 {data.experience.map((exp, index) => (
                   <div key={index}>
                     <div className="flex justify-between items-center">
-                      <h3 className="font-semibold text-zinc-900">{exp.position}</h3>
+                      <h3 className="font-semibold text-zinc-900">
+                        {exp.position}
+                      </h3>
                       <span className="text-xs text-zinc-500">
                         {formatDate(exp.start_date)} -{" "}
                         {exp.is_current ? "Present" : formatDate(exp.end_date)}
@@ -179,7 +182,10 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({ data, accentColor }) =>
                       {project.name}
                     </h3>
                     {project.type && (
-                      <p className="text-sm mb-1" style={{ color: accentColor }}>
+                      <p
+                        className="text-sm mb-1"
+                        style={{ color: accentColor }}
+                      >
                         {project.type}
                       </p>
                     )}

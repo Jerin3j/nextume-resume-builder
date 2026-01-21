@@ -1,6 +1,5 @@
+"use client";
 import { useEffect, useState } from "react";
-import { dummyResumeData } from "../assets/assets";
-import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeftIcon,
   Briefcase,
@@ -16,15 +15,18 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import PersonalInfoForm from "../components/Forms/PersonalInfoForm";
-import ResumePreview from "../components/ResumePreview";
-import TemplateSelector from "../components/TemplateSelector";
-import ColorPicker from "../components/ColorPicker";
-import ProfessionalSummary from "../components/Forms/ProfessionalSummary";
-import Experience from "../components/Forms/Experience";
-import Education from "../components/Forms/Education";
-import Projects from "../components/Forms/Projects";
-import Skills from "../components/Forms/Skills";
+import { dummyResumeData } from "@/assets/assets";
+import Link from "next/link";
+import TemplateSelector from "@/components/TemplateSelector";
+import ColorPicker from "@/components/ColorPicker";
+import PersonalInfoForm from "@/components/Forms/PersonalInfoForm";
+import ProfessionalSummary from "@/components/Forms/ProfessionalSummary";
+import Experience from "@/components/Forms/Experience";
+import Education from "@/components/Forms/Education";
+import Projects from "@/components/Forms/Projects";
+import Skills from "@/components/Forms/Skills";
+import ResumePreview from "@/components/ResumePreview";
+import { useParams } from "next/navigation";
 
 type ResumeData = {
   _id: string;
@@ -41,7 +43,9 @@ type ResumeData = {
 };
 
 const ResumeBuilder = () => {
-  const { resumeId } = useParams();
+ const { resumeId } = useParams<{ resumeId: string }>();
+
+console.log("resume ID",resumeId);
 
   const [resumeData, setResumeData] = useState<ResumeData>({
     _id: "",
@@ -72,6 +76,7 @@ const ResumeBuilder = () => {
   const activeSection = sections[activeSectionIndex];
 
   useEffect(() => {
+     if (!resumeId) return;
     const loadExistingResume = async () => {
       const resume = dummyResumeData.find((resume) => resume._id === resumeId);
       if (resume) {
@@ -89,7 +94,7 @@ const ResumeBuilder = () => {
   };
 
   const handleShareResume = async () => {
-    const frontendUrl = window.location.href.split("/app/")[0];
+    const frontendUrl = window.location.href.split("/dashboard/")[0];
     const resumeUrl = `${frontendUrl}/view/${resumeId}`;
 
     if (navigator.share) {
@@ -106,7 +111,7 @@ const ResumeBuilder = () => {
     <div>
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Link
-          to={"/app"}
+          href={"/dashboard"}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-all"
         >
           <ArrowLeftIcon className="size-4" /> Back to Dashboard
