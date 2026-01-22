@@ -116,7 +116,7 @@ export const loginUser = async (req: Request, res: Response) => {
       token,
     });
   } catch (error) {
-    console.error("Register User Error:", error);
+    console.error("Login User Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -147,7 +147,25 @@ export const getUserById = async (req: Request, res: Response) => {
       user: userWithoutPassword,
     });
   } catch (error) {
-    console.error("Register User Error:", error);
+    console.error("Get User Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// Controller for getting user resume
+// GET: /api/user/resumes
+export const getUserResumes = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const resumes = await prisma.resume.findMany({
+      where: { userId },
+    });
+    return res.status(200).json({ resumes });
+  } catch (error) {
+    console.error("Get User Resumes Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

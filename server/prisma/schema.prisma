@@ -13,4 +13,21 @@ model User {
   password  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  resumes   Resume[]
+}
+
+model Resume {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  user                User     @relation(fields: [userId], references: [id])
+  title               String   @default("Untitled Resume")
+  public              Boolean  @default(false)
+  template            String   @default("classic")
+  accentColor         String   @default("#3B82F6")
+  professionalSummary String
+  skills              String[]
+  personalInfo        Json
+  workExperience      Json[]
+  education           Json[]
+  projects            Json[]
 }
