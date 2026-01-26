@@ -24,10 +24,10 @@ model Resume {
   public              Boolean  @default(false)
   template            String   @default("classic")
   accentColor         String   @default("#3B82F6")
-  professionalSummary String
-  skills              String[]
-  personalInfo        Json
-  workExperience      Json[]
-  education           Json[]
-  projects            Json[]
+  professionalSummary String?
+  skills              String[] @default([])
+  personalInfo        Json?
+  workExperience      Json[]   @default([])
+  education           Json[]   @default([])
+  projects            Json[]   @default([])
 }
