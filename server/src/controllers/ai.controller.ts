@@ -14,8 +14,8 @@ export const enhanceProfessionalSummary = async (
     }
     const response = await ai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
-    //   max_tokens: 120,
-    //   temperature: 0.5,
+      max_tokens: 120,
+      temperature: 0.5,
       messages: [
         {
           role: "system",
@@ -50,8 +50,8 @@ export const enhanceDescription = async (req: Request, res: Response) => {
     }
     const response = await ai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
-    //   max_tokens: 120,
-    //   temperature: 0.5,
+      max_tokens: 120,
+      temperature: 0.5,
       messages: [
         {
           role: "system",
