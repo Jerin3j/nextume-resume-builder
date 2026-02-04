@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
+import { useSelector } from "react-redux";
+import { RootState } from "../../lib/redux/store";
+import { Loader } from "lucide-react";
+import { redirect } from "next/navigation";
+import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
   title: "Nextume Dashboard",
@@ -11,11 +16,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+ 
   return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-       {children}
-      </div>
-
+    <ClientLayout>
+      {children}
+    </ClientLayout>
   );
 }
