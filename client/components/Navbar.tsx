@@ -1,12 +1,17 @@
-'use client';
+"use client";
+import { logout } from "@/lib/redux/authSlice";
+import { RootState } from "@/lib/redux/store";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
 
 const Navbar = () => {
-  const user = { name: "Jerin J" };
-const router = useRouter();
+  const { user } = useSelector((state: RootState) => state.authReducer);
+  const router = useRouter();
+  const dispatch = useDispatch();
   const logoutUser = () => {
     router.push("/");
+    dispatch(logout());
   };
   return (
     <div className="shadow bg-white">

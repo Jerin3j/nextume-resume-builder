@@ -1,9 +1,15 @@
-'use client';
+"use client";
+import { RootState } from "@/lib/redux/store";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 const Hero = () => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const { user }: { user: any } = useSelector(
+    (state: RootState) => state.authReducer,
+  );
+  console.log("user", user);
 
   const companiesLogo = [
     {
@@ -157,12 +163,21 @@ const Hero = () => {
             <Link
               href="/register"
               className="hidden md:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
+              hidden={!user}
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/register"
+              className="hidden md:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
+              hidden={user}
             >
               Get started
             </Link>
             <Link
               href="/login"
               className="hidden md:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
+              hidden={user}
             >
               Login
             </Link>
@@ -290,10 +305,11 @@ const Hero = () => {
           {/* CTA Buttons */}
           <div className="flex items-center gap-4 ">
             <Link
-              href="/dashboard"
+              href={user ? "/dashboard" : "/register"}
               className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full px-9 h-12 m-1 ring-offset-2 ring-1 ring-indigo-400 flex items-center transition-colors"
             >
-              Get started
+              {user ? "Go to Dashboard" : "Get started"}
+
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
