@@ -36,6 +36,15 @@ const Dashboard = () => {
     (state: RootState) => state.authReducer,
   );
 
+  const handleUploadClick = () => {
+    toast("Profile photos won’t be imported. You can add one later.", {
+      icon: "ℹ️",
+      position: "top-right",
+      duration: 6000,
+    });
+    setShowUploadResume(true);
+  };
+  //load all resumes of user
   useEffect(() => {
     const loadAllResumes = async () => {
       try {
@@ -171,7 +180,7 @@ const Dashboard = () => {
             </p>
           </button>
           <button
-            onClick={() => setShowUploadResume(true)}
+            onClick={handleUploadClick}
             className="w-full bg-white sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg gap-2 text-slate-600 border border-dashed border-slate-300 group hover:border-indigo-500 hover:shadow-lg transition-all duration-300 cursor-pointer"
           >
             <UploadCloudIcon className="size-11 transition-all duration-300 p-2.5 bg-gradient-to-r from-violet-300 to-violet-500 text-white rounded-full" />
