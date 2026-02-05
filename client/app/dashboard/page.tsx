@@ -11,8 +11,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { dummyResumeData } from "@/assets/assets";
-import { ConfirmDelete } from "@/components/ui/ConfirmDelete";
 import axiosInstance from "../utils/axiosInstance";
 import toast from "react-hot-toast";
 import pdfToText from "react-pdftotext";
@@ -25,8 +23,6 @@ const Dashboard = () => {
   const [showCreatedResume, setShowCreatedResume] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showUploadResume, setShowUploadResume] = useState<boolean>(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [selectedResume, setSelectedResume] = useState<any>(null);
   const [title, setTitle] = useState<string>("");
   const [resume, setResume] = useState<any>();
   const [editResumeId, setEditResumeId] = useState<string | null>(null);
@@ -167,7 +163,7 @@ const Dashboard = () => {
     <div>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <p className="text-2xl font-medium mb-6 bg-gradient-to-r from-slate-600 to-slate-700 bg-clip-text text-transparent sm:hidden">
-          Welcome, Jerin J
+          Welcome, {user?.name}
         </p>
         <div className="flex gap-4">
           <button

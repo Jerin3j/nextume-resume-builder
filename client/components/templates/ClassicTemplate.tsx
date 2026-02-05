@@ -1,4 +1,3 @@
-// ClassicTemplate.tsx
 import React from "react";
 import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
 import type {TemplateProps} from "./types";

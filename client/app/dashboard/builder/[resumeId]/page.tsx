@@ -15,7 +15,6 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import { dummyResumeData } from "@/assets/assets";
 import Link from "next/link";
 import TemplateSelector from "@/components/TemplateSelector";
 import ColorPicker from "@/components/ColorPicker";
