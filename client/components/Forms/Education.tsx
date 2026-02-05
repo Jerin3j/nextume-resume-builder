@@ -11,7 +11,7 @@ const Education = ({ data, onChange }: EducationProps) => {
       institution: "",
       degree: "",
       field: "",
-      graduation_date: "",
+      graduationDate: "",
       gpa: "",
     };
     onChange([...data, newEducation]);
@@ -107,9 +107,9 @@ const Education = ({ data, onChange }: EducationProps) => {
                 {/* Graduation date */}
                 <input
                   type="month"
-                  value={education.graduation_date || ""}
+                  value={education.graduationDate || ""}
                   onChange={(e) =>
-                    updateEducation(index, "graduation_date", e.target.value)
+                    updateEducation(index, "graduationDate", e.target.value)
                   }
                   className="px-3 py-2 text-sm"
                 />

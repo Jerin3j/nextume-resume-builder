@@ -9,9 +9,9 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
     const newExperience = {
       company: "",
       position: "",
-      start_date: "",
-      end_date: "",
-      is_current: false,
+      startDate: "",
+      endDate: "",
+      isCurrent: false,
       description: "",
     };
     onChange([...data, newExperience]);
@@ -24,12 +24,32 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
   const updateExperience = (
     index: number,
     field: string,
-    value: string | boolean
+    value: string | boolean,
   ) => {
     const updated = [...data];
     updated[index] = { ...updated[index], [field]: value };
     onChange(updated);
   };
+
+  const toMonthInputValue = (value?: string): string => {
+    if (!value) return "";
+
+    // Already valid: YYYY-MM
+    if (/^\d{4}-\d{2}$/.test(value)) {
+      return value;
+    }
+
+    // "April 2025"
+    const parsed = new Date(value);
+    if (!isNaN(parsed.getTime())) {
+      const year = parsed.getFullYear();
+      const month = String(parsed.getMonth() + 1).padStart(2, "0");
+      return `${year}-${month}`;
+    }
+
+    return "";
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -50,7 +70,7 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
         </button>
       </div>
 
-      {data.length === 0 ? (
+      {data?.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <Briefcase className="w-12 h-12 mx-auto mb-3 text-gray-300" />
           <p>No work experience added yet.</p>
@@ -58,7 +78,7 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {data.map((experience: any, index: any) => (
+          {data?.map((workExperience: any, index: any) => (
             <div
               key={index}
               className="p-4 border border-gray-200 rounded-lg space-y-3"
@@ -76,7 +96,7 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
                 {/* Company name */}
                 <input
                   type="text"
-                  value={experience.company || ""}
+                  value={workExperience.company || ""}
                   onChange={(e) =>
                     updateExperience(index, "company", e.target.value)
                   }
@@ -86,7 +106,7 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
                 {/* Position / Job title */}
                 <input
                   type="text"
-                  value={experience.position || ""}
+                  value={workExperience.position || ""}
                   onChange={(e) =>
                     updateExperience(index, "position", e.target.value)
                   }
@@ -96,20 +116,20 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
                 {/* Start date */}
                 <input
                   type="month"
-                  value={experience.start_date || ""}
+                  value={toMonthInputValue(workExperience?.startDate) || ""}
                   onChange={(e) =>
-                    updateExperience(index, "start_date", e.target.value)
+                    updateExperience(index, "startDate", e.target.value)
                   }
                   className="px-3 py-2 text-sm rounded-lg"
                 />
                 {/* End date */}
                 <input
                   type="month"
-                  value={experience.end_date || ""}
+                  value={toMonthInputValue(workExperience?.endDate) || ""}
                   onChange={(e) =>
-                    updateExperience(index, "end_date", e.target.value)
+                    updateExperience(index, "endDate", e.target.value)
                   }
-                  disabled={experience.is_current}
+                  disabled={workExperience.isCurrent}
                   className="px-3 py-2 text-sm rounded-lg disabled:bg-gray-100"
                 />
               </div>
@@ -117,15 +137,15 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  checked={experience.is_current || false}
+                  checked={workExperience.isCurrent || false}
                   onChange={(e) =>
                     updateExperience(
                       index,
-                      "is_current",
-                      e.target.checked ? true : false
+                      "isCurrent",
+                      e.target.checked ? true : false,
                     )
                   }
-                  className="rounded border-gray-300 text-blue-600 focus:rinf-blue-500"
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-700">
                   Currently working here
@@ -144,7 +164,7 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
                 </div>
 
                 <textarea
-                  value={experience.description || ""}
+                  value={workExperience.description || ""}
                   onChange={(e) =>
                     updateExperience(index, "description", e.target.value)
                   }

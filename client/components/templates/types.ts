@@ -1,7 +1,7 @@
 // types.ts
 
 export interface PersonalInfo {
-  full_name?: string;
+  fullName?: string;
   email?: string;
   phone?: string;
   location?: string;
@@ -14,9 +14,9 @@ export interface PersonalInfo {
 export interface Experience {
   position: string;
   company: string;
-  start_date: string;
-  end_date?: string;
-  is_current?: boolean;
+  startDate: string;
+  endDate?: string;
+  isCurrent?: boolean;
   description?: string;
 }
 
@@ -30,15 +30,15 @@ export interface Education {
   degree: string;
   field?: string;
   institution: string;
-  graduation_date?: string;
+  graduationDate?: string;
   gpa?: string;
 }
 
 export interface ResumeData {
-  personal_info?: PersonalInfo;
-  professional_summary?: string;
-  experience?: Experience[];
-  project?: Project[];
+  personalInfo?: PersonalInfo;
+  professionalSummary?: string;
+  workExperience?: Experience[];
+  projects?: Project[];
   education?: Education[];
   skills?: string[];
 }

@@ -86,8 +86,6 @@ const Dashboard = () => {
 
   //edit resume title handler
   const editResumeTitle = async (event: any) => {
-    console.log("editResumeId", editResumeId);
-
     try {
       event.preventDefault();
       setIsLoading(true);

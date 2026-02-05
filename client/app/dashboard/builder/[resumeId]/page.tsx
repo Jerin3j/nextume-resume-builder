@@ -27,18 +27,19 @@ import Projects from "@/components/Forms/Projects";
 import Skills from "@/components/Forms/Skills";
 import ResumePreview from "@/components/ResumePreview";
 import { useParams } from "next/navigation";
+import axiosInstance from "@/app/utils/axiosInstance";
 
 type ResumeData = {
   _id: string;
   title: string;
-  personal_info: Record<string, any>;
-  professional_summary: string;
-  experience: any[];
+  personalInfo: Record<string, any>;
+  professionalSummary: string;
+  workExperience: any[];
   education: any[];
-  project: any[];
+  projects: any[];
   skills: any[];
   template: string;
-  accent_color: string;
+  accentColor: string;
   public: boolean;
 };
 
@@ -50,14 +51,14 @@ console.log("resume ID",resumeId);
   const [resumeData, setResumeData] = useState<ResumeData>({
     _id: "",
     title: "",
-    personal_info: {},
-    professional_summary: "",
-    experience: [],
+    personalInfo: {},
+    professionalSummary: "",
+    workExperience: [],
     education: [],
-    project: [],
+    projects: [],
     skills: [],
     template: "classic",
-    accent_color: "#3B82F6",
+    accentColor: "#3B82F6",
     public: false,
   });
 
@@ -78,11 +79,18 @@ console.log("resume ID",resumeId);
   useEffect(() => {
      if (!resumeId) return;
     const loadExistingResume = async () => {
-      const resume = dummyResumeData.find((resume) => resume._id === resumeId);
-      if (resume) {
-        setResumeData(resume);
-        document.title = resume.title;
+     try {
+               const {data} = await axiosInstance.get(`/resumes/get/${resumeId}`);
+               console.log('data.resume', data.resume);
+               
+      if (data.resume) {
+        setResumeData(data.resume);
+        document.title = data.resume.title;
       }
+     } catch (error: any) {
+      console.log(error.message);
+      
+     }
     };
     loadExistingResume();
   }, []);
@@ -141,11 +149,11 @@ console.log("resume ID",resumeId);
                     }
                   />
                   <ColorPicker
-                    selectedColor={resumeData.accent_color}
+                    selectedColor={resumeData.accentColor}
                     onChange={(color: any) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        accent_color: color,
+                        accentColor: color,
                       }))
                     }
                   />
@@ -186,11 +194,11 @@ console.log("resume ID",resumeId);
                 {activeSection.id === "personal" && (
                   <div>
                     <PersonalInfoForm
-                      data={resumeData.personal_info}
+                      data={resumeData.personalInfo}
                       onChange={(data) =>
                         setResumeData((prev) => ({
                           ...prev,
-                          personal_info: data,
+                          personalInfo: data,
                         }))
                       }
                       removeBackground={removeBackground}
@@ -200,22 +208,22 @@ console.log("resume ID",resumeId);
                 )}
                 {activeSection.id === "summary" && (
                   <ProfessionalSummary
-                    data={resumeData.professional_summary}
+                    data={resumeData.professionalSummary}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        professional_summary: data,
+                        professionalSummary: data,
                       }))
                     }
                   />
                 )}
                 {activeSection.id === "experience" && (
                   <Experience
-                    data={resumeData.experience}
+                    data={resumeData.workExperience}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        experience: data,
+                        workExperience: data,
                       }))
                     }
                   />
@@ -233,11 +241,11 @@ console.log("resume ID",resumeId);
                 )}
                 {activeSection.id === "projects" && (
                   <Projects
-                    data={resumeData.project}
+                    data={resumeData.projects}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        project: data,
+                        projects: data,
                       }))
                     }
                   />
@@ -295,7 +303,7 @@ console.log("resume ID",resumeId);
             {/* --- resume preview --- */}
             <ResumePreview
               data={resumeData}
-              accentColor={resumeData.accent_color}
+              accentColor={resumeData.accentColor}
               template={resumeData.template}
             />
           </div>
