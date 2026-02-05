@@ -39,13 +39,16 @@ export const createResume = async (req: Request, res: Response) => {
 //DELETE : /api/resumes/delete
 export const deleteResume = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
-    const { id } = req.body;
+    const id = Number(req.params.resumeId);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid resume id" });
+    }
+
     // deleted resume
     await prisma.resume.delete({
       where: {
         id,
-        userId,
       },
     });
 
@@ -114,13 +117,13 @@ export const getPublicResumeById = async (req: Request, res: Response) => {
 };
 
 // Get public resume by ID
-//GET : /api/resumes/public
+//GET : /api/resumes/update
 export const updateResume = async (req: Request, res: Response) => {
   try {
-    // Resume ID
     const userId = (req as any).userId;
+    // Resume ID
     const { id, resumeData, removeBackgroud } = req.body;
-    let resumeDataCopy = JSON.parse(resumeData);
+    let resumeDataCopy = JSON.parse(JSON.stringify(resumeData));
     const image = (req as any).file;
 
     if (image) {
@@ -184,7 +187,6 @@ export const uploadResume = async (req: Request, res: Response) => {
     const userPrompt = `extract data from this resume: ${resumeText}
     Provide data in the following JSON format with no additional text before or after:
      {
-      "title": "string (optional)",
       "public": "boolean (optional)",
       "template": "classic | minimal | modern (optional)",
       "accentColor": "#RRGGBB (optional)",
@@ -234,8 +236,6 @@ export const uploadResume = async (req: Request, res: Response) => {
     `;
     const response = await ai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
-      max_tokens: 120,
-      temperature: 0.5,
       messages: [
         {
           role: "system",
