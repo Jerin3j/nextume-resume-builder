@@ -67,9 +67,9 @@ export const deleteResume = async (req: Request, res: Response) => {
 export const getResumeById = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { id } = req.body;
+    const id = Number(req.params.resumeId);
     // take resume
-    const resume = await prisma.resume.findUnique({
+    const resume = await prisma.resume.findFirst({
       where: {
         id,
         userId,
@@ -188,7 +188,7 @@ export const uploadResume = async (req: Request, res: Response) => {
     Provide data in the following JSON format with no additional text before or after:
      {
       "public": "boolean (optional)",
-      "template": "classic | minimal | modern (optional)",
+      "template": "classic | minimal | modern | minimalImage(optional)",
       "accentColor": "#RRGGBB (optional)",
       "professionalSummary": "string (optional)",
       "skills": ["string"],
