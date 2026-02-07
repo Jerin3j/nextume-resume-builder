@@ -8,13 +8,13 @@ import {
   User,
 } from "lucide-react";
 import React from "react";
-import { fileToBase64 } from "../libs/fileToBase64";
 import { getImageSrc } from "../libs/getImageSrc";
 
 type PersonalInfoFormProps = {
   data: {
     image?: string | File;
     [key: string]: any;
+    imageSource?: "upload" | "existing";
   };
   onChange: (updatedData: Record<string, any>) => void;
   removeBackground: boolean;
@@ -28,12 +28,12 @@ const PersonalInfoForm = ({
   setRemoveBackground,
 }: PersonalInfoFormProps) => {
   const handleChange = (field: string, value: File | string | null) => {
-    onChange({ ...data, [field]: value });
+    onChange({ ...data, [field]: value});
   };
 
   const fields = [
     {
-      key: "full_name",
+      key: "fullName",
       label: "Full Name",
       icon: User,
       type: "text",
@@ -54,11 +54,10 @@ const PersonalInfoForm = ({
 
 
   const handleImageUpload = async (file: File) => {
-    const base64 = await fileToBase64(file);
-    onChange({ ...data, image: base64 });
+    onChange({ ...data, image: file, imageSource:"upload"  });
   };
 
-const imageSrc = getImageSrc(data.image);
+const imageSrc = getImageSrc(data?.image);
 
   return (
     <div>
@@ -66,7 +65,7 @@ const imageSrc = getImageSrc(data.image);
         Personal Information
       </h3>
       <p className="text-sm text-gray-600">
-        Get Started with thr personal information
+        Get Started with the personal information
       </p>
       <div className="flex items-center gap-2">
         <label>
@@ -74,7 +73,7 @@ const imageSrc = getImageSrc(data.image);
             <img
               src={imageSrc}
               alt="user image"
-              className="w-16 h-16 rounded-full object-cover mt-5 ring ring-slate-300 hover:opacity-80"
+              className="w-16 h-16 rounded-full object-cover mt-5 ring ring-slate-300 hover:opacity-70 cursor-pointer transition-opacity"
             />
           ) : (
             <div className="inline-flex items-center gap-2 mt-5 text-slate-600 hover:text-slate-700 cursor-pointer">
@@ -92,7 +91,7 @@ const imageSrc = getImageSrc(data.image);
             }}
           />
         </label>
-        {typeof data.image === "object" && (
+        {data?.imageSource === "upload" && (
           <div className="flex flex-col gap-1 pl-4 text-sm">
             <p>Remove Background</p>
             <label className="relative inline-flex items-center cursor-pointer text-gray-900 gap-3">
@@ -119,7 +118,7 @@ const imageSrc = getImageSrc(data.image);
             </label>
             <input
               type={field.type}
-              value={data[field.key] || ""}
+              value={data?.[field.key] ?? ""}
               onChange={(e) => handleChange(field.key, e.target.value)}
               className="mt-1 w-full px-3 py-2 border-gray-300 rounded-lg focus:ring focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm"
               placeholder={`Enter your ${field.label.toLowerCase()}`}

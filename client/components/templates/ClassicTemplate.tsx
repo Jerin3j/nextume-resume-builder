@@ -1,17 +1,36 @@
-// ClassicTemplate.tsx
 import React from "react";
 import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
 import type {TemplateProps} from "./types";
 
 const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
-  const formatDate = (dateStr?: string): string => {
-    if (!dateStr) return "";
+  
+const formatDate = (dateStr?: string): string => {
+  if (!dateStr) return "";
+
+  // Case 1: "2025-04"
+  if (/^\d{4}-\d{2}$/.test(dateStr)) {
     const [year, month] = dateStr.split("-");
-    return new Date(Number(year), Number(month) - 1).toLocaleDateString("en-US", {
+    return new Date(
+      Number(year),
+      Number(month) - 1
+    ).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
     });
-  };
+  }
+
+  // Case 2: "April 2025"
+  const parsed = new Date(dateStr);
+  if (!isNaN(parsed.getTime())) {
+    return parsed.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+    });
+  }
+
+  return "";
+};
+
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white text-gray-800 leading-relaxed">
@@ -21,45 +40,57 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
         style={{ borderColor: accentColor }}
       >
         <h1 className="text-3xl font-bold mb-2" style={{ color: accentColor }}>
-          {data.personal_info?.full_name || "Your Name"}
+          {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
         <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
-          {data.personal_info?.email && (
+          {data?.personalInfo?.email && (
             <div className="flex items-center gap-1">
               <Mail className="size-4" />
-              <span>{data.personal_info.email}</span>
+              <span>
+                <a href={`mailto:${data?.personalInfo.email}`} target="_blank" rel="noopener noreferrer">
+                  {data?.personalInfo.email}
+                </a>
+              </span>
             </div>
           )}
-          {data.personal_info?.phone && (
+          {data?.personalInfo?.phone && (
             <div className="flex items-center gap-1">
               <Phone className="size-4" />
-              <span>{data.personal_info.phone}</span>
+              <span>{data?.personalInfo.phone}</span>
             </div>
           )}
-          {data.personal_info?.location && (
+          {data?.personalInfo?.location && (
             <div className="flex items-center gap-1">
               <MapPin className="size-4" />
-              <span>{data.personal_info.location}</span>
+              <span>{data?.personalInfo.location}</span>
             </div>
           )}
-          {data.personal_info?.linkedin && (
+          {data?.personalInfo?.linkedin && (
             <div className="flex items-center gap-1">
               <Linkedin className="size-4" />
-              <span className="break-all">{data.personal_info.linkedin}</span>
+              <span className="break-all">
+                <a href={data?.personalInfo.linkedin} target="_blank" rel="noopener noreferrer">
+                  {data?.personalInfo.linkedin}
+                </a>
+              </span>
             </div>
           )}
-          {data.personal_info?.website && (
+          {data?.personalInfo?.website && (
             <div className="flex items-center gap-1">
               <Globe className="size-4" />
-              <span className="break-all">{data.personal_info.website}</span>
+              <span className="break-all">
+                <a href={data?.personalInfo.website} target="_blank" rel="noopener noreferrer">
+                  {data?.personalInfo.website}
+                </a>
+              </span>
             </div>
           )}
         </div>
       </header>
 
       {/* Professional Summary */}
-      {data.professional_summary && (
+      {data?.professionalSummary && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-3"
@@ -68,13 +99,13 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
             PROFESSIONAL SUMMARY
           </h2>
           <p className="text-gray-700 leading-relaxed">
-            {data.professional_summary}
+            {data?.professionalSummary}
           </p>
         </section>
       )}
 
       {/* Experience */}
-      {data.experience && data.experience.length > 0 && (
+      {data?.workExperience && data?.workExperience.length > 0 && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-4"
@@ -84,7 +115,7 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
           </h2>
 
           <div className="space-y-4">
-            {data.experience.map((exp, index) => (
+            {data?.workExperience.map((exp, index) => (
               <div
                 key={index}
                 className="border-l-3 pl-4"
@@ -99,8 +130,8 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
                   </div>
                   <div className="text-right text-sm text-gray-600">
                     <p>
-                      {formatDate(exp.start_date)} -{" "}
-                      {exp.is_current ? "Present" : formatDate(exp.end_date)}
+                      {formatDate(exp.startDate)} -{" "}
+                      {exp.isCurrent ? "Present" : formatDate(exp.endDate)}
                     </p>
                   </div>
                 </div>
@@ -116,7 +147,7 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
       )}
 
       {/* Projects */}
-      {data.project && data.project.length > 0 && (
+      {data?.projects && data?.projects.length > 0 && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-4"
@@ -126,7 +157,7 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
           </h2>
 
           <ul className="space-y-3">
-            {data.project.map((proj, index) => (
+            {data?.projects?.map((proj, index) => (
               <div
                 key={index}
                 className="flex justify-between items-start border-l-3 border-gray-300 pl-6"
@@ -142,7 +173,7 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
       )}
 
       {/* Education */}
-      {data.education && data.education.length > 0 && (
+      {data?.education && data?.education.length > 0 && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-4"
@@ -152,7 +183,7 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
           </h2>
 
           <div className="space-y-3">
-            {data.education.map((edu, index) => (
+            {data?.education.map((edu, index) => (
               <div key={index} className="flex justify-between items-start">
                 <div>
                   <h3 className="font-semibold text-gray-900">
@@ -164,7 +195,7 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
                   )}
                 </div>
                 <div className="text-sm text-gray-600">
-                  <p>{formatDate(edu.graduation_date)}</p>
+                  <p>{formatDate(edu.graduationDate)}</p>
                 </div>
               </div>
             ))}
@@ -173,7 +204,7 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
       )}
 
       {/* Skills */}
-      {data.skills && data.skills.length > 0 && (
+      {data?.skills && data?.skills.length > 0 && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-4"
@@ -183,7 +214,7 @@ const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
           </h2>
 
           <div className="flex gap-4 flex-wrap">
-            {data.skills.map((skill, index) => (
+            {data?.skills.map((skill, index) => (
               <div key={index} className="text-gray-700">
                 • {skill}
               </div>

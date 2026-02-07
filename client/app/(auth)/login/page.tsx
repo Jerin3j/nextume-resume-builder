@@ -1,11 +1,18 @@
 'use client';
+import axiosInstance from "@/app/utils/axiosInstance";
+import { setUser } from "@/lib/redux/authSlice";
 import { Lock, Mail, User2Icon } from "lucide-react";
+import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const query = new URLSearchParams(window.location.search);
+  const dispatch = useDispatch();
   const urlState = query.get("state");
   const [state, setState] = useState(urlState || "login");
+const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -15,6 +22,15 @@ const Login = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    try {
+      const res = await axiosInstance.post(`/users/${state}`, formData);
+      dispatch(setUser(res.data?.user))
+      localStorage.setItem("token", res.data.token);
+      toast.success(res?.data?.message || "Success");
+      router.push('/dashboard')
+    } catch (error: any) {
+    toast.error(error.response.data.message || "Something went wrong");
+    }
   };
 
   const handleChange = (e: any) => {

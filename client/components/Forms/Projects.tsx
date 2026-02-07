@@ -56,7 +56,7 @@ const Projects = ({ data, onChange }: ProjectsProps) => {
 
   const updateProject = (id: string, field: keyof Project, value: string) => {
     onChange(
-      data.map((p) => (p.id === id ? { ...p, [field]: value } : p))
+      data?.map((p) => (p.id === id ? { ...p, [field]: value } : p))
     );
   };
 
@@ -86,11 +86,11 @@ const Projects = ({ data, onChange }: ProjectsProps) => {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={data.map((p) => p.id)}
+          items={(data ?? []).map((p) => p.id)}
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-4">
-            {data.map((project, index) => (
+            {data?.map((project, index) => (
               <SortableProject key={project.id} id={project.id}>
                 <ProjectCard
                   index={index}

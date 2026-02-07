@@ -39,7 +39,7 @@ const TemplateSelector = ({
         "A crisp, distraction-free layout that highlights your experience and skills with perfect balance and whitespace.",
     },
     {
-      id: "minimal-image",
+      id: "minimalImage",
       name: "Minimal with Image",
       preview:
         "A clean, elegant layout with room for a profile photo — ideal for professionals who want a personal yet polished touch.",

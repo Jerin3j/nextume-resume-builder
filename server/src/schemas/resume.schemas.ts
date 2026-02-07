@@ -31,15 +31,15 @@ export const educationSchema = z.array(z.object({
     degree: z.string(),
     field: z.string(),
     graduationDate: z.string(),
-    gpa: z.string(),
+    gpa: z.string().nullable().optional(),
 }))
 
 export const resumeSchema = z.object({
   title: z.string().min(1).max(100).optional(),
   public: z.boolean().optional(),
-  template: z.enum(["classic", "minimal", "modern"]).optional(),
+  template: z.enum(["classic", "minimal", "modern", "minimalImage"]).optional(),
   accentColor: z.string().regex(/^#([0-9A-Fa-f]{6})$/).optional(),
-  professionalSummary: z.string().max(2000).optional(),
+  professionalSummary: z.string().max(2000).nullable().optional(),
   skills: z.array(z.string()).optional(),
 
   personalInfo: personalInfoSchema.optional(),

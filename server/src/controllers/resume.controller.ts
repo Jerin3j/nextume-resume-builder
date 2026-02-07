@@ -39,13 +39,15 @@ export const createResume = async (req: Request, res: Response) => {
 //DELETE : /api/resumes/delete
 export const deleteResume = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
-    const { id } = req.body;
+    const id = Number(req.params.resumeId);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid resume id" });
+    }
     // deleted resume
     await prisma.resume.delete({
       where: {
         id,
-        userId,
       },
     });
 
@@ -64,9 +66,9 @@ export const deleteResume = async (req: Request, res: Response) => {
 export const getResumeById = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { id } = req.body;
+    const id = Number(req.params.resumeId);
     // take resume
-    const resume = await prisma.resume.findUnique({
+    const resume = await prisma.resume.findFirst({
       where: {
         id,
         userId,
@@ -92,8 +94,8 @@ export const getResumeById = async (req: Request, res: Response) => {
 export const getPublicResumeById = async (req: Request, res: Response) => {
   try {
     // Resume ID
-    const { id } = req.body;
-    const resume = await prisma.resume.findUnique({
+    const id = Number(req.params.resumeId);
+    const resume = await prisma.resume.findFirst({
       where: {
         public: true,
         id,
@@ -114,15 +116,21 @@ export const getPublicResumeById = async (req: Request, res: Response) => {
 };
 
 // Get public resume by ID
-//GET : /api/resumes/public
+//GET : /api/resumes/update
 export const updateResume = async (req: Request, res: Response) => {
   try {
-    // Resume ID
     const userId = (req as any).userId;
-    const { id, resumeData, removeBackgroud } = req.body;
-    let resumeDataCopy = JSON.parse(resumeData);
+    // Resume ID
+    const { id, resumeData, removeBackground } = req.body;
+    const resumeId = Number(id);
+    
+    let resumeDataCopy;
+    if (typeof resumeData === "string") {
+      resumeDataCopy = JSON.parse(resumeData);
+    } else {
+      resumeDataCopy = structuredClone(resumeData);
+    }
     const image = (req as any).file;
-
     if (image) {
       const imageBufferData = fs.createReadStream(image.path);
       const response = await imagekit.files.upload({
@@ -131,8 +139,7 @@ export const updateResume = async (req: Request, res: Response) => {
         folder: "user-resumes",
         transformation: {
           pre:
-            "h-300,w-300,fo-face,z-0.75" +
-            (removeBackgroud ? ",e-bgremove" : ""),
+            `${(removeBackground ? "e-bgremove" : "")},h-300,w-300,fo-face,z-0.75`,
         },
       });
       resumeDataCopy.personalInfo ??= {};
@@ -144,7 +151,7 @@ export const updateResume = async (req: Request, res: Response) => {
 
     const resume = await prisma.resume.update({
       where: {
-        id,
+        id: resumeId,
         userId,
       },
       data: {
@@ -159,7 +166,7 @@ export const updateResume = async (req: Request, res: Response) => {
       .status(200)
       .json({ message: "Updated Successfully", data: resume });
   } catch (error) {
-    console.error("Delete Resume Error:", error);
+    console.error("Update Resume Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -184,9 +191,8 @@ export const uploadResume = async (req: Request, res: Response) => {
     const userPrompt = `extract data from this resume: ${resumeText}
     Provide data in the following JSON format with no additional text before or after:
      {
-      "title": "string (optional)",
       "public": "boolean (optional)",
-      "template": "classic | minimal | modern (optional)",
+      "template": "classic | minimal | modern | minimalImage(optional)",
       "accentColor": "#RRGGBB (optional)",
       "professionalSummary": "string (optional)",
       "skills": ["string"],
@@ -234,8 +240,6 @@ export const uploadResume = async (req: Request, res: Response) => {
     `;
     const response = await ai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
-      max_tokens: 120,
-      temperature: 0.5,
       messages: [
         {
           role: "system",

@@ -15,7 +15,6 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import { dummyResumeData } from "@/assets/assets";
 import Link from "next/link";
 import TemplateSelector from "@/components/TemplateSelector";
 import ColorPicker from "@/components/ColorPicker";
@@ -27,37 +26,37 @@ import Projects from "@/components/Forms/Projects";
 import Skills from "@/components/Forms/Skills";
 import ResumePreview from "@/components/ResumePreview";
 import { useParams } from "next/navigation";
+import axiosInstance from "@/app/utils/axiosInstance";
+import toast from "react-hot-toast";
 
 type ResumeData = {
   _id: string;
   title: string;
-  personal_info: Record<string, any>;
-  professional_summary: string;
-  experience: any[];
+  personalInfo: Record<string, any>;
+  professionalSummary: string;
+  workExperience: any[];
   education: any[];
-  project: any[];
+  projects: any[];
   skills: any[];
   template: string;
-  accent_color: string;
+  accentColor: string;
   public: boolean;
 };
 
 const ResumeBuilder = () => {
- const { resumeId } = useParams<{ resumeId: string }>();
-
-console.log("resume ID",resumeId);
+  const { resumeId } = useParams<{ resumeId: string }>();
 
   const [resumeData, setResumeData] = useState<ResumeData>({
     _id: "",
     title: "",
-    personal_info: {},
-    professional_summary: "",
-    experience: [],
+    personalInfo: {},
+    professionalSummary: "",
+    workExperience: [],
     education: [],
-    project: [],
+    projects: [],
     skills: [],
     template: "classic",
-    accent_color: "#3B82F6",
+    accentColor: "#3B82F6",
     public: false,
   });
 
@@ -76,12 +75,18 @@ console.log("resume ID",resumeId);
   const activeSection = sections[activeSectionIndex];
 
   useEffect(() => {
-     if (!resumeId) return;
+    if (!resumeId) return;
     const loadExistingResume = async () => {
-      const resume = dummyResumeData.find((resume) => resume._id === resumeId);
-      if (resume) {
-        setResumeData(resume);
-        document.title = resume.title;
+      try {
+        const { data } = await axiosInstance.get(`/resumes/get/${resumeId}`);
+        console.log("data.resume", data.resume);
+
+        if (data.resume) {
+          setResumeData(data.resume);
+          document.title = data.resume.title;
+        }
+      } catch (error: any) {
+        console.log(error.message);
       }
     };
     loadExistingResume();
@@ -90,7 +95,17 @@ console.log("resume ID",resumeId);
   // Resume functionalities
 
   const changeResumeVisibility = async () => {
-    setResumeData({ ...resumeData, public: !resumeData.public });
+    try {
+      const formData = new FormData();
+      formData.append("id", resumeId);
+      formData.append("resumeData", JSON.stringify({public: !resumeData.public}))
+      const { data } = await axiosInstance.put(`/resumes/update`, formData);
+      console.log("dataa", data);
+      setResumeData({ ...resumeData, public: !resumeData.public });
+      toast.success(data.message);
+    } catch (error: any) {
+        console.log("Error saving resume:", error.message);
+    }
   };
 
   const handleShareResume = async () => {
@@ -103,6 +118,32 @@ console.log("resume ID",resumeId);
       alert("Share not supported in this browser. Copy the link");
     }
   };
+
+  const handleSaveResume = async() => {
+    try {
+      let updatedResumeData = structuredClone(resumeData)
+
+      //remove image fromupdatedResumeData
+      if(typeof resumeData.personalInfo.image === 'object'){
+        delete updatedResumeData.personalInfo.image
+      }
+
+      const formData = new FormData();
+      formData.append('id', resumeId);
+      formData.append('resumeData', JSON.stringify(updatedResumeData));
+      removeBackground && formData.append('removeBackground', 'yes');
+        if (resumeData.personalInfo?.image instanceof File) {
+      formData.append("image", resumeData.personalInfo.image);
+    }
+      const { data } = await axiosInstance.put(`/resumes/update`, formData);
+      console.log("data", data);
+      
+      setResumeData(data.data);
+      toast.success(data.message);
+    } catch (error: any) {
+        console.log("Error saving resume:", error.message); 
+    }
+  }
 
   const downloadResumeAsPDF = async () => {
     window.print();
@@ -135,17 +176,17 @@ console.log("resume ID",resumeId);
               <div className="flex justify-between items-center mb-6 border-b border-gray-300 py-1 ">
                 <div className="flex items-center gap-2">
                   <TemplateSelector
-                    selectedTemplate={resumeData.template}
+                    selectedTemplate={resumeData?.template}
                     onChange={(template: any) =>
                       setResumeData((prev) => ({ ...prev, template }))
                     }
                   />
                   <ColorPicker
-                    selectedColor={resumeData.accent_color}
+                    selectedColor={resumeData?.accentColor}
                     onChange={(color: any) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        accent_color: color,
+                        accentColor: color,
                       }))
                     }
                   />
@@ -155,7 +196,7 @@ console.log("resume ID",resumeId);
                     <button
                       onClick={() =>
                         setActiveSectionIndex((prevIndex) =>
-                          Math.max(prevIndex - 1, 0)
+                          Math.max(prevIndex - 1, 0),
                         )
                       }
                       className="flex items-center gap-1 p-3 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
@@ -168,7 +209,7 @@ console.log("resume ID",resumeId);
                   <button
                     onClick={() =>
                       setActiveSectionIndex((prevIndex) =>
-                        Math.min(prevIndex + 1, sections.length - 1)
+                        Math.min(prevIndex + 1, sections.length - 1),
                       )
                     }
                     className={`flex items-center gap-1 p-3 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all ${
@@ -186,11 +227,11 @@ console.log("resume ID",resumeId);
                 {activeSection.id === "personal" && (
                   <div>
                     <PersonalInfoForm
-                      data={resumeData.personal_info}
+                      data={resumeData?.personalInfo}
                       onChange={(data) =>
                         setResumeData((prev) => ({
                           ...prev,
-                          personal_info: data,
+                          personalInfo: data,
                         }))
                       }
                       removeBackground={removeBackground}
@@ -200,29 +241,29 @@ console.log("resume ID",resumeId);
                 )}
                 {activeSection.id === "summary" && (
                   <ProfessionalSummary
-                    data={resumeData.professional_summary}
+                    data={resumeData.professionalSummary}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        professional_summary: data,
+                        professionalSummary: data,
                       }))
                     }
                   />
                 )}
                 {activeSection.id === "experience" && (
                   <Experience
-                    data={resumeData.experience}
+                    data={resumeData?.workExperience}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        experience: data,
+                        workExperience: data,
                       }))
                     }
                   />
                 )}
                 {activeSection.id === "education" && (
                   <Education
-                    data={resumeData.education}
+                    data={resumeData?.education}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
@@ -233,18 +274,18 @@ console.log("resume ID",resumeId);
                 )}
                 {activeSection.id === "projects" && (
                   <Projects
-                    data={resumeData.project}
+                    data={resumeData?.projects}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
-                        project: data,
+                        projects: data,
                       }))
                     }
                   />
                 )}
                 {activeSection.id === "skills" && (
                   <Skills
-                    data={resumeData.skills}
+                    data={resumeData?.skills}
                     onChange={(data) =>
                       setResumeData((prev) => ({
                         ...prev,
@@ -254,7 +295,7 @@ console.log("resume ID",resumeId);
                   />
                 )}
               </div>
-              <button className="text-sm bg-gradient-to-br from-green-100 to-green-200 ring-green-300 text-green-600 ring hover:ring-green-400 transition-all rounded-md px-6 py-2 mt-6">
+              <button onClick={()=> toast.promise(handleSaveResume, {loading: 'Saving'})} className="text-sm bg-gradient-to-br from-green-100 to-green-200 ring-green-300 text-green-600 ring hover:ring-green-400 transition-all rounded-md px-6 py-2 mt-6">
                 Save Changes
               </button>
             </div>
@@ -265,7 +306,7 @@ console.log("resume ID",resumeId);
             <div className="relative w-full">
               <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2">
                 {/* --- resume buttons --- */}
-                {resumeData.public && (
+                {resumeData?.public && (
                   <button
                     onClick={handleShareResume}
                     className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
@@ -277,12 +318,12 @@ console.log("resume ID",resumeId);
                   onClick={changeResumeVisibility}
                   className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 ring-purple-300 rounded-lg hover:ring transition-colors"
                 >
-                  {resumeData.public ? (
+                  {resumeData?.public ? (
                     <EyeIcon className="size-4" />
                   ) : (
                     <EyeOffIcon className="size-4" />
                   )}
-                  {resumeData.public ? "Public" : "Private"}
+                  {resumeData?.public ? "Public" : "Private"}
                 </button>
                 <button
                   onClick={downloadResumeAsPDF}
@@ -295,8 +336,8 @@ console.log("resume ID",resumeId);
             {/* --- resume preview --- */}
             <ResumePreview
               data={resumeData}
-              accentColor={resumeData.accent_color}
-              template={resumeData.template}
+              accentColor={resumeData?.accentColor}
+              template={resumeData?.template}
             />
           </div>
         </div>

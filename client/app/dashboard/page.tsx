@@ -1,7 +1,8 @@
-'use client';
+"use client";
 import {
   File,
   FilePenLineIcon,
+  LoaderCircleIcon,
   PencilIcon,
   PlusIcon,
   TrashIcon,
@@ -10,67 +11,159 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { dummyResumeData } from "@/assets/assets";
-import { ConfirmDelete } from "@/components/ui/ConfirmDelete";
+import axiosInstance from "../utils/axiosInstance";
+import toast from "react-hot-toast";
+import pdfToText from "react-pdftotext";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/redux/store";
 
 const Dashboard = () => {
   const colors = ["#9333ea", "#3b82f6", "#10b981", "#f59e0b", "#ef4444"];
   const [allResumes, setAllResumes] = useState<any[]>([]);
   const [showCreatedResume, setShowCreatedResume] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showUploadResume, setShowUploadResume] = useState<boolean>(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [selectedResume, setSelectedResume] = useState<any>(null);
   const [title, setTitle] = useState<string>("");
   const [resume, setResume] = useState<any>();
-  const [editResumeId, setEditResumeId] = useState<any>(false);
+  const [editResumeId, setEditResumeId] = useState<string | null>(null);
 
   const router = useRouter();
+  const { user, loading } = useSelector(
+    (state: RootState) => state.authReducer,
+  );
+
+  const handleUploadClick = () => {
+    toast("Profile photos won’t be imported. You can add one later.", {
+      icon: "ℹ️",
+      position: "top-right",
+      duration: 6000,
+    });
+    setShowUploadResume(true);
+  };
+  //load all resumes of user
   useEffect(() => {
-    const loadAllResumes = async () => setAllResumes(dummyResumeData);
+    const loadAllResumes = async () => {
+      try {
+        const resumes = await axiosInstance.get("/users/resumes");
+        setAllResumes(resumes.data.resumes);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      }
+    };
     loadAllResumes();
   }, []);
 
+  //create new resume handler
   const createResume = async (event: any) => {
-    event.preventDefault();
-    setShowCreatedResume(false);
-    router.push("/dashboard/builder/res123");
+    try {
+      event.preventDefault();
+      const { data } = await axiosInstance.post("/resumes/create", { title });
+      setAllResumes([...allResumes, data]);
+      setTitle("");
+      setShowCreatedResume(false);
+      router.push(`/dashboard/builder/${data.resume?.id}`);
+    } catch (error: any) {
+      toast.error(error.response.data.message || "Something went wrong");
+    }
   };
 
+  // upload resume handler
   const uploadResume = async (event: any) => {
     event.preventDefault();
+    setIsLoading(true);
+    try {
+      const resumeText = await pdfToText(resume);
+      const { data } = await axiosInstance.post("/resumes/upload-resume", {
+        title,
+        resumeText,
+      });
+      setTitle("");
+      setResume(null);
+      setShowUploadResume(false);
+      router.push(`/dashboard/builder/${data.resumeId}`);
+    } catch (error: any) {
+      setIsLoading(false);
+      toast.error(error.response.data.message || "Something went wrong");
+    }
     setShowUploadResume(false);
-    router.push("/dashboard/builder/res123");
+    // router.push(`/dashboard/builder/${data.resumeId}`);
   };
 
+  //edit resume title handler
   const editResumeTitle = async (event: any) => {
-    event.preventDefault();
-    router.push("/dashboard/builder/res123");
+    try {
+      event.preventDefault();
+      setIsLoading(true);
+      const { data } = await axiosInstance.put("/resumes/update", {
+        id: editResumeId,
+        resumeData: { title },
+      });
+      // Update local state
+      setAllResumes(
+        allResumes.map((resume) =>
+          resume.id === editResumeId ? { ...resume, title } : resume,
+        ),
+      );
+      setTitle("");
+      setEditResumeId(null);
+
+      toast.success(data.message);
+      // router.push(`/dashboard/builder/${data.resumeId}`);
+    } catch (error: any) {
+      setIsLoading(false);
+      toast.error(error.response.data.message || "Something went wrong");
+    }
   };
 
-  const deleteResume = async (ResumeId: any) => {
-    setAllResumes((prev) => prev.filter((resume) => resume._id !== ResumeId));
-    setShowConfirm(false);
+  //delete resume handler
+  const deleteResume = async (resumeId: string, resumeTitle: string) => {
+    // Show confirmation toast
+    toast((t) => (
+      <span className="flex flex-col gap-2">
+        Are you sure you want to delete this "{resumeTitle}"?
+        <div className="flex gap-2 mt-1">
+          <button
+            className="bg-red-500 text-white px-3 py-1 rounded"
+            onClick={async () => {
+              try {
+                // Call backend to delete
+                const { data } = await axiosInstance.delete(
+                  `/resumes/delete/${resumeId}`,
+                );
+
+                // Update local state
+                setAllResumes(
+                  allResumes.filter((resume) => resume.id !== resumeId),
+                );
+
+                // Close the toast
+                toast.dismiss(t.id);
+                toast.success(data.message);
+              } catch (error: any) {
+                toast.error(
+                  error?.response?.data?.message || "Failed to delete resume",
+                );
+              }
+            }}
+          >
+            Delete
+          </button>
+          <button
+            className="bg-gray-300 px-3 py-1 rounded"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+        </div>
+      </span>
+    ));
   };
 
   return (
     <div>
-      {showConfirm && selectedResume && (
-        <ConfirmDelete
-          title="Delete Resume?"
-          description={`Are you sure you want to delete "${selectedResume?.title}"? This action cannot be undone.`}
-          confirmLabel="Yes, Delete"
-          cancelLabel="Cancel"
-          onConfirm={() => deleteResume(selectedResume._id)}
-          onCancel={() => {
-            setShowConfirm(false);
-            setSelectedResume(null);
-          }}
-          type="danger"
-        />
-      )}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <p className="text-2xl font-medium mb-6 bg-gradient-to-r from-slate-600 to-slate-700 bg-clip-text text-transparent sm:hidden">
-          Welcome, Jerin J
+          Welcome, {user?.name}
         </p>
         <div className="flex gap-4">
           <button
@@ -83,7 +176,7 @@ const Dashboard = () => {
             </p>
           </button>
           <button
-            onClick={() => setShowUploadResume(true)}
+            onClick={handleUploadClick}
             className="w-full bg-white sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg gap-2 text-slate-600 border border-dashed border-slate-300 group hover:border-indigo-500 hover:shadow-lg transition-all duration-300 cursor-pointer"
           >
             <UploadCloudIcon className="size-11 transition-all duration-300 p-2.5 bg-gradient-to-r from-violet-300 to-violet-500 text-white rounded-full" />
@@ -98,7 +191,7 @@ const Dashboard = () => {
             const baseColor = colors[index % colors.length];
             return (
               <button
-                onClick={() => router.push(`/dashboard/builder/${resume._id}`)}
+                onClick={() => router.push(`/dashboard/builder/${resume.id}`)}
                 key={index}
                 className="relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg gap-2 bprder group hover:shadow-lg transition-all duration-300 cursor-pointer"
                 style={{
@@ -128,15 +221,13 @@ const Dashboard = () => {
                 >
                   <TrashIcon
                     onClick={() => {
-                      setSelectedResume(resume);
-                      setShowConfirm(true);
-                      // deleteResume(resume._id)
+                      deleteResume(resume.id, resume.title);
                     }}
                     className="size-7 p-1.5 hover:bg-white/50 rounded text-slate-700 transition-colors"
                   />
                   <PencilIcon
                     onClick={() => {
-                      setEditResumeId(resume._id);
+                      setEditResumeId(resume.id);
                       setTitle(resume.title);
                     }}
                     className="size-7 p-1.5 hover:bg-white/50 rounded text-slate-700 transition-colors"
@@ -236,8 +327,14 @@ const Dashboard = () => {
                   />
                 </label>
               </div>
-              <button className="w-full py-2 bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors">
-                Upload Resume
+              <button
+                disabled={isLoading}
+                className="w-full py-2 bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors flex items-center justify-center gap-2"
+              >
+                {isLoading && (
+                  <LoaderCircleIcon className="animate-spin size-4 text-white" />
+                )}
+                {isLoading ? "Uploading.." : "Upload Resume"}
               </button>
               <XIcon
                 className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
@@ -251,10 +348,10 @@ const Dashboard = () => {
         )}
 
         {/* edit resume title */}
-        {editResumeId && (
+        {editResumeId !== null && (
           <form
             onSubmit={editResumeTitle}
-            onClick={() => setEditResumeId("")}
+            onClick={() => setEditResumeId(null)}
             className="fixed inset-0 bg-black/70 backdrop-blur bg-opacity-50 z-10 flex items-center justify-center"
           >
             <div
@@ -270,13 +367,20 @@ const Dashboard = () => {
                 className="w-full px-4 py-2 mb-4 focus:border-violet-600 ring-violet-600"
                 required
               />
-              <button className="w-full py-2 bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors">
-                Update Resume
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-2 bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors flex items-center justify-center gap-2"
+              >
+                {isLoading && (
+                  <LoaderCircleIcon className="animate-spin size-4 text-white" />
+                )}
+                {isLoading ? "Updating..." : "Update Resume"}
               </button>
               <XIcon
                 className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
                 onClick={() => {
-                  setEditResumeId(false);
+                  setEditResumeId(null);
                   setTitle("");
                 }}
               />
