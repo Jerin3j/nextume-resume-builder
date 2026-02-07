@@ -35,53 +35,53 @@ const formatDate = (dateStr?: string): string => {
       {/* Header */}
       <header className="p-8 text-white" style={{ backgroundColor: accentColor }}>
         <h1 className="text-4xl font-light mb-3">
-          {data.personalInfo?.fullName || "Your Name"}
+          {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-          {data.personalInfo?.email && (
+          {data?.personalInfo?.email && (
             <div className="flex items-center gap-2">
               <Mail className="size-4" />
-              <span>{data.personalInfo.email}</span>
+              <span>{data?.personalInfo.email}</span>
             </div>
           )}
-          {data.personalInfo?.phone && (
+          {data?.personalInfo?.phone && (
             <div className="flex items-center gap-2">
               <Phone className="size-4" />
-              <span>{data.personalInfo.phone}</span>
+              <span>{data?.personalInfo.phone}</span>
             </div>
           )}
-          {data.personalInfo?.location && (
+          {data?.personalInfo?.location && (
             <div className="flex items-center gap-2">
               <MapPin className="size-4" />
-              <span>{data.personalInfo.location}</span>
+              <span>{data?.personalInfo.location}</span>
             </div>
           )}
-          {data.personalInfo?.linkedin && (
+          {data?.personalInfo?.linkedin && (
             <a
               target="_blank"
               rel="noopener noreferrer"
-              href={data.personalInfo.linkedin}
+              href={data?.personalInfo.linkedin}
               className="flex items-center gap-2"
             >
               <Linkedin className="size-4" />
               <span className="break-all text-xs">
-                {data.personalInfo.linkedin.split("https://www.")[1] ??
-                  data.personalInfo.linkedin}
+                {data?.personalInfo.linkedin.split("https://www.")[1] ??
+                  data?.personalInfo.linkedin}
               </span>
             </a>
           )}
-          {data.personalInfo?.website && (
+          {data?.personalInfo?.website && (
             <a
               target="_blank"
               rel="noopener noreferrer"
-              href={data.personalInfo.website}
+              href={data?.personalInfo.website}
               className="flex items-center gap-2"
             >
               <Globe className="size-4" />
               <span className="break-all text-xs">
-                {data.personalInfo.website.split("https://")[1] ??
-                  data.personalInfo.website}
+                {data?.personalInfo.website.split("https://")[1] ??
+                  data?.personalInfo.website}
               </span>
             </a>
           )}
@@ -90,24 +90,24 @@ const formatDate = (dateStr?: string): string => {
 
       <div className="p-8">
         {/* Professional Summary */}
-        {data.professionalSummary && (
+        {data?.professionalSummary && (
           <section className="mb-8">
             <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
               Professional Summary
             </h2>
-            <p className="text-gray-700">{data.professionalSummary}</p>
+            <p className="text-gray-700">{data?.professionalSummary}</p>
           </section>
         )}
 
         {/* Experience */}
-        {data.workExperience && data.workExperience.length > 0 && (
+        {data?.workExperience && data?.workExperience.length > 0 && (
           <section className="mb-8">
             <h2 className="text-2xl font-light mb-6 pb-2 border-b border-gray-200">
               Experience
             </h2>
 
             <div className="space-y-6">
-              {data.workExperience.map((exp, index) => (
+              {data?.workExperience.map((exp, index) => (
                 <div key={index} className="relative pl-6 border-l border-gray-200">
                   <div className="flex justify-between items-start mb-2">
                     <div>
@@ -135,14 +135,14 @@ const formatDate = (dateStr?: string): string => {
         )}
 
         {/* Projects */}
-        {data.projects && data.projects.length > 0 && (
+        {data?.projects && data?.projects.length > 0 && (
           <section className="mb-8">
             <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
               Projects
             </h2>
 
             <div className="space-y-6">
-              {data.projects.map((p, index) => (
+              {data?.projects.map((p, index) => (
                 <div
                   key={index}
                   className="relative pl-6 border-l border-gray-200"
@@ -164,14 +164,14 @@ const formatDate = (dateStr?: string): string => {
 
         <div className="grid sm:grid-cols-2 gap-8">
           {/* Education */}
-          {data.education && data.education.length > 0 && (
+          {data?.education && data?.education.length > 0 && (
             <section>
               <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
                 Education
               </h2>
 
               <div className="space-y-4">
-                {data.education.map((edu, index) => (
+                {data?.education.map((edu, index) => (
                   <div key={index}>
                     <h3 className="font-semibold text-gray-900">
                       {edu.degree} {edu.field && `in ${edu.field}`}
@@ -188,14 +188,14 @@ const formatDate = (dateStr?: string): string => {
           )}
 
           {/* Skills */}
-          {data.skills && data.skills.length > 0 && (
+          {data?.skills && data?.skills.length > 0 && (
             <section>
               <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
                 Skills
               </h2>
 
               <div className="flex flex-wrap gap-2">
-                {data.skills.map((skill, index) => (
+                {data?.skills.map((skill, index) => (
                   <span
                     key={index}
                     className="px-3 py-1 text-sm text-white rounded-full"

@@ -34,31 +34,39 @@ const formatDate = (dateStr?: string): string => {
       {/* Header */}
       <header className="mb-10">
         <h1 className="text-4xl font-thin mb-4 tracking-wide">
-          {data.personalInfo?.fullName || "Your Name"}
+          {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
         <div className="flex flex-wrap gap-6 text-sm text-gray-600">
-          {data.personalInfo?.email && <span>{data.personalInfo.email}</span>}
-          {data.personalInfo?.phone && <span>{data.personalInfo.phone}</span>}
-          {data.personalInfo?.location && <span>{data.personalInfo.location}</span>}
-          {data.personalInfo?.linkedin && (
-            <span className="break-all">{data.personalInfo.linkedin}</span>
+          {data?.personalInfo?.email && <span><a href={`mailto:${data?.personalInfo.email}`}>{data?.personalInfo.email}</a></span>}
+          {data?.personalInfo?.phone && <span>{data?.personalInfo.phone}</span>}
+          {data?.personalInfo?.location && <span>{data?.personalInfo.location}</span>}
+          {data?.personalInfo?.linkedin && (
+            <span className="break-all">
+              <a href={data?.personalInfo.linkedin} target="_top">
+                {data?.personalInfo.linkedin}
+              </a>
+            </span>
           )}
-          {data.personalInfo?.website && (
-            <span className="break-all">{data.personalInfo.website}</span>
+          {data?.personalInfo?.website && (
+            <span className="break-all">
+              <a href={data?.personalInfo.website} target="_blank">
+                {data?.personalInfo.website}
+              </a>
+            </span>
           )}
         </div>
       </header>
 
       {/* Professional Summary */}
-      {data.professionalSummary && (
+      {data?.professionalSummary && (
         <section className="mb-10">
-          <p className="text-gray-700">{data.professionalSummary}</p>
+          <p className="text-gray-700">{data?.professionalSummary}</p>
         </section>
       )}
 
       {/* Experience */}
-      {data.workExperience && data.workExperience.length > 0 && (
+      {data?.workExperience && data?.workExperience.length > 0 && (
         <section className="mb-10">
           <h2
             className="text-sm uppercase tracking-widest mb-6 font-medium"
@@ -68,7 +76,7 @@ const formatDate = (dateStr?: string): string => {
           </h2>
 
           <div className="space-y-6">
-            {data.workExperience.map((exp, index) => (
+            {data?.workExperience.map((exp, index) => (
               <div key={index}>
                 <div className="flex justify-between items-baseline mb-1">
                   <h3 className="text-lg font-medium">{exp.position}</h3>
@@ -90,7 +98,7 @@ const formatDate = (dateStr?: string): string => {
       )}
 
       {/* Projects */}
-      {data.projects && data.projects.length > 0 && (
+      {data?.projects && data?.projects.length > 0 && (
         <section className="mb-10">
           <h2
             className="text-sm uppercase tracking-widest mb-6 font-medium"
@@ -100,7 +108,7 @@ const formatDate = (dateStr?: string): string => {
           </h2>
 
           <div className="space-y-4">
-            {data.projects.map((proj, index) => (
+            {data?.projects.map((proj, index) => (
               <div
                 key={index}
                 className="flex flex-col gap-2 justify-between items-baseline"
@@ -114,7 +122,7 @@ const formatDate = (dateStr?: string): string => {
       )}
 
       {/* Education */}
-      {data.education && data.education.length > 0 && (
+      {data?.education && data?.education.length > 0 && (
         <section className="mb-10">
           <h2
             className="text-sm uppercase tracking-widest mb-6 font-medium"
@@ -124,7 +132,7 @@ const formatDate = (dateStr?: string): string => {
           </h2>
 
           <div className="space-y-4">
-            {data.education.map((edu, index) => (
+            {data?.education.map((edu, index) => (
               <div key={index} className="flex justify-between items-baseline">
                 <div>
                   <h3 className="font-medium">
@@ -145,7 +153,7 @@ const formatDate = (dateStr?: string): string => {
       )}
 
       {/* Skills */}
-      {data.skills && data.skills.length > 0 && (
+      {data?.skills && data?.skills.length > 0 && (
         <section>
           <h2
             className="text-sm uppercase tracking-widest mb-6 font-medium"
@@ -154,7 +162,7 @@ const formatDate = (dateStr?: string): string => {
             Skills
           </h2>
 
-          <div className="text-gray-700">{data.skills.join(" • ")}</div>
+          <div className="text-gray-700">{data?.skills.join(" • ")}</div>
         </section>
       )}
     </div>

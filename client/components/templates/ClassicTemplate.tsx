@@ -40,48 +40,48 @@ const formatDate = (dateStr?: string): string => {
         style={{ borderColor: accentColor }}
       >
         <h1 className="text-3xl font-bold mb-2" style={{ color: accentColor }}>
-          {data.personalInfo?.fullName || "Your Name"}
+          {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
         <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
-          {data.personalInfo?.email && (
+          {data?.personalInfo?.email && (
             <div className="flex items-center gap-1">
               <Mail className="size-4" />
               <span>
-                <a href={`mailto:${data.personalInfo.email}`} target="_blank" rel="noopener noreferrer">
-                  {data.personalInfo.email}
+                <a href={`mailto:${data?.personalInfo.email}`} target="_blank" rel="noopener noreferrer">
+                  {data?.personalInfo.email}
                 </a>
               </span>
             </div>
           )}
-          {data.personalInfo?.phone && (
+          {data?.personalInfo?.phone && (
             <div className="flex items-center gap-1">
               <Phone className="size-4" />
-              <span>{data.personalInfo.phone}</span>
+              <span>{data?.personalInfo.phone}</span>
             </div>
           )}
-          {data.personalInfo?.location && (
+          {data?.personalInfo?.location && (
             <div className="flex items-center gap-1">
               <MapPin className="size-4" />
-              <span>{data.personalInfo.location}</span>
+              <span>{data?.personalInfo.location}</span>
             </div>
           )}
-          {data.personalInfo?.linkedin && (
+          {data?.personalInfo?.linkedin && (
             <div className="flex items-center gap-1">
               <Linkedin className="size-4" />
               <span className="break-all">
-                <a href={data.personalInfo.linkedin} target="_blank" rel="noopener noreferrer">
-                  {data.personalInfo.linkedin}
+                <a href={data?.personalInfo.linkedin} target="_blank" rel="noopener noreferrer">
+                  {data?.personalInfo.linkedin}
                 </a>
               </span>
             </div>
           )}
-          {data.personalInfo?.website && (
+          {data?.personalInfo?.website && (
             <div className="flex items-center gap-1">
               <Globe className="size-4" />
               <span className="break-all">
-                <a href={data.personalInfo.website} target="_blank" rel="noopener noreferrer">
-                  {data.personalInfo.website}
+                <a href={data?.personalInfo.website} target="_blank" rel="noopener noreferrer">
+                  {data?.personalInfo.website}
                 </a>
               </span>
             </div>
@@ -90,7 +90,7 @@ const formatDate = (dateStr?: string): string => {
       </header>
 
       {/* Professional Summary */}
-      {data.professionalSummary && (
+      {data?.professionalSummary && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-3"
@@ -99,13 +99,13 @@ const formatDate = (dateStr?: string): string => {
             PROFESSIONAL SUMMARY
           </h2>
           <p className="text-gray-700 leading-relaxed">
-            {data.professionalSummary}
+            {data?.professionalSummary}
           </p>
         </section>
       )}
 
       {/* Experience */}
-      {data.workExperience && data.workExperience.length > 0 && (
+      {data?.workExperience && data?.workExperience.length > 0 && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-4"
@@ -115,7 +115,7 @@ const formatDate = (dateStr?: string): string => {
           </h2>
 
           <div className="space-y-4">
-            {data.workExperience.map((exp, index) => (
+            {data?.workExperience.map((exp, index) => (
               <div
                 key={index}
                 className="border-l-3 pl-4"
@@ -147,7 +147,7 @@ const formatDate = (dateStr?: string): string => {
       )}
 
       {/* Projects */}
-      {data.projects && data.projects.length > 0 && (
+      {data?.projects && data?.projects.length > 0 && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-4"
@@ -173,7 +173,7 @@ const formatDate = (dateStr?: string): string => {
       )}
 
       {/* Education */}
-      {data.education && data.education.length > 0 && (
+      {data?.education && data?.education.length > 0 && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-4"
@@ -183,7 +183,7 @@ const formatDate = (dateStr?: string): string => {
           </h2>
 
           <div className="space-y-3">
-            {data.education.map((edu, index) => (
+            {data?.education.map((edu, index) => (
               <div key={index} className="flex justify-between items-start">
                 <div>
                   <h3 className="font-semibold text-gray-900">
@@ -204,7 +204,7 @@ const formatDate = (dateStr?: string): string => {
       )}
 
       {/* Skills */}
-      {data.skills && data.skills.length > 0 && (
+      {data?.skills && data?.skills.length > 0 && (
         <section className="mb-6">
           <h2
             className="text-xl font-semibold mb-4"
@@ -214,7 +214,7 @@ const formatDate = (dateStr?: string): string => {
           </h2>
 
           <div className="flex gap-4 flex-wrap">
-            {data.skills.map((skill, index) => (
+            {data?.skills.map((skill, index) => (
               <div key={index} className="text-gray-700">
                 • {skill}
               </div>

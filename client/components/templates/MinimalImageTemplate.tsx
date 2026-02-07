@@ -34,7 +34,7 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
   return "";
 };
 
-  const imageSrc = getImageSrc(data.personalInfo?.image);
+  const imageSrc = getImageSrc(data?.personalInfo?.image);
 
   return (
     <div className="max-w-5xl mx-auto bg-white text-zinc-800">
@@ -56,10 +56,10 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
         {/* Name + Profession */}
         <div className="col-span-2 flex flex-col justify-center py-10 px-8">
           <h1 className="text-4xl font-bold text-zinc-700 tracking-widest">
-            {data.personalInfo?.fullName || "Your Name"}
+            {data?.personalInfo?.fullName || "Your Name"}
           </h1>
           <p className="uppercase text-zinc-600 font-medium text-sm tracking-widest">
-            {data.personalInfo?.profession || "Profession"}
+            {data?.personalInfo?.profession || "Profession"}
           </p>
         </div>
 
@@ -71,35 +71,35 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
               CONTACT
             </h2>
             <div className="space-y-2 text-sm">
-              {data.personalInfo?.phone && (
+              {data?.personalInfo?.phone && (
                 <div className="flex items-center gap-2">
                   <Phone size={14} style={{ color: accentColor }} />
-                  <span>{data.personalInfo.phone}</span>
+                  <span>{data?.personalInfo.phone}</span>
                 </div>
               )}
-              {data.personalInfo?.email && (
+              {data?.personalInfo?.email && (
                 <div className="flex items-center gap-2">
                   <Mail size={14} style={{ color: accentColor }} />
-                  <span>{data.personalInfo.email}</span>
+                  <span>{data?.personalInfo.email}</span>
                 </div>
               )}
-              {data.personalInfo?.location && (
+              {data?.personalInfo?.location && (
                 <div className="flex items-center gap-2">
                   <MapPin size={14} style={{ color: accentColor }} />
-                  <span>{data.personalInfo.location}</span>
+                  <span>{data?.personalInfo.location}</span>
                 </div>
               )}
             </div>
           </section>
 
           {/* Education */}
-          {data.education && data.education.length > 0 && (
+          {data?.education && data?.education.length > 0 && (
             <section className="mb-8">
               <h2 className="text-sm font-semibold tracking-widest text-zinc-600 mb-3">
                 EDUCATION
               </h2>
               <div className="space-y-4 text-sm">
-                {data.education.map((edu, index) => (
+                {data?.education.map((edu, index) => (
                   <div key={index}>
                     <p className="font-semibold uppercase">{edu.degree}</p>
                     <p className="text-zinc-600">{edu.institution}</p>
@@ -113,13 +113,13 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
           )}
 
           {/* Skills */}
-          {data.skills && data.skills.length > 0 && (
+          {data?.skills && data?.skills.length > 0 && (
             <section>
               <h2 className="text-sm font-semibold tracking-widest text-zinc-600 mb-3">
                 SKILLS
               </h2>
               <ul className="space-y-1 text-sm">
-                {data.skills.map((skill, index) => (
+                {data?.skills.map((skill, index) => (
                   <li key={index}>{skill}</li>
                 ))}
               </ul>
@@ -130,7 +130,7 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
         {/* Main Content */}
         <main className="col-span-2 p-8 pt-0">
           {/* Summary */}
-          {data.professionalSummary && (
+          {data?.professionalSummary && (
             <section className="mb-8">
               <h2
                 className="text-sm font-semibold tracking-widest mb-3"
@@ -139,13 +139,13 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
                 SUMMARY
               </h2>
               <p className="text-zinc-700 leading-relaxed  break-words">
-                {data.professionalSummary}
+                {data?.professionalSummary}
               </p>
             </section>
           )}
 
           {/* Experience */}
-          {data.workExperience && data.workExperience.length > 0 && (
+          {data?.workExperience && data?.workExperience.length > 0 && (
             <section>
               <h2
                 className="text-sm font-semibold tracking-widest mb-4"
@@ -154,7 +154,7 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
                 EXPERIENCE
               </h2>
               <div className="space-y-6 mb-8">
-                {data.workExperience.map((exp, index) => (
+                {data?.workExperience.map((exp, index) => (
                   <div key={index}>
                     <div className="flex justify-between items-center">
                       <h3 className="font-semibold text-zinc-900">
@@ -182,7 +182,7 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
           )}
 
           {/* Projects */}
-          {data.projects && data.projects.length > 0 && (
+          {data?.projects && data?.projects.length > 0 && (
             <section>
               <h2
                 className="text-sm uppercase tracking-widest font-semibold"
@@ -191,7 +191,7 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
                 PROJECTS
               </h2>
               <div className="space-y-4">
-                {data.projects.map((project, index) => (
+                {data?.projects.map((project, index) => (
                   <div key={index}>
                     <h3 className="text-md font-medium text-zinc-800 mt-3">
                       {project.name}
