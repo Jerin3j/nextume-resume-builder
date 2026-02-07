@@ -9,7 +9,6 @@ const Hero = () => {
   const { user }: { user: any } = useSelector(
     (state: RootState) => state.authReducer,
   );
-  console.log("user", user);
 
   const companiesLogo = [
     {
@@ -309,7 +308,6 @@ const Hero = () => {
               className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full px-9 h-12 m-1 ring-offset-2 ring-1 ring-indigo-400 flex items-center transition-colors"
             >
               {user ? "Go to Dashboard" : "Get started"}
-
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"

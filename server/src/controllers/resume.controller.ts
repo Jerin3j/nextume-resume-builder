@@ -44,7 +44,6 @@ export const deleteResume = async (req: Request, res: Response) => {
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid resume id" });
     }
-
     // deleted resume
     await prisma.resume.delete({
       where: {

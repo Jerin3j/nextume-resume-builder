@@ -1,5 +1,5 @@
 export function getImageSrc(
-  image: string | { src: string } | File | undefined
+  image: string | { src: string } | File | undefined,
 ): string | undefined {
   if (!image) return undefined;
   if (typeof image === "string") return image;

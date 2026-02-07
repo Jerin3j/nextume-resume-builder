@@ -36,6 +36,7 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
 
   const imageSrc = getImageSrc(data?.personalInfo?.image);
 
+
   return (
     <div className="max-w-5xl mx-auto bg-white text-zinc-800">
       <div className="grid grid-cols-3">
