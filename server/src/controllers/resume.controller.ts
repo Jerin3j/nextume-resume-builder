@@ -95,8 +95,8 @@ export const getResumeById = async (req: Request, res: Response) => {
 export const getPublicResumeById = async (req: Request, res: Response) => {
   try {
     // Resume ID
-    const { id } = req.body;
-    const resume = await prisma.resume.findUnique({
+    const id = Number(req.params.resumeId);
+    const resume = await prisma.resume.findFirst({
       where: {
         public: true,
         id,
@@ -122,10 +122,16 @@ export const updateResume = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
     // Resume ID
-    const { id, resumeData, removeBackgroud } = req.body;
-    let resumeDataCopy = JSON.parse(JSON.stringify(resumeData));
+    const { id, resumeData, removeBackground } = req.body;
+    const resumeId = Number(id);
+    
+    let resumeDataCopy;
+    if (typeof resumeData === "string") {
+      resumeDataCopy = JSON.parse(resumeData);
+    } else {
+      resumeDataCopy = structuredClone(resumeData);
+    }
     const image = (req as any).file;
-
     if (image) {
       const imageBufferData = fs.createReadStream(image.path);
       const response = await imagekit.files.upload({
@@ -134,8 +140,7 @@ export const updateResume = async (req: Request, res: Response) => {
         folder: "user-resumes",
         transformation: {
           pre:
-            "h-300,w-300,fo-face,z-0.75" +
-            (removeBackgroud ? ",e-bgremove" : ""),
+            `${(removeBackground ? "e-bgremove" : "")},h-300,w-300,fo-face,z-0.75`,
         },
       });
       resumeDataCopy.personalInfo ??= {};
@@ -147,7 +152,7 @@ export const updateResume = async (req: Request, res: Response) => {
 
     const resume = await prisma.resume.update({
       where: {
-        id,
+        id: resumeId,
         userId,
       },
       data: {
@@ -162,7 +167,7 @@ export const updateResume = async (req: Request, res: Response) => {
       .status(200)
       .json({ message: "Updated Successfully", data: resume });
   } catch (error) {
-    console.error("Delete Resume Error:", error);
+    console.error("Update Resume Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
