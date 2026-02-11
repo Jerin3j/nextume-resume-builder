@@ -42,7 +42,7 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
     const prompt = `enhance this job description ${experience.description} for the position of ${experience.position} at ${experience.company}.`
 
     try{
-      const {data} = await axiosInstance.post('/ai/enhance-description', {userContent: prompt})
+      const {data} = await axiosInstance.post('/api/ai/enhance-description', {userContent: prompt})
       updateExperience(index, "description", data.enhancedContent)
     }catch(error:any){
       toast.error(error?.response?.data?.message || error.message)

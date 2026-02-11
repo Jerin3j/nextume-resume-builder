@@ -20,7 +20,7 @@ const ProfessionalSummary = ({
     try {
       setIsGenerating(true);
       const prompt = `enhance my professional summary "${data}"`;
-      const response = await axiosInstance.post('/ai/enhance-summary', {userContent: prompt})
+      const response = await axiosInstance.post('/api/ai/enhance-summary', {userContent: prompt})
       setResumeData((prev :any) => ({...prev, professionalSummary: response.data.enhancedContent}))
     } catch (error:any) {
       toast.error(error?.response?.data?.message || error.message)
