@@ -4,6 +4,7 @@ import { ArrowLeftIcon, Loader } from "lucide-react";
 import { useParams } from "next/navigation";
 import { dummyResumeData } from "@/assets/assets";
 import ResumePreview from "@/components/ResumePreview";
+import axiosInstance from "@/app/utils/axiosInstance";
 
 const Preview = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -12,10 +13,14 @@ const Preview = () => {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const loadResume = async () => {
-      setResumeData(
-        dummyResumeData.find((resume) => resume._id === resumeId || null)
-      );
-      setIsLoading(false);
+      try {
+        const data = await axiosInstance.get(`/resumes/public/${resumeId}`);
+        setResumeData(data.data.resume);
+      } catch (error: any) {
+        console.log(error.message);
+      } finally {
+        setIsLoading(false);
+      }
     };
     loadResume();
   }, []);
@@ -35,7 +40,7 @@ const Preview = () => {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex flex-col items-center justify-center h-screen">
           <p className="text-center text-6xl text-slate-400 font-medium">
             Resume not found
           </p>
