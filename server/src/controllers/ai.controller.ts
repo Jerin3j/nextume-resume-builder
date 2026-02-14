@@ -14,12 +14,11 @@ export const enhanceProfessionalSummary = async (
     }
     const response = await ai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
-      max_tokens: 120,
-      temperature: 0.5,
       messages: [
         {
           role: "system",
           content:
+
             "You are am expert in resume writing. Your task is to enhance the professional summary of a resume. The summary should be 1-2 sentences also highlighting key skills, experience, and career objectives. Make it compelling and ats friendly. And only return text no options or anything else",
         },
         {
@@ -50,8 +49,6 @@ export const enhanceDescription = async (req: Request, res: Response) => {
     }
     const response = await ai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
-      max_tokens: 120,
-      temperature: 0.5,
       messages: [
         {
           role: "system",
