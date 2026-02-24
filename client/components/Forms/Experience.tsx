@@ -1,10 +1,15 @@
-import { Briefcase, Plus, Sparkles, Trash2 } from "lucide-react";
+import axiosInstance from "@/app/utils/axiosInstance";
+import { Briefcase, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 type ExperienceProps = {
   data: any;
   onChange: (value: any) => void;
 };
 const Experience = ({ data, onChange }: ExperienceProps) => {
+
+  const [generatingIndex, setGeneratingIndex] = useState(-1);
   const addExperience = () => {
     const newExperience = {
       company: "",
@@ -30,6 +35,21 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
     updated[index] = { ...updated[index], [field]: value };
     onChange(updated);
   };
+
+  const generateDescription = async( index: number) => {
+    setGeneratingIndex(index);
+    const experience = data[index];
+    const prompt = `enhance this job description ${experience.description} for the position of ${experience.position} at ${experience.company}.`
+
+    try{
+      const {data} = await axiosInstance.post('/ai/enhance-description', {userContext: prompt})
+      updateExperience(index, "description", data.enhancedContent)
+    }catch(error:any){
+      toast.error(error?.response?.data?.message || error.message)
+    }finally{
+      setGeneratingIndex(-1);
+    }
+  }
 
   const toMonthInputValue = (value?: string): string => {
     if (!value) return "";
@@ -157,8 +177,12 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
                   <label className="text-sm font-medium text-gray-700">
                     Job Description
                   </label>
-                  <button className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50">
+                  <button onClick={()=> generateDescription(index)} disabled={generatingIndex === index || !workExperience.position || !workExperience.company} className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50">
+                   {generatingIndex === index ? (
+                    <Loader2 className="w-3 h-3 animate-spin"/>
+                   ) : (
                     <Sparkles className="w-3 h-3" />
+                   )}
                     Enhance with AI
                   </button>
                 </div>
@@ -169,8 +193,9 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
                     updateExperience(index, "description", e.target.value)
                   }
                   rows={4}
+                  disabled={generatingIndex === index}
                   placeholder="Describe your key responsibilities and achievements.."
-                  className="w-full text-sm py-2 px-3 rounded-lg resize-none"
+                  className={`w-full text-sm py-2 px-3 rounded-lg resize-none ${generatingIndex === index ? "opacity-80 cursor-not-allowed blur-[1px] animate-pulse" : "text-gray-900"}`}
                 />
               </div>
             </div>

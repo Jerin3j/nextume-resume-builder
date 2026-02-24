@@ -14,13 +14,17 @@ export const enhanceProfessionalSummary = async (
     }
     const response = await ai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
-      max_tokens: 120,
-      temperature: 0.5,
       messages: [
         {
           role: "system",
-          content:
-            "You are am expert in resume writing. Your task is to enhance the professional summary of a resume. The summary should be 1-2 sentences also highlighting key skills, experience, and career objectives. Make it compelling and ats friendly. And only return text no options or anything else",
+          content: `
+You are an expert resume writer.
+
+Create a professional summary in strictly 1-2 sentences (max 50 words). 
+Highlight achievements, technical skills, and career goals in a fresh, compelling way. 
+Do NOT just rephrase the user's text. Make it ATS-friendly. 
+Return plain text only, no formatting or explanations.
+`,
         },
         {
           role: "user",
@@ -35,7 +39,7 @@ export const enhanceProfessionalSummary = async (
     console.error("Enhance Professional Summary Error:", error);
     return res.status(500).json({
       success: false,
-     message: "Internal server error",
+      message: "Internal server error",
     });
   }
 };
@@ -50,13 +54,23 @@ export const enhanceDescription = async (req: Request, res: Response) => {
     }
     const response = await ai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
-      max_tokens: 120,
-      temperature: 0.5,
       messages: [
         {
           role: "system",
-          content:
-            "You are an expert in resume writing. Your task is to enhance the job description of a resume. The job description should be only in 1-2 sentence also highlighting key responsibilities and achievements. Use action verbs and quantifiable results where possible. Make it ATS-friendly. and only return text no options or anything else.",
+          content: `
+You are an expert resume writer.
+
+Your task is to improve and strengthen the user's job description.
+
+Instructions:
+- If the input is long or unstructured, condense and rewrite it into exactly 2 strong, concise sentences.
+- If the input already contains 1–2 sentences, enhance them with stronger action verbs and clearer impact.
+- Do NOT repeat the user's wording.
+- Add measurable results or impact where possible.
+- Keep it concise and professional.
+- Return only plain text with 2 sentences.
+- Do NOT add bullets, symbols, or explanations.
+`,
         },
         {
           role: "user",

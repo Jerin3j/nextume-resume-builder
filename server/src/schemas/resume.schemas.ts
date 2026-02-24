@@ -41,6 +41,8 @@ export const resumeSchema = z.object({
   accentColor: z.string().regex(/^#([0-9A-Fa-f]{6})$/).optional(),
   professionalSummary: z.string().max(2000).nullable().optional(),
   skills: z.array(z.string()).optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 
   personalInfo: personalInfoSchema.optional(),
   workExperience: experienceSchema.optional(),

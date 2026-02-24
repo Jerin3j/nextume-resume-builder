@@ -43,3 +43,19 @@ textarea {
 
 }
 }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(168, 85, 247, 0.2) 0%,
+    rgba(168, 85, 247, 0.4) 50%,
+    rgba(168, 85, 247, 0.2) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}

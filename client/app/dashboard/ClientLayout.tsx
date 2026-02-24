@@ -12,19 +12,21 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const { user, loading } = useSelector(
-    (state: RootState) => state.authReducer
+    (state: RootState) => state.authReducer,
   );
 
   if (loading) {
-    return <Loader className="animate-spin" />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader className="animate-spin w-8 h-8 text-violet-600" />
+      </div>
+    );
   }
 
   if (!user) {
     redirect("/login");
   }
-if (loading || !user) {
-  return <div className="min-h-screen bg-gray-50" />;
-}
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
