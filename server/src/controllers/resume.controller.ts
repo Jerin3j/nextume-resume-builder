@@ -3,10 +3,6 @@ import prisma from "../prismaClient.js";
 import imagekit from "../configs/imageKit.js";
 import fs from "fs";
 import {
-  educationSchema,
-  experienceSchema,
-  personalInfoSchema,
-  projectSchema,
   resumeSchema,
 } from "../schemas/resume.schemas.js";
 import ai from "../configs/ai.js";
@@ -274,9 +270,9 @@ export const uploadResume = async (req: Request, res: Response) => {
         title,
         ...parsedData,
       },
-      select: { id: true },
+      // select: { id: true },
     });
-    res.status(200).json({ resumeId: newResume.id });
+    res.status(200).json(newResume);
   } catch (error) {
     console.error("Enhance Description Error:", error);
     return res.status(500).json({

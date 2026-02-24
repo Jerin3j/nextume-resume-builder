@@ -57,7 +57,7 @@ export const enhanceDescription = async (req: Request, res: Response) => {
       messages: [
         {
           role: "system",
-        content: `
+          content: `
 You are an expert resume writer.
 
 Your task is to improve and strengthen the user's job description.
