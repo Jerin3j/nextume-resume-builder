@@ -46,4 +46,5 @@ export interface ResumeData {
 export interface TemplateProps {
   data: ResumeData;
   accentColor: string;
+  alignment?: string;
 }

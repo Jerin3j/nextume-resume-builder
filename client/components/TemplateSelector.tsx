@@ -25,7 +25,12 @@ const TemplateSelector = ({
       preview:
         "A timeless, structured resume design that emphasizes clarity and professionalism across every section.",
     },
-
+ {
+      id: "atsFriendly",
+      name: "ATS-Friendly Template",
+      preview:
+        "A clean, structured resume format optimized for Applicant Tracking Systems (ATS) to ensure your resume passes through automated screening processes.",
+    },
     {
       id: "modern",
       name: "Modern Template",

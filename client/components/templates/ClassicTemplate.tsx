@@ -1,89 +1,128 @@
 import React from "react";
 import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
-import type {TemplateProps} from "./types";
+import type { TemplateProps } from "./types";
 
-const ClassicTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
-  
-const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return "";
+const ClassicTemplate: React.FC<TemplateProps> = ({
+  data,
+  accentColor,
+  alignment,
+}) => {
+  const formatDate = (dateStr?: string): string => {
+    if (!dateStr) return "";
 
-  // Case 1: "2025-04"
-  if (/^\d{4}-\d{2}$/.test(dateStr)) {
-    const [year, month] = dateStr.split("-");
-    return new Date(
-      Number(year),
-      Number(month) - 1
-    ).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-    });
-  }
+    // Case 1: "2025-04"
+    if (/^\d{4}-\d{2}$/.test(dateStr)) {
+      const [year, month] = dateStr.split("-");
+      return new Date(Number(year), Number(month) - 1).toLocaleDateString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "short",
+        },
+      );
+    }
 
-  // Case 2: "April 2025"
-  const parsed = new Date(dateStr);
-  if (!isNaN(parsed.getTime())) {
-    return parsed.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-    });
-  }
+    // Case 2: "April 2025"
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+      });
+    }
 
-  return "";
-};
-
+    return "";
+  };
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white text-gray-800 leading-relaxed">
+    <div
+      className={`max-w-4xl mx-auto p-8 bg-white text-gray-800 leading-relaxed `}
+    >
       {/* Header */}
       <header
-        className="text-center mb-8 pb-6 border-b-2"
+        className={`mb-8 pb-6 border-b-2 flex flex-col ${
+          alignment === "left"
+            ? "items-start text-left"
+            : alignment === "right"
+              ? "items-end text-right"
+              : "items-center text-center"
+        }`}
         style={{ borderColor: accentColor }}
       >
         <h1 className="text-3xl font-bold mb-2" style={{ color: accentColor }}>
           {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
-        <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+        <div
+          className={`flex flex-wrap gap-4 text-sm text-gray-600 ${
+            alignment === "left"
+              ? "justify-start"
+              : alignment === "right"
+                ? "justify-end"
+                : "justify-center"
+          }`}
+        >
           {data?.personalInfo?.email && (
             <div className="flex items-center gap-1">
               <Mail className="size-4" />
-              <span>
-                <a href={`mailto:${data?.personalInfo.email}`} target="_blank" rel="noopener noreferrer">
-                  {data?.personalInfo.email}
-                </a>
-              </span>
+              <a
+                href={`mailto:${data.personalInfo.email}`}
+                className="break-all"
+              >
+                {data.personalInfo.email}
+              </a>
             </div>
           )}
+
           {data?.personalInfo?.phone && (
             <div className="flex items-center gap-1">
               <Phone className="size-4" />
-              <span>{data?.personalInfo.phone}</span>
+              <a href={`tel:${data.personalInfo.phone}`}>
+                {data.personalInfo.phone}
+              </a>
             </div>
           )}
+
           {data?.personalInfo?.location && (
             <div className="flex items-center gap-1">
               <MapPin className="size-4" />
-              <span>{data?.personalInfo.location}</span>
+              <span>{data.personalInfo.location}</span>
             </div>
           )}
+
           {data?.personalInfo?.linkedin && (
             <div className="flex items-center gap-1">
               <Linkedin className="size-4" />
-              <span className="break-all">
-                <a href={data?.personalInfo.linkedin} target="_blank" rel="noopener noreferrer">
-                  {data?.personalInfo.linkedin}
-                </a>
-              </span>
+              <a
+                href={
+                  data.personalInfo.linkedin.startsWith("http")
+                    ? data.personalInfo.linkedin
+                    : `https://${data.personalInfo.linkedin}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="break-all"
+              >
+                {data.personalInfo.linkedin}
+              </a>
             </div>
           )}
+
           {data?.personalInfo?.website && (
             <div className="flex items-center gap-1">
               <Globe className="size-4" />
-              <span className="break-all">
-                <a href={data?.personalInfo.website} target="_blank" rel="noopener noreferrer">
-                  {data?.personalInfo.website}
-                </a>
-              </span>
+              <a
+                href={
+                  data.personalInfo.website.startsWith("http")
+                    ? data.personalInfo.website
+                    : `https://${data.personalInfo.website}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="break-all"
+              >
+                {data.personalInfo.website}
+              </a>
             </div>
           )}
         </div>

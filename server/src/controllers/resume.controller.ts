@@ -188,7 +188,7 @@ export const uploadResume = async (req: Request, res: Response) => {
     Provide data in the following JSON format with no additional text before or after:
      {
       "public": "boolean (optional)",
-      "template": "classic | minimal | modern | minimalImage(optional)",
+      "template": "classic | minimal | modern | minimalImage(optional) | atsFriendly(optional)",
       "accentColor": "#RRGGBB (optional)",
       "professionalSummary": "string (optional)",
       "skills": ["string"],

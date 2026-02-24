@@ -37,7 +37,7 @@ export const educationSchema = z.array(z.object({
 export const resumeSchema = z.object({
   title: z.string().min(1).max(100).optional(),
   public: z.boolean().optional(),
-  template: z.enum(["classic", "minimal", "modern", "minimalImage"]).optional(),
+  template: z.enum(["classic", "minimal", "modern", "minimalImage", "atsFriendly"]).optional(),
   accentColor: z.string().regex(/^#([0-9A-Fa-f]{6})$/).optional(),
   professionalSummary: z.string().max(2000).nullable().optional(),
   skills: z.array(z.string()).optional(),

@@ -2,30 +2,39 @@ import ModernTemplate from "./templates/ModernTemplate";
 import ClassicTemplate from "./templates/ClassicTemplate";
 import MinimalTemplate from "./templates/MinimalTemplate";
 import MinimalImageTemplate from "./templates/MinimalImageTemplate";
-
+import ATSTemplate from "./templates/ATSTemplate";
 
 type ResumePreviewProps = {
-  data: any; 
+  data: any;
   template: string;
   accentColor: string;
   classes?: string;
+  alignment?: string;
 };
 
-const ResumePreview = ({ data, template, accentColor, classes = "" }: ResumePreviewProps) => {
-  
+const ResumePreview = ({
+  data,
+  template,
+  accentColor,
+  alignment,
+  classes = "",
+}: ResumePreviewProps) => {
   const renderTemplate = () => {
     switch (template) {
       case "minimal":
-        return <MinimalTemplate accentColor={accentColor} data={data} />;
+        return <MinimalTemplate accentColor={accentColor} data={data} alignment={alignment} />;
+
+      case "atsFriendly":
+        return <ATSTemplate accentColor={accentColor} data={data} alignment={alignment} />;
 
       case "minimalImage":
-        return <MinimalImageTemplate accentColor={accentColor} data={data} />;
+        return <MinimalImageTemplate accentColor={accentColor} data={data} alignment={alignment}/>;
 
       case "modern":
-        return <ModernTemplate accentColor={accentColor} data={data} />;
+        return <ModernTemplate accentColor={accentColor} data={data} alignment={alignment} />;
 
       default:
-        return <ClassicTemplate accentColor={accentColor} data={data} />;
+        return <ClassicTemplate accentColor={accentColor} data={data} alignment={alignment} />;
     }
   };
   return (
