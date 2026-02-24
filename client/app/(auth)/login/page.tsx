@@ -1,18 +1,26 @@
-'use client';
+"use client";
+
+import { useSearchParams, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
 import axiosInstance from "@/app/utils/axiosInstance";
 import { setUser } from "@/lib/redux/authSlice";
 import { Lock, Mail, User2Icon } from "lucide-react";
-import { redirect, useRouter } from "next/navigation";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
+
+type AuthMode = "login" | "signup";
 
 const Login = () => {
-  const query = new URLSearchParams(window.location.search);
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const dispatch = useDispatch();
-  const urlState = query.get("state");
-  const [state, setState] = useState(urlState || "login");
-const router = useRouter();
+
+  const mode: AuthMode = useMemo(() => {
+    const param = searchParams.get("mode");
+    return param === "signup" ? "signup" : "login";
+  }, [searchParams]);
+  const isSignup = mode === "signup";
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -20,16 +28,27 @@ const router = useRouter();
     password: "",
   });
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      const res = await axiosInstance.post(`/users/${state}`, formData);
-      dispatch(setUser(res.data?.user))
+      const payload =
+        mode === "signup"
+          ? formData
+          : { email: formData.email, password: formData.password };
+
+      const res = await axiosInstance.post(`/users/${mode}`, payload);
+
+      dispatch(setUser(res.data.user));
       localStorage.setItem("token", res.data.token);
-      toast.success(res?.data?.message || "Success");
-      router.push('/dashboard')
+
+      toast.success(res.data.message || "Success");
+      router.push("/dashboard");
     } catch (error: any) {
-    toast.error(error.response.data.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,10 +64,10 @@ const router = useRouter();
         className="md:w-[350px] text-center md:border md:border-gray-300/60 rounded-2xl px-8 md:bg-white"
       >
         <h1 className="text-gray-900 text-3xl mt-10 font-medium">
-          {state === "login" ? "Login" : "Sign up"}
+          {mode === "login" ? "Login" : "Sign up"}
         </h1>
-        <p className="text-gray-500 text-sm mt-2">Please {state} to continue</p>
-        {state !== "login" && (
+        <p className="text-gray-500 text-sm mt-2">Please {mode} to continue</p>
+        {mode !== "login" && (
           <div className="flex items-center mt-6 w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
             <User2Icon size={16} color="#6B7280" />
             <input
@@ -86,7 +105,7 @@ const router = useRouter();
             required
           />
         </div>
-        {state === "login" && (
+        {mode === "login" && (
           <div className="mt-4 text-left text-violet-500">
             <button className="text-sm" type="reset">
               Forget password?
@@ -95,17 +114,18 @@ const router = useRouter();
         )}
         <button
           type="submit"
-          className="mt-2 w-full h-11 rounded-full text-white bg-violet-500 hover:opacity-90 transition-opacity"
+          disabled={loading}
+          className="mt-2 w-full h-11 rounded-full text-white bg-violet-500 disabled:opacity-50"
         >
-          {state === "login" ? "Login" : "Sign up"}
+          {loading ? "Please wait..." : mode === "login" ? "Login" : "Sign up"}
         </button>
         <p
           onClick={() =>
-            setState((prev) => (prev === "login" ? "register" : "login"))
+            router.push(`/login?mode=${isSignup ? "login" : "signup"}`)
           }
           className="text-gray-500 text-sm mt-3 mb-11"
         >
-          {state === "login"
+          {mode === "login"
             ? "Don't have an account?"
             : "Already have an account?"}{" "}
           <a href="#" className="text-violet-500 hover:underline">

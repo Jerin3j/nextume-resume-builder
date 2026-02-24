@@ -31,7 +31,7 @@ const MinimalImageTemplate: React.FC<TemplateProps> = ({
     });
   }
 
-  return "";
+  return "";` `
 };
 
   const imageSrc = getImageSrc(data?.personalInfo?.image);

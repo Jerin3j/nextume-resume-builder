@@ -8,10 +8,7 @@ type ProfessionalSummaryProps = {
   onChange: (value: string) => void;
 };
 
-const ProfessionalSummary = ({
-  data,
-  onChange,
-}: ProfessionalSummaryProps) => {
+const ProfessionalSummary = ({ data, onChange }: ProfessionalSummaryProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generateSummary = async () => {
@@ -38,11 +35,8 @@ const ProfessionalSummary = ({
 
       // Update parent state (controlled component)
       onChange(enhancedContent);
-
     } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Something went wrong."
-      );
+      toast.error(error?.response?.data?.message || "Something went wrong.");
     } finally {
       setIsGenerating(false);
     }
@@ -80,7 +74,8 @@ const ProfessionalSummary = ({
           value={data || ""}
           onChange={(e) => onChange(e.target.value)}
           rows={7}
-          className="w-full p-3 px-4 mt-2 border text-sm border-gray-300 rounded-lg focus:ring focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-none"
+          disabled={isGenerating}
+          className={`w-full p-3 px-4 mt-2 border text-sm border-gray-300 rounded-lg focus:ring focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-none ${isGenerating ? "opacity-70 cursor-not-allowed blur-[1px] animate-pulse" : "text-gray-900"}`}
           placeholder="Write a compelling professional summary that highlights your key strengths and career objectives..."
         />
 

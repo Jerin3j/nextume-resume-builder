@@ -28,12 +28,12 @@ const Skills = ({ data, onChange }: SkillsProps) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setHighlightedIndex((prev) =>
-        prev < filteredSkills.length - 1 ? prev + 1 : 0
+        prev < filteredSkills.length - 1 ? prev + 1 : 0,
       );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setHighlightedIndex((prev) =>
-        prev > 0 ? prev - 1 : filteredSkills.length - 1
+        prev > 0 ? prev - 1 : filteredSkills.length - 1,
       );
     } else if (e.key === "Enter") {
       e.preventDefault();
@@ -49,7 +49,7 @@ const Skills = ({ data, onChange }: SkillsProps) => {
     setNewSkill(value);
     if (value.trim().length > 0) {
       const filtered = allSkills.filter((skill) =>
-        skill.label.toLowerCase().includes(value.toLowerCase())
+        skill.label.toLowerCase().includes(value.toLowerCase()),
       );
       setFilteredSkills(filtered);
     } else {

@@ -30,11 +30,16 @@ const ColorPicker = ({ selectedColor, onChange }: ColorPickerProps) => {
     { name: "white", value: "#FFFFFF" },
   ];
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 text-sm text-purple-600 bg-gradient-to-br from-purple-50 to-purple-100 ring-purple-300 hover:ring transition-all px-3 py-2 rounded-lg"
+        style={{
+          color: selectedColor === "#FFFFFF" ? "#000000" : selectedColor,
+          backgroundColor: selectedColor === "#FFFFFF" ? "#F3F4F6" : `${selectedColor}1A`, 
+        }}
+        className={`flex items-center gap-1 text-sm hover:ring transition-all px-3 py-2 rounded-lg`}
       >
         <Palette size={16} /> <span className="max-sm">Theme</span>
       </button>

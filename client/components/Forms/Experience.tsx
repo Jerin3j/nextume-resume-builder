@@ -193,8 +193,9 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
                     updateExperience(index, "description", e.target.value)
                   }
                   rows={4}
+                  disabled={generatingIndex === index}
                   placeholder="Describe your key responsibilities and achievements.."
-                  className="w-full text-sm py-2 px-3 rounded-lg resize-none"
+                  className={`w-full text-sm py-2 px-3 rounded-lg resize-none ${generatingIndex === index ? "opacity-80 cursor-not-allowed blur-[1px] animate-pulse" : "text-gray-900"}`}
                 />
               </div>
             </div>
