@@ -2,10 +2,9 @@ import { Request, Response } from "express";
 import prisma from "../prismaClient.js";
 import imagekit from "../configs/imageKit.js";
 import fs from "fs";
-import {
-  resumeSchema,
-} from "../schemas/resume.schemas.js";
+import { resumeSchema } from "../schemas/resume.schemas.js";
 import ai from "../configs/ai.js";
+import { v4 as uuid } from "uuid";
 
 // POST: /api/resumes/create
 export const createResume = async (req: Request, res: Response) => {
@@ -119,7 +118,7 @@ export const updateResume = async (req: Request, res: Response) => {
     // Resume ID
     const { id, resumeData, removeBackground } = req.body;
     const resumeId = Number(id);
-    
+
     let resumeDataCopy;
     if (typeof resumeData === "string") {
       resumeDataCopy = JSON.parse(resumeData);
@@ -134,8 +133,7 @@ export const updateResume = async (req: Request, res: Response) => {
         fileName: "resume-image-" + Date.now(),
         folder: "user-resumes",
         transformation: {
-          pre:
-            `${(removeBackground ? "e-bgremove" : "")},h-300,w-300,fo-face,z-0.75`,
+          pre: `${removeBackground ? "e-bgremove" : ""},h-300,w-300,fo-face,z-0.75`,
         },
       });
       resumeDataCopy.personalInfo ??= {};
@@ -227,6 +225,7 @@ export const uploadResume = async (req: Request, res: Response) => {
     
       "projects": [
         {
+          "id": "string",
           "name": "string",
           "description": "string",
           "type": "string"
@@ -262,6 +261,13 @@ export const uploadResume = async (req: Request, res: Response) => {
     } catch (err) {
       console.error("Invalid JSON from AI:", message.content);
       throw new Error("AI returned invalid JSON");
+    }
+    // Add UUID to projects
+    if (parsedData.projects && Array.isArray(parsedData.projects)) {
+      parsedData.projects = parsedData.projects.map((project: any) => ({
+        id: uuid(),
+        ...project,
+      }));
     }
 
     const newResume = await prisma.resume.create({

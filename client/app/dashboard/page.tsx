@@ -80,7 +80,7 @@ const Dashboard = () => {
       setTitle("");
       setResume(null);
       setShowUploadResume(false);
-      router.push(`/dashboard/builder/${data.resumeId}`);
+      router.push(`/dashboard/builder/${data?.id}`);
     } catch (error: any) {
       setIsLoading(false);
       toast.error(error.response.data.message || "Something went wrong");
