@@ -89,3 +89,74 @@ Instructions:
     });
   }
 };
+
+// controller for enhancing full project object
+// POST: /api/ai/enhance-project
+export const enhanceProject = async (req: Request, res: Response) => {
+  try {
+    const { description, name, type } = req.body;
+
+    if (!description || !name || !type) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const response = await ai.chat.completions.create({
+      model: process.env.OPENAI_MODEL!,
+      messages: [
+        {
+          role: "system",
+          content: `
+You are an expert resume and portfolio writer.
+
+Your task is to enhance a full-stack project entry.
+
+Instructions:
+1. Rewrite and strengthen the DESCRIPTION first:
+   - Convert into exactly 2 powerful, concise sentences.
+   - Use strong action verbs.
+   - Add measurable impact where possible.
+   - Make it ATS-friendly.
+   - Do NOT repeat wording.
+   - No bullets or symbols.
+
+2. Improve the PROJECT NAME:
+   - Make it more impactful and professional.
+   - Keep it concise.
+
+3. Keep the TYPE professional and clean (e.g., Full-Stack Project).
+
+Return strictly in this JSON format:
+
+{
+  "description": "Enhanced description here",
+  "name": "Improved project name here",
+  "type": "Project type here"
+}
+
+Return only valid JSON. No explanations. No extra text.
+`,
+        },
+        {
+          role: "user",
+          content: `
+Description: ${description}
+Name: ${name}
+Type: ${type}
+`,
+        },
+      ],
+    });
+
+    const enhancedContent = response.choices[0]?.message?.content;
+
+    res.status(200).json({
+      enhancedContent: JSON.parse(enhancedContent || "{}"),
+    });
+  } catch (error) {
+    console.error("Enhance Project Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

@@ -1,3 +1,4 @@
+import axiosInstance from "@/app/utils/axiosInstance";
 import {
   closestCenter,
   DndContext,
@@ -12,7 +13,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripHorizontal, Plus, Trash2 } from "lucide-react";
+import { GripHorizontal, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { v4 as uuid } from "uuid";
 
 type Project = {
@@ -154,49 +156,106 @@ const ProjectCard = ({
   project: Project;
   onRemove: (id: string) => void;
   onUpdate: (id: string, field: keyof Project, value: string) => void;
-}) => (
-  <>
-    {/* Top row: Project title + Trash icon */}
-    <div className="flex gap-3 items-center justify-between w-full">
-      <h4 className="flex-1 font-medium">Project #{index + 1}</h4>
-      <button
-        onClick={() => onRemove(project.id)}
-        className="transition-colors text-red-500 hover:text-red-700"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
-    </div>
+}) => {
+  const [isGenerating, setIsGenerating] = useState(false);
 
-    {/* Input fields */}
-    <div className="grid gap-3">
-      <input
-        type="text"
-        value={project.name}
-        onChange={(e) => onUpdate(project.id, "name", e.target.value)}
-        onPointerDown={(e) => e.stopPropagation()}
-        placeholder="Project Name"
-        className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-      />
-      <input
-        type="text"
-        value={project.type}
-        onChange={(e) => onUpdate(project.id, "type", e.target.value)}
-        onPointerDown={(e) => e.stopPropagation()}
-        placeholder="Project Type"
-        className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-      />
-      <textarea
-        rows={4}
-        value={project.description}
-        onChange={(e) =>
-          onUpdate(project.id, "description", e.target.value)
-        }
-        onPointerDown={(e) => e.stopPropagation()}
-        placeholder="Describe Your Project"
-        className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-      />
-    </div>
-  </>
-);
+ const generateEnhancement = async () => {
+    try {
+      setIsGenerating(true);
+
+      const response = await axiosInstance.post("/ai/enhance-project", {
+          name: project.name,
+          type: project.type,
+          description: project.description,
+      });
+
+      if (!response.data) {
+        throw new Error("Failed to enhance project");
+      }
+
+      const data = response.data.enhancedContent;
+      console.log("fss", data);
+      
+      if (data?.description) {
+        onUpdate(project.id, "description", data?.description);
+      }   if (data?.name ) {
+        onUpdate(project.id, "name", data?.name);
+      }   if (data?.type) {
+        onUpdate(project.id, "type", data?.type);
+      }
+    } catch (error) {
+      console.error("Enhancement error:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <>
+      {/* Top row */}
+      <div className="flex gap-3 items-center justify-between w-full">
+        <h4 className="flex-1 font-medium">
+          Project #{index + 1}
+        </h4>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={isGenerating}
+            onClick={generateEnhancement}
+            className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50"
+          >
+            {isGenerating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4" />
+            )}
+            {isGenerating ? "Enhancing..." : "AI Enhance"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onRemove(project.id)}
+            className="transition-colors text-red-500 hover:text-red-700"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Inputs */}
+      <div className="grid gap-3">
+        <input
+          type="text"
+          value={project.name}
+          onChange={(e) => onUpdate(project.id, "name", e.target.value)}
+          onPointerDown={(e) => e.stopPropagation()}
+          placeholder="Project Name"
+          className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+        />
+
+        <input
+          type="text"
+          value={project.type}
+          onChange={(e) => onUpdate(project.id, "type", e.target.value)}
+          onPointerDown={(e) => e.stopPropagation()}
+          placeholder="Project Type"
+          className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+        />
+
+        <textarea
+          rows={4}
+          value={project.description}
+          onChange={(e) =>
+            onUpdate(project.id, "description", e.target.value)
+          }
+          onPointerDown={(e) => e.stopPropagation()}
+          placeholder="Describe Your Project"
+          className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+        />
+      </div>
+    </>
+  );
+};
 
 export default Projects;

@@ -1,59 +1,107 @@
 import React from "react";
-import type { TemplateProps } from "./types"; 
+import type { TemplateProps } from "./types";
 
-const MinimalTemplate: React.FC<TemplateProps> = ({ data, accentColor }) => {
-const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return "";
+const MinimalTemplate: React.FC<TemplateProps> = ({
+  data,
+  accentColor,
+  alignment,
+}) => {
+  const formatDate = (dateStr?: string): string => {
+    if (!dateStr) return "";
 
-  // Case 1: "2025-04"
-  if (/^\d{4}-\d{2}$/.test(dateStr)) {
-    const [year, month] = dateStr.split("-");
-    return new Date(
-      Number(year),
-      Number(month) - 1
-    ).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-    });
-  }
+    // Case 1: "2025-04"
+    if (/^\d{4}-\d{2}$/.test(dateStr)) {
+      const [year, month] = dateStr.split("-");
+      return new Date(Number(year), Number(month) - 1).toLocaleDateString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "short",
+        },
+      );
+    }
 
-  // Case 2: "April 2025"
-  const parsed = new Date(dateStr);
-  if (!isNaN(parsed.getTime())) {
-    return parsed.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-    });
-  }
+    // Case 2: "April 2025"
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+      });
+    }
 
-  return "";
-};
+    return "";
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white text-gray-900 font-light">
       {/* Header */}
-      <header className="mb-10">
+      <header
+        className={`mb-10 flex flex-col ${
+          alignment === "left"
+            ? "items-start text-left"
+            : alignment === "right"
+              ? "items-end text-right"
+              : "items-center text-center"
+        }`}
+      >
         <h1 className="text-4xl font-thin mb-4 tracking-wide">
           {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
-        <div className="flex flex-wrap gap-6 text-sm text-gray-600">
-          {data?.personalInfo?.email && <span><a href={`mailto:${data?.personalInfo.email}`}>{data?.personalInfo.email}</a></span>}
-          {data?.personalInfo?.phone && <span>{data?.personalInfo.phone}</span>}
-          {data?.personalInfo?.location && <span>{data?.personalInfo.location}</span>}
-          {data?.personalInfo?.linkedin && (
-            <span className="break-all">
-              <a href={data?.personalInfo.linkedin} target="_top">
-                {data?.personalInfo.linkedin}
-              </a>
-            </span>
+        <div
+          className={`flex flex-wrap gap-6 text-sm text-gray-600 ${
+            alignment === "left"
+              ? "justify-start"
+              : alignment === "right"
+                ? "justify-end"
+                : "justify-center"
+          }`}
+        >
+          {data?.personalInfo?.email && (
+            <a href={`mailto:${data.personalInfo.email}`} className="break-all">
+              {data.personalInfo.email}
+            </a>
           )}
+
+          {data?.personalInfo?.phone && (
+            <a href={`tel:${data.personalInfo.phone}`}>
+              {data.personalInfo.phone}
+            </a>
+          )}
+
+          {data?.personalInfo?.location && (
+            <span>{data.personalInfo.location}</span>
+          )}
+
+          {data?.personalInfo?.linkedin && (
+            <a
+              href={
+                data.personalInfo.linkedin.startsWith("http")
+                  ? data.personalInfo.linkedin
+                  : `https://${data.personalInfo.linkedin}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="break-all"
+            >
+              {data.personalInfo.linkedin}
+            </a>
+          )}
+
           {data?.personalInfo?.website && (
-            <span className="break-all">
-              <a href={data?.personalInfo.website} target="_blank">
-                {data?.personalInfo.website}
-              </a>
-            </span>
+            <a
+              href={
+                data.personalInfo.website.startsWith("http")
+                  ? data.personalInfo.website
+                  : `https://${data.personalInfo.website}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="break-all"
+            >
+              {data.personalInfo.website}
+            </a>
           )}
         </div>
       </header>

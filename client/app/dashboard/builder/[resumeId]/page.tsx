@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   ArrowLeftIcon,
   Briefcase,
   ChevronLeft,
@@ -64,6 +67,9 @@ const ResumeBuilder = () => {
   const [removeBackground, setRemoveBackground] = useState(false);
   const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [alignment, setAlignment] = useState<"left" | "center" | "right">(
+    "center",
+  );
   const sections = [
     { id: "personal", name: "Personal Info", icon: User },
     { id: "summary", name: "Summary", icon: FileText },
@@ -80,8 +86,6 @@ const ResumeBuilder = () => {
     const loadExistingResume = async () => {
       try {
         const { data } = await axiosInstance.get(`/resumes/get/${resumeId}`);
-        console.log("data.resume", data.resume);
-
         if (data.resume) {
           setResumeData(data.resume);
           document.title = data.resume.title;
@@ -162,6 +166,7 @@ const ResumeBuilder = () => {
   const downloadResumeAsPDF = async () => {
     window.print();
   };
+
   return (
     <div>
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -195,15 +200,17 @@ const ResumeBuilder = () => {
                       setResumeData((prev) => ({ ...prev, template }))
                     }
                   />
-                  <ColorPicker
-                    selectedColor={resumeData?.accentColor}
-                    onChange={(color: any) =>
-                      setResumeData((prev) => ({
-                        ...prev,
-                        accentColor: color,
-                      }))
-                    }
-                  />
+                  {resumeData?.template !== "atsFriendly" && (
+                    <ColorPicker
+                      selectedColor={resumeData?.accentColor}
+                      onChange={(color: any) =>
+                        setResumeData((prev) => ({
+                          ...prev,
+                          accentColor: color,
+                        }))
+                      }
+                    />
+                  )}
                 </div>
                 <div className="flex items-center">
                   {activeSectionIndex !== 0 && (
@@ -322,57 +329,97 @@ const ResumeBuilder = () => {
           </div>
 
           {/* right panel - preview */}
-          <div className="lg:col-span-7 max-lg:mt-6">
-            <div className="relative w-full">
-              <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2">
-                {/* --- resume buttons --- */}
-                {resumeData?.public && (
+          <div className="flex lg:col-span-7 max-lg:mt-6 gap-1 flex-">
+            <div className="flex flex-col flex-1 relative">
+              <div className="relative w-full">
+                <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2">
+                  {/* --- resume buttons --- */}
+                  {resumeData?.public && (
+                    <button
+                      onClick={handleShareResume}
+                      className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
+                    >
+                      <Share2Icon className="size-4" /> Share
+                    </button>
+                  )}
                   <button
-                    onClick={handleShareResume}
-                    className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
-                  >
-                    <Share2Icon className="size-4" /> Share
-                  </button>
-                )}
-                <button
-                  onClick={changeResumeVisibility}
-                  disabled={isUpdatingVisibility}
-                  className="relative flex items-center justify-center p-2 px-4 gap-2 text-xs 
+                    onClick={changeResumeVisibility}
+                    disabled={isUpdatingVisibility}
+                    className="relative flex items-center justify-center p-2 px-4 gap-2 text-xs 
                              bg-gradient-to-br from-purple-100 to-purple-200 
                              text-purple-600 ring-purple-300 rounded-lg 
                              hover:ring transition-all duration-300
                              disabled:cursor-not-allowed"
-                >
-                  {isUpdatingVisibility ? (
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 rounded shimmer" />
-                      <div className="h-2 w-8 rounded shimmer" />
-                    </div>
-                  ) : (
-                    <>
-                      {resumeData?.public ? (
-                        <EyeIcon className="size-4 transition-opacity duration-200" />
-                      ) : (
-                        <EyeOffIcon className="size-4 transition-opacity duration-200" />
-                      )}
-                      <span>{resumeData?.public ? "Public" : "Private"}</span>
-                    </>
-                  )}
+                  >
+                    {isUpdatingVisibility ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-4 rounded shimmer" />
+                        <div className="h-2 w-8 rounded shimmer" />
+                      </div>
+                    ) : (
+                      <>
+                        {resumeData?.public ? (
+                          <EyeIcon className="size-4 transition-opacity duration-200" />
+                        ) : (
+                          <EyeOffIcon className="size-4 transition-opacity duration-200" />
+                        )}
+                        <span>{resumeData?.public ? "Public" : "Private"}</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={downloadResumeAsPDF}
+                    className="flex items-center gap-2 px-6 py-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring transition-colors"
+                  >
+                    <DownloadIcon className="size-4" /> Download PDF
+                  </button>
+                </div>
+              </div>
+              {/* --- resume preview --- */}
+              <ResumePreview
+                data={resumeData}
+                accentColor={resumeData?.accentColor}
+                template={resumeData?.template}
+                alignment={alignment}
+              />
+            </div>
+            {/* resume header alignment selector */}
+            {resumeData?.template !== "minimalImage" && (
+              <div className="h-32 w-10 rounded-lg border-2 border-slate-300 bg-slate-100 flex flex-col items-center justify-center mt-3 gap-4 p-2">
+                <button onClick={() => setAlignment("left")}>
+                  <AlignLeft
+                    size={18}
+                    className={`transition-colors ${
+                      alignment === "left"
+                        ? "text-slate-900"
+                        : "text-slate-400 hover:text-slate-700"
+                    }`}
+                  />
                 </button>
-                <button
-                  onClick={downloadResumeAsPDF}
-                  className="flex items-center gap-2 px-6 py-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring transition-colors"
-                >
-                  <DownloadIcon className="size-4" /> Download PDF
+
+                <button onClick={() => setAlignment("center")}>
+                  <AlignCenter
+                    size={18}
+                    className={`transition-colors ${
+                      alignment === "center"
+                        ? "text-slate-900"
+                        : "text-slate-400 hover:text-slate-700"
+                    }`}
+                  />
+                </button>
+
+                <button onClick={() => setAlignment("right")}>
+                  <AlignRight
+                    size={18}
+                    className={`transition-colors ${
+                      alignment === "right"
+                        ? "text-slate-900"
+                        : "text-slate-400 hover:text-slate-700"
+                    }`}
+                  />
                 </button>
               </div>
-            </div>
-            {/* --- resume preview --- */}
-            <ResumePreview
-              data={resumeData}
-              accentColor={resumeData?.accentColor}
-              template={resumeData?.template}
-            />
+            )}
           </div>
         </div>
       </div>
