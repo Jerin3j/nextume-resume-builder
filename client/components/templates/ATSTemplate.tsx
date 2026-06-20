@@ -38,6 +38,12 @@ const ATSTemplate: React.FC<TemplateProps> = ({ data, alignment }) => {
       >
         <h1 className="text-2xl font-bold">{data?.personalInfo?.fullName}</h1>
 
+        {data?.personalInfo?.profession && (
+          <p className="text-sm text-gray-600 mb-2">
+            {data.personalInfo.profession}
+          </p>
+        )}
+
         <p>
           {data?.personalInfo?.email && (
             <>

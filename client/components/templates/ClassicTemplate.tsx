@@ -53,6 +53,15 @@ const ClassicTemplate: React.FC<TemplateProps> = ({
           {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
+        {data?.personalInfo?.profession && (
+          <p
+            className="text-sm text-gray-600 mb-2"
+            style={{ color: accentColor }}
+          >
+            {data.personalInfo.profession}
+          </p>
+        )}
+
         <div
           className={`flex flex-wrap gap-4 text-sm text-gray-600 ${
             alignment === "left"
