@@ -33,8 +33,6 @@ const Preview = () => {
           template={resumeData.template}
           classes="py-4 bg-white"
         />
-          <div className="h-10 w-4 bg-black"> <h1>hi</h1></div>
-
       </div>
     </div>
   ) : (

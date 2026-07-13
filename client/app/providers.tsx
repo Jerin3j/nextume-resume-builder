@@ -9,36 +9,39 @@ import { Toaster } from "react-hot-toast";
 
 // User
 function AuthHydrator({ children }: { children: React.ReactNode }) {
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  const getUser = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const getUser = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            dispatch(setUser(null));
+            return;
+        }
 
-    try {
-      const res = await axiosInstance.get("/users/me");
+        try {
+            const res = await axiosInstance.get("/users/me");
 
-      dispatch(setUser(res.data?.user));
-    } catch (err) {
-      console.error("Auth hydration failed", err);
-      dispatch(setUser(null));
-    }
-  };
+            dispatch(setUser(res.data?.user));
+        } catch (err) {
+            console.error("Auth hydration failed", err);
+            dispatch(setUser(null));
+        }
+    };
 
-  useEffect(() => {
-    getUser();
-  }, []);
+    useEffect(() => {
+        getUser();
+    }, []);
 
-  return <>{children}</>;
+    return <>{children}</>;
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <Provider store={store}>
-      <AuthHydrator>
-        {children}
-        <Toaster />
-      </AuthHydrator>
-    </Provider>
-  );
+    return (
+        <Provider store={store}>
+            <AuthHydrator>
+                {children}
+                <Toaster />
+            </AuthHydrator>
+        </Provider>
+    );
 }

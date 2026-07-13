@@ -8,7 +8,7 @@ import axiosInstance from "@/app/utils/axiosInstance";
 import { setUser } from "@/lib/redux/authSlice";
 import { Lock, Mail, User2Icon } from "lucide-react";
 
-type AuthMode = "login" | "signup";
+type AuthMode = "login" | "register";
 
 const LoginClient = () => {
   const searchParams = useSearchParams();
@@ -17,9 +17,9 @@ const LoginClient = () => {
 
   const mode: AuthMode = useMemo(() => {
     const param = searchParams.get("mode");
-    return param === "signup" ? "signup" : "login";
+    return param === "register" ? "register" : "login";
   }, [searchParams]);
-  const isSignup = mode === "signup";
+  const isSignup = mode === "register";
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -34,7 +34,7 @@ const LoginClient = () => {
 
     try {
       const payload =
-        mode === "signup"
+        mode === "register"
           ? formData
           : { email: formData.email, password: formData.password };
 
@@ -44,7 +44,8 @@ const LoginClient = () => {
       localStorage.setItem("token", res.data.token);
 
       toast.success(res.data.message || "Success");
-      router.push("/dashboard");
+      const redirectPath = searchParams.get("redirect") || "/dashboard";
+      router.push(redirectPath);
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
@@ -121,7 +122,7 @@ const LoginClient = () => {
         </button>
         <p
           onClick={() =>
-            router.push(`/login?mode=${isSignup ? "login" : "signup"}`)
+            router.push(`/login?mode=${isSignup ? "login" : "register"}`)
           }
           className="text-gray-500 text-sm mt-3 mb-11"
         >

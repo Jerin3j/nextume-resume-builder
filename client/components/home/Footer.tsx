@@ -1,12 +1,33 @@
 import React from "react";
+import Link from "next/link";
 
 const Footer = () => {
   return (
     <>
       <footer className="flex flex-col justify-center items-center mt-40 overflow-hidden">
-        <div className="flex flex-wrap justify-center lg:justify-between gap-5 md:gap-15 pt-16 px-6 md:px-16 lg:px-24 xl:px-32 text-[13px] text-gray-500 bg-gradient-to-r from-[#FDFEFF] via-violet-600/20 to-[#FDFEFF]">
+        <div className="flex flex-wrap justify-center lg:justify-between gap-5 md:gap-15 pt-8 md:pt-16 px-6 md:px-16 lg:px-24 xl:px-32 text-[13px] text-gray-500 bg-gradient-to-r from-[#FDFEFF] via-violet-600/20 to-[#FDFEFF]">
+          <a href="#" className="self-start">
+            <svg
+              width="157"
+              height="40"
+              viewBox="0 0 157 40"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <text
+                x="0"
+                y="28"
+                fontFamily="Arial, sans-serif"
+                fontSize="28"
+                fill="#020618"
+                fontWeight="600"
+              >
+                nextume<tspan fill="#4F39F6">.</tspan>
+              </text>
+            </svg>
+          </a>
           <div className="flex flex-wrap items-start gap-10 md:gap-[60px] xl:gap-[140px]">
-            <a href="#">
+            {/* <a href="#" className="hidden md:block">
               <svg
                 width="157"
                 height="40"
@@ -25,7 +46,7 @@ const Footer = () => {
                   nextume<tspan fill="#4F39F6">.</tspan>
                 </text>
               </svg>
-            </a>
+            </a> */}
             <div>
               <p className="text-slate-800 font-semibold">Product</p>
               <ul className="mt-2 space-y-2">
@@ -40,9 +61,14 @@ const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="/" className="hover:text-violet-600 transition">
+                  <Link href="/pricing" className="hover:text-violet-600 transition">
                     Pricing
-                  </a>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/ats-score" className="hover:text-violet-600 transition">
+                    ATS Checker
+                  </Link>
                 </li>
                 <li>
                   <a href="/" className="hover:text-violet-600 transition">
@@ -101,9 +127,8 @@ const Footer = () => {
             </div>
           </div>
           <div className="flex flex-col max-md:items-center max-md:text-center gap-2 items-end">
-            <p className="max-w-60">
-              Making every customer feel valued—no matter the size of your
-              audience.
+            <p className="wo-full md:max-w-60">
+              Helping professionals create resumes, optimize for ATS, and showcase their work with confidence.
             </p>
             <div className="flex items-center gap-4 mt-3">
               <a
@@ -155,7 +180,17 @@ const Footer = () => {
             </div>
             <p className="mt-3 text-center">© 2025 Nextume</p>
           </div>
-          <p className="text-center w-full text-gray-500">Made By Jerin3j</p>
+          <p className="w-full py-3 text-center text-sm text-gray-500">
+            Made with <span className="text-red-500">❤️</span> by{" "}
+            <a
+              href="https://jerin3j.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-slate-700 transition hover:text-violet-600 hover:underline"
+            >
+              Jerin3j
+            </a>
+          </p>
         </div>
       </footer>
       <style>{`
