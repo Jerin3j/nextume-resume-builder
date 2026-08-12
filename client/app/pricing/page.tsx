@@ -115,14 +115,6 @@ export default function PricingPage() {
             toast("Payment window closed.", { icon: "ℹ️" });
           },
         },
-        // method: {
-        //   upi: true,
-        //   card: true,
-        //   netbanking: false,
-        //   wallet: true,
-        //   emi: false,
-        // },
-
       };
 
       const paymentObject = new (window as any).Razorpay(options);
@@ -135,16 +127,16 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between py-12 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between py-12 px-4 relative overflow-hidden font-sans">
       {/* Background radial overlays */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-12 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-600/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-12 right-1/4 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl" />
 
       <div className="max-w-5xl mx-auto w-full space-y-12 relative z-10">
         {/* Top bar back button */}
         <button
           onClick={() => router.push(user ? "/dashboard" : "/")}
-          className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to {user ? "Dashboard" : "Home"}
@@ -152,72 +144,85 @@ export default function PricingPage() {
 
         {/* Heading description */}
         <div className="text-center space-y-4 max-w-xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-[10px] uppercase font-bold tracking-wider text-violet-300">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-[10px] uppercase font-bold tracking-wider text-violet-600">
+            <Sparkles className="w-3.5 h-3.5 fill-violet-200" />
             Simple Transparent Pricing
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900">
             Choose the Perfect Plan
           </h1>
-          <p className="text-sm md:text-base text-slate-400">
-            Build resume profiles, check your ATS score, and host a professional online developer portfolio in minutes.
+          <p className="text-sm md:text-base text-slate-500 leading-relaxed">
+            Build resume profiles, check your ATS score, customize online developer portfolios, and generate tailored cover letters in minutes.
           </p>
         </div>
 
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch max-w-4xl mx-auto pt-6">
+          
           {/* FREE PLAN */}
-          <div className="bg-slate-800/40 border border-slate-700/80 rounded-3xl p-6 md:p-8 flex flex-col justify-between hover:border-slate-600 transition-all hover:translate-y-[-2px] relative">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 flex flex-col justify-between hover:border-slate-300 transition-all hover:translate-y-[-2px] relative shadow-sm">
             <div className="space-y-6">
               <div className="space-y-1">
                 <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">
                   Basic Tier
                 </span>
-                <h3 className="text-2xl font-extrabold text-white">Free Plan</h3>
+                <h3 className="text-2xl font-extrabold text-slate-800">Free Plan</h3>
               </div>
 
-              <div className="flex items-baseline gap-1 text-white">
+              <div className="flex items-baseline gap-1 text-slate-950">
                 <span className="text-4xl font-black">₹0</span>
                 <span className="text-xs text-slate-400 font-semibold">/ lifetime</span>
               </div>
 
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Standard features for personal job hunting. Build resumes and launch your first website.
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Standard features for personal job hunting. Build resumes, check ATS compatibility, and generate cover letters.
               </p>
 
-              <hr className="border-slate-700/80" />
+              <hr className="border-slate-100" />
 
               {/* Free Features list */}
-              <ul className="space-y-4 text-xs text-slate-300">
+              <ul className="space-y-4 text-xs text-slate-600">
                 <li className="flex items-center gap-3">
-                  <div className="flex-none p-0.5 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">
+                  <div className="flex-none p-0.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span>Create up to <b>5 Resumes</b> in total</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="flex-none p-0.5 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">
+                  <div className="flex-none p-0.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span><b>1 Portfolio website</b> generation</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="flex-none p-0.5 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">
+                  <div className="flex-none p-0.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span>Standard ATS Score Checking access</span>
                 </li>
-                <li className="flex items-center gap-3 text-slate-500">
-                  <div className="flex-none p-0.5 bg-slate-700/30 text-slate-600 rounded-full border border-slate-700/20">
-                    <Lock className="w-3.5 h-3.5" />
+                <li className="flex items-center gap-3">
+                  <div className="flex-none p-0.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
+                    <Check className="w-3.5 h-3.5" />
                   </div>
-                  <span>No Portfolio website regeneration</span>
+                  <span>Generate up to <b>2 Cover Letters</b> (1 per resume)</span>
                 </li>
-                <li className="flex items-center gap-3 text-slate-500">
-                  <div className="flex-none p-0.5 bg-slate-700/30 text-slate-600 rounded-full border border-slate-700/20">
+                <li className="flex items-center gap-3 text-slate-400">
+                  <div className="flex-none p-0.5 bg-slate-100 text-slate-400 rounded-full border border-slate-200">
                     <Lock className="w-3.5 h-3.5" />
                   </div>
-                  <span>Locked custom HTML codebase editing</span>
+                  <span>Professional tone & Medium length only</span>
+                </li>
+                <li className="flex items-center gap-3 text-slate-400">
+                  <div className="flex-none p-0.5 bg-slate-100 text-slate-400 rounded-full border border-slate-200">
+                    <Lock className="w-3.5 h-3.5" />
+                  </div>
+                  <span>No Job Description personalization tailoring</span>
+                </li>
+                <li className="flex items-center gap-3 text-slate-400">
+                  <div className="flex-none p-0.5 bg-slate-100 text-slate-400 rounded-full border border-slate-200">
+                    <Lock className="w-3.5 h-3.5" />
+                  </div>
+                  <span>No Portfolio website code editing</span>
                 </li>
               </ul>
             </div>
@@ -230,7 +235,7 @@ export default function PricingPage() {
                   router.push("/login");
                 }
               }}
-              className="w-full mt-8 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full mt-8 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
               <span>{user ? "Back to Dashboard" : "Start Free"}</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -238,64 +243,76 @@ export default function PricingPage() {
           </div>
 
           {/* PRO PLAN */}
-          <div className="bg-slate-850/80 border-2 border-violet-500/80 rounded-3xl p-6 md:p-8 flex flex-col justify-between hover:border-violet-400 transition-all hover:translate-y-[-2px] relative shadow-xl shadow-violet-950/20">
+          <div className="bg-white border-2 border-violet-600 rounded-3xl p-6 md:p-8 flex flex-col justify-between hover:border-violet-500 transition-all hover:translate-y-[-2px] relative shadow-lg shadow-violet-100">
             {/* Crown Pro badge */}
-            <div className="absolute top-0 right-6 translate-y-[-50%] bg-violet-600 text-white text-[10px] font-black tracking-widest uppercase py-1 px-3.5 rounded-full flex items-center gap-1 shadow-md shadow-violet-950/40">
+            <div className="absolute top-0 right-6 translate-y-[-50%] bg-violet-600 text-white text-[10px] font-black tracking-widest uppercase py-1 px-3.5 rounded-full flex items-center gap-1 shadow-md shadow-violet-200">
               <Crown className="w-3 h-3 text-white" />
               Most Popular
             </div>
 
             <div className="space-y-6">
               <div className="space-y-1">
-                <span className="text-xs text-violet-400 font-extrabold uppercase tracking-wider flex items-center gap-1">
-                  <Zap className="w-3 h-3 text-violet-400 fill-violet-400" />
+                <span className="text-xs text-violet-600 font-extrabold uppercase tracking-wider flex items-center gap-1">
+                  <Zap className="w-3 h-3 text-violet-600 fill-violet-600" />
                   Premium Tier
                 </span>
-                <h3 className="text-2xl font-extrabold text-white">Pro Plan</h3>
+                <h3 className="text-2xl font-extrabold text-slate-800">Pro Plan</h3>
               </div>
 
-              <div className="flex items-baseline gap-1 text-white">
+              <div className="flex items-baseline gap-1 text-slate-950">
                 <span className="text-4xl font-black">₹99</span>
-                <span className="text-xs text-slate-400 font-semibold">/ one-time payment</span>
+                <span className="text-xs text-slate-500 font-semibold">/ one-time payment</span>
               </div>
 
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Unlock full portfolio flexibility, edit code directly, and build unlimited documents.
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Unlock full portfolio flexibility, edit code directly, customize cover letters, and build unlimited documents.
               </p>
 
-              <hr className="border-slate-700/80" />
+              <hr className="border-slate-100" />
 
               {/* Pro Features list */}
-              <ul className="space-y-4 text-xs text-slate-200">
+              <ul className="space-y-4 text-xs text-slate-600">
                 <li className="flex items-center gap-3">
-                  <div className="flex-none p-0.5 bg-violet-500/20 text-violet-400 rounded-full border border-violet-500/30">
+                  <div className="flex-none p-0.5 bg-violet-50 text-violet-600 rounded-full border border-violet-100">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span><b>Unlimited Resumes</b> creation</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="flex-none p-0.5 bg-violet-500/20 text-violet-400 rounded-full border border-violet-500/30">
+                  <div className="flex-none p-0.5 bg-violet-50 text-violet-600 rounded-full border border-violet-100">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span>Up to <b>3 Portfolio website regenerations</b></span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="flex-none p-0.5 bg-violet-500/20 text-violet-400 rounded-full border border-violet-500/30">
+                  <div className="flex-none p-0.5 bg-violet-50 text-violet-600 rounded-full border border-violet-100">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span>Get & <b>edit custom HTML codebase</b> of portfolio</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="flex-none p-0.5 bg-violet-500/20 text-violet-400 rounded-full border border-violet-500/30">
+                  <div className="flex-none p-0.5 bg-violet-50 text-violet-600 rounded-full border border-violet-100">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <span>Generate up to <b>3 Cover Letters per resume</b></span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="flex-none p-0.5 bg-violet-50 text-violet-600 rounded-full border border-violet-100">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <span><b>Unlock all AI Option customization</b> (6 tones, 3 depths)</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="flex-none p-0.5 bg-violet-50 text-violet-600 rounded-full border border-violet-100">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <span><b>Tailor precisely</b> using pasted Job Descriptions</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="flex-none p-0.5 bg-violet-50 text-violet-600 rounded-full border border-violet-100">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <span>Priority AI description optimization speed</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="flex-none p-0.5 bg-violet-500/20 text-violet-400 rounded-full border border-violet-500/30">
-                    <Check className="w-3.5 h-3.5" />
-                  </div>
-                  <span>24/7 Priority developer workspace support</span>
                 </li>
               </ul>
             </div>
@@ -303,7 +320,7 @@ export default function PricingPage() {
             <button
               onClick={handleUpgrade}
               disabled={upgrading || !!user?.isPro}
-              className="w-full mt-8 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-800/50 disabled:text-slate-400 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-violet-900/30 active:scale-[0.99]"
+              className="w-full mt-8 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-100 disabled:text-slate-400 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-violet-200 active:scale-[0.99]"
             >
               {upgrading ? (
                 <>
@@ -323,7 +340,7 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <div className="text-center text-slate-500 text-[10px] mt-12">
+      <div className="text-center text-slate-400 text-[10px] mt-12">
         <p>© 2025 Nextume. Payments processed securely via Razorpay.</p>
       </div>
     </div>

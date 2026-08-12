@@ -1,6 +1,6 @@
 "use client";
 import { RootState } from "@/lib/redux/store";
-import { PlayCircle, Sparkles } from "lucide-react";
+import { ArrowRight, FilePenLine, FileText, Globe, PlayCircle, Sparkles } from "lucide-react";
 import { Play } from "next/font/google";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -154,6 +154,9 @@ const Hero = () => {
             <Link href="/ats-score" className="hover:text-indigo-600 transition">
               ATS Checker
             </Link>
+            <Link href="/cover-letter" className="hover:text-indigo-600 transition">
+              Cover Letter
+            </Link>
             <a href="#cta" className="hover:text-indigo-600 transition">
               Contact
             </a>
@@ -218,6 +221,9 @@ const Hero = () => {
           <Link href="/ats-score" className="text-white" onClick={() => setMenuOpen(false)}>
             ATS Checker
           </Link>
+          <Link href="/cover-letter" className="text-white" onClick={() => setMenuOpen(false)}>
+            Cover Letter
+          </Link>
           <a href="#cta" className="text-white" onClick={() => setMenuOpen(false)}>
             Contact
           </a>
@@ -248,6 +254,8 @@ const Hero = () => {
                   ATS Checker
                   <span>•</span>
                   Portfolio Builder
+                  <span>•</span>
+                  Cover Letter
                 </div>
 
                 {/* Heading */}
@@ -280,39 +288,92 @@ const Hero = () => {
                 </div>
 
                 {/* Features */}
-                <div className="mt-14 hidden lg:grid grid-cols-4 gap-8">
-
+                <div className="mt-14 hidden lg:grid grid-cols-4 gap-4">
                   {[
                     {
-                      title: "AI Writing",
-                      subtitle: "Smart suggestions",
+                      step: "1",
+                      title: "Build Resume",
+                      subtitle: "Create a professional resume with AI",
+                      icon: FileText,
                     },
                     {
-                      title: "ATS Optimized",
-                      subtitle: "Better job matches",
+                      step: "2",
+                      title: "Customize & Enhance",
+                      subtitle: "Optimize for ATS & improve content",
+                      icon: Sparkles,
                     },
                     {
-                      title: "Portfolio Builder",
-                      subtitle: "Free portfolio website",
+                      step: "3",
+                      title: "Generate Cover Letter",
+                      subtitle: "Get a tailored cover letter instantly",
+                      icon: FilePenLine,
+                      new: true,
                     },
                     {
-                      title: "PDF Export",
-                      subtitle: "One click download",
+                      step: "4",
+                      title: "Launch Portfolio",
+                      subtitle: "Showcase your work with a live portfolio",
+                      icon: Globe,
                     },
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-start gap-3">
+                  ].map((item, index) => {
+                    const Icon = item.icon;
 
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-100">
-                        <Sparkles size={15} className="text-violet-600" />
+                    return (
+                      <div key={item.step} className="relative flex items-start">
+                        {/* Step */}
+                        <div className="flex flex-col items-center text-center w-full">
+                          {/* Icon */}
+                          <div
+                            className="
+              relative
+              flex h-12 w-12 gap-4
+              items-center justify-center
+              rounded-full
+              bg-violet-100/80
+              ring-8 ring-violet-50/60
+            "
+                          >
+                            <Icon
+                              size={17}
+                              strokeWidth={1.8}
+                              className="text-violet-600"
+                            />
+
+                            {/* Small sparkle */}
+                            {index === 1 && (
+                              <Sparkles
+                                size={8}
+                                className="absolute -right-1 -top-1 text-violet-500"
+                              />
+                            )}
+                          </div>
+
+                          {/* Step title */}
+                          <div className="mt-4 flex items-center justify-center gap-1">
+                            <p className="text-[10px] font-semibold text-slate-800 whitespace-nowrap">
+                              {item.step}. {item.title}
+                            </p>
+                          </div>
+
+                          {/* Subtitle */}
+                          <p className="mt-2 max-w-[125px] text-[9px] leading-4 text-slate-500">
+                            {item.subtitle}
+                          </p>
+                        </div>
+
+                        {/* Arrow */}
+                        {index < 3 && (
+                          <div className="absolute -right-3 top-5 flex items-center">
+                            <ArrowRight
+                              size={15}
+                              strokeWidth={1.5}
+                              className="text-violet-400"
+                            />
+                          </div>
+                        )}
                       </div>
-
-                      <div>
-                        <p className="text-[12px] font-semibold whitespace-nowrap">{item.title}</p>
-                        <p className="mt-1 text-xs text-slate-500">{item.subtitle}</p>
-                      </div>
-
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

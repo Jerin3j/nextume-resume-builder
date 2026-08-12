@@ -20,6 +20,7 @@ import {
     Award,
     ChevronDown,
     ChevronUp,
+    Lock,
 } from "lucide-react";
 import axiosInstance from "@/app/utils/axiosInstance";
 import toast from "react-hot-toast";
@@ -193,32 +194,26 @@ const AtsScoreCheck = () => {
             setShowAuthModal(true);
             return;
         }
-        let textToAnalyze = "";
+        let payload: any = {
+            jobDescription: jobDescription.trim() || undefined,
+        };
         if (activeTab === "existing") {
             if (!selectedResumeId) {
                 toast.error("Please select a resume to analyze");
                 return;
             }
-            const selectedResume = allResumes.find((r) => r.id === selectedResumeId);
-            if (!selectedResume) {
-                toast.error("Selected resume not found");
-                return;
-            }
-            textToAnalyze = formatResumeToText(selectedResume);
+            payload.resumeId = selectedResumeId;
         } else {
             if (!extractedText) {
                 toast.error("Please upload a PDF resume or wait for text extraction");
                 return;
             }
-            textToAnalyze = extractedText;
+            payload.resumeText = extractedText;
         }
         setIsAnalyzing(true);
         setAnalysisResult(null);
         try {
-            const response = await axiosInstance.post("/ai/ats-score", {
-                resumeText: textToAnalyze,
-                jobDescription: jobDescription.trim() || undefined,
-            });
+            const response = await axiosInstance.post("/ai/ats-score", payload);
             if (response?.data?.analysisResult) {
                 setAnalysisResult(response?.data?.analysisResult);
                 toast.success("ATS Analysis completed!");

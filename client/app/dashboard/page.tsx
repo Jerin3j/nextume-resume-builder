@@ -280,9 +280,9 @@ const Dashboard = () => {
         toast.error("Resume not found");
         return;
       }
-      // Send resumeData only
+      // Send resumeId only
       const { data } = await axiosInstance.post("/ai/generate-portfolio", {
-        resumeData: selectedResume,
+        resumeId: selectedPortfolioResumeId,
         username: selectedResume?.title,
       });
 
@@ -562,6 +562,14 @@ const Dashboard = () => {
               >
                 <Activity className="w-4 h-4 text-emerald-600" />
                 Check ATS Score
+              </button>
+
+              <button
+                onClick={() => router.push("/cover-letter")}
+                className="w-full py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-indigo-600" />
+                Generate Cover Letter
               </button>
             </div>
           </div>

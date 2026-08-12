@@ -71,6 +71,11 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/cover-letter" className="hover:text-violet-600 transition">
+                    Cover Letter
+                  </Link>
+                </li>
+                <li>
                   <a href="/" className="hover:text-violet-600 transition">
                     Affiliate
                   </a>

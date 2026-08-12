@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import ai from "../configs/ai.js";
 import prisma from "../prismaClient.js";
+import { parseAndSaveResume } from "../utils/resumeParser.js";
+import { formatResumeToText } from "../utils/resumeFormatter.js";
 // controller for enhanceing resume's professional summary
 //POST: /api/ai/enhance-summary
 export const enhanceProfessionalSummary = async (
@@ -148,10 +150,27 @@ Type: ${type}
 // POST: /api/ai/ats-score
 export const checkAtsScore = async (req: Request, res: Response) => {
     try {
-        const { resumeText, jobDescription } = req.body;
-        if (!resumeText) {
-            return res.status(400).json({ message: "Missing resume text to analyze" });
+        const { resumeId, resumeText, jobDescription } = req.body;
+        const userId = (req as any).userId;
+
+        let finalResumeText = "";
+
+        if (resumeId) {
+            const resume = await prisma.resume.findFirst({
+                where: { id: Number(resumeId), userId },
+            });
+            if (!resume) {
+                return res.status(404).json({ message: "Selected resume not found" });
+            }
+            finalResumeText = formatResumeToText(resume);
+        } else if (resumeText) {
+            // Only use AI to parse when user uploads on these scenarios
+            const newResume = await parseAndSaveResume(userId, "Uploaded Resume", resumeText);
+            finalResumeText = formatResumeToText(newResume);
+        } else {
+            return res.status(400).json({ message: "Missing resume details to analyze" });
         }
+
         const systemPrompt = `You are an expert ATS (Applicant Tracking System) reviewer and hiring manager. 
 Analyze the provided resume text and optionally compare it to the provided job description.
 Assess compatibility, structure, formatting patterns, content quality, and keyword inclusion.
@@ -191,8 +210,8 @@ Provide your response strictly in the following JSON format:
 Return ONLY a valid JSON object. No markdown syntax wrapper, no trailing/leading characters, and no explanations outside the JSON structure.`;
         const userPrompt = `
 RESUME TEXT:
-\${resumeText}
-\${jobDescription ? \`TARGET JOB DESCRIPTION:\\n\${jobDescription}\` : "No specific job description provided. Perform a general industry-standard ATS analysis based on the resume content."}
+${finalResumeText}
+${jobDescription ? `TARGET JOB DESCRIPTION:\n${jobDescription}` : "No specific job description provided. Perform a general industry-standard ATS analysis based on the resume content."}
 `;
         const response = await ai.chat.completions.create({
             model: process.env.OPENAI_MODEL!,
@@ -221,17 +240,33 @@ RESUME TEXT:
             message: error.message || "Internal server error",
         });
     }
-};
-// controller for generating AI portfolio website content
+};// controller for generating AI portfolio website content
 // POST: /api/ai/generate-portfolio
 export const generatePortfolio = async (
     req: Request,
     res: Response
 ) => {
     try {
-        const { resumeData, username } = req.body;
+        const { resumeId, resumeData, resumeText, username } = req.body;
         const userId = (req as any).userId;
-        if (!resumeData) {
+
+        let finalResumeData = resumeData;
+
+        if (resumeId) {
+            const resume = await prisma.resume.findFirst({
+                where: { id: Number(resumeId), userId },
+            });
+            if (!resume) {
+                return res.status(404).json({ message: "Resume not found" });
+            }
+            finalResumeData = resume;
+        } else if (resumeText) {
+            // Only use AI to parse when user uploads on these scenarios
+            const newResume = await parseAndSaveResume(userId, "Uploaded Resume", resumeText);
+            finalResumeData = newResume;
+        }
+
+        if (!finalResumeData) {
             return res.status(400).json({
                 message: "Resume data missing"
             });
@@ -307,7 +342,7 @@ The output will be directly saved as an HTML file and hosted publicly.
                     {
                         role: "user",
                         content:
-                            JSON.stringify(resumeData)
+                            JSON.stringify(finalResumeData)
                     }
                 ]
             });
