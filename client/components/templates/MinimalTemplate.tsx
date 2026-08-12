@@ -45,10 +45,17 @@ const MinimalTemplate: React.FC<TemplateProps> = ({
               : "items-center text-center"
         }`}
       >
-        <h1 className="text-4xl font-thin mb-4 tracking-wide">
+        <h1 className="text-4xl font-thin mb-2 tracking-wide">
           {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
+        {data?.personalInfo?.profession && (
+          <p
+            className="text-sm text-gray-600 mb-2"
+          >
+            {data.personalInfo?.profession}
+          </p>
+        )}
         <div
           className={`flex flex-wrap gap-6 text-sm text-gray-600 ${
             alignment === "left"

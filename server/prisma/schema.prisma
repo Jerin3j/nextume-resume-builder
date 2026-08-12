@@ -11,9 +11,12 @@ model User {
   name      String
   email     String   @unique
   password  String?
+  isPro     Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   resumes   Resume[]
+  portfolio Portfolio?
+  coverLetters CoverLetter[]
 }
 
 model Resume {
@@ -32,4 +35,32 @@ model Resume {
   workExperience      Json[]   @default([])
   education           Json[]   @default([])
   projects            Json[]   @default([])
+  coverLetters        CoverLetter[]
+}
+
+model Portfolio {
+ id Int @id @default(autoincrement())
+ userId Int @unique
+ username String @unique
+ html String @db.Text
+ regenCount Int @default(0)
+ createdAt DateTime @default(now())
+ user User @relation(fields: [userId], references: [id])
+}
+
+model CoverLetter {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId       Int?
+  resume         Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  companyName    String
+  jobTitle       String
+  hiringManager  String?
+  jobDescription String?  @db.Text
+  tone           String
+  length         String
+  content        String   @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
 }

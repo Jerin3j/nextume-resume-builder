@@ -51,6 +51,14 @@ const ModernTemplate: React.FC<TemplateProps> = ({
           {data?.personalInfo?.fullName || "Your Name"}
         </h1>
 
+        {data?.personalInfo?.profession && (
+          <p
+            className="text-sm mb-4"
+          >
+            {data.personalInfo?.profession}
+          </p>
+        )}
+
         <div
           className={`text-sm w-full ${
             alignment === "left"

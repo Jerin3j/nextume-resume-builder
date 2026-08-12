@@ -35,9 +35,8 @@ const Features = () => {
             }
           >
             <div
-              className={`p-6 group-hover:bg-violet-100 border border-transparent group-hover:border-violet-300  flex gap-4 rounded-xl transition-colors ${
-                !isHover ? "border-violet-300 bg-violet-100" : ""
-              }`}
+              className={`p-6 group-hover:bg-violet-100 border border-transparent group-hover:border-violet-300  flex gap-4 rounded-xl transition-colors ${!isHover ? "border-violet-300 bg-violet-100" : ""
+                }`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -56,10 +55,10 @@ const Features = () => {
               </svg>
               <div className="space-y-2">
                 <h3 className="text-base font-semibold text-slate-700">
-                  Real-Time Analytics
+                  AI Resume Builder
                 </h3>
                 <p className="text-sm text-slate-600 max-w-xs">
-                  Get instant insights into your finances with live dashboards.
+                  Create professional, ATS-friendly resumes in minutes with AI-powered writing assistance.
                 </p>
               </div>
             </div>
@@ -83,10 +82,10 @@ const Features = () => {
               </svg>
               <div className="space-y-2">
                 <h3 className="text-base font-semibold text-slate-700">
-                  Bank-Grade Security
+                  ATS Resume Checker
                 </h3>
                 <p className="text-sm text-slate-600 max-w-xs">
-                  End-to-end encryption, 2FA, compliance with GDPR standards.
+                  Analyze your resume, improve your ATS score, and receive actionable suggestions instantly.
                 </p>
               </div>
             </div>
@@ -111,11 +110,10 @@ const Features = () => {
               </svg>
               <div className="space-y-2">
                 <h3 className="text-base font-semibold text-slate-700">
-                  Customizable Reports
+                  Portfolio Builder
                 </h3>
                 <p className="text-sm text-slate-600 max-w-xs">
-                  Export professional, audit-ready financial reports for tax or
-                  internal review.
+                  Turn your resume into a modern portfolio website and share it with a single link.
                 </p>
               </div>
             </div>

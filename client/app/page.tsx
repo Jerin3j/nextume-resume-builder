@@ -1,4 +1,4 @@
-import Banner from "@/components/home/Banner";
+// import Banner from "@/components/home/Banner";
 import CallToAction from "@/components/home/CallToAction";
 import Features from "@/components/home/Features";
 import Footer from "@/components/home/Footer";
@@ -7,13 +7,13 @@ import Testimonials from "@/components/home/Testimonials";
 
 export default function Home() {
   return (
-       <div>
-      <Banner />
+    <div>
+      {/* <Banner /> */}
       <Hero />
-      <Features/>
-      <Testimonials/>
-      <CallToAction/>
-      <Footer/>
+      <Features />
+      <Testimonials />
+      <CallToAction />
+      <Footer />
     </div>
   );
 }

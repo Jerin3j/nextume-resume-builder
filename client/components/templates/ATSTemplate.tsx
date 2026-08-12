@@ -38,6 +38,12 @@ const ATSTemplate: React.FC<TemplateProps> = ({ data, alignment }) => {
       >
         <h1 className="text-2xl font-bold">{data?.personalInfo?.fullName}</h1>
 
+        {data?.personalInfo?.profession && (
+          <p className="text-sm text-gray-600 mb-2">
+            {data.personalInfo.profession}
+          </p>
+        )}
+
         <p>
           {data?.personalInfo?.email && (
             <>
@@ -103,7 +109,9 @@ const ATSTemplate: React.FC<TemplateProps> = ({ data, alignment }) => {
       {/* Professional Summary */}
       {data?.professionalSummary && (
         <div className="mb-6">
-          <h2 className="font-bold uppercase mb-2">Professional Summary</h2>
+          <h2 className="font-bold uppercase mb-2">Professional Summary
+            <hr className="border-t-2 border-black"/>
+          </h2>
           <p>{data.professionalSummary}</p>
         </div>
       )}
@@ -111,7 +119,9 @@ const ATSTemplate: React.FC<TemplateProps> = ({ data, alignment }) => {
       {/* Experience */}
       {data?.workExperience && data?.workExperience?.length > 0 && (
         <div className="mb-6">
-          <h2 className="font-bold uppercase mb-2">Professional Experience</h2>
+          <h2 className="font-bold uppercase mb-2">Professional Experience
+            <hr className="border-t-2 border-black"/>
+          </h2>
 
           {data?.workExperience &&
             data.workExperience.map((exp, index) => (
@@ -137,7 +147,9 @@ const ATSTemplate: React.FC<TemplateProps> = ({ data, alignment }) => {
       {/* Projects */}
       {data?.projects && data?.projects?.length > 0 && (
         <div className="mb-6">
-          <h2 className="font-bold uppercase mb-2">Projects</h2>
+          <h2 className="font-bold uppercase mb-2">Projects
+            <hr className="border-t-2 border-black"/>
+          </h2>
 
           {data.projects &&
             data.projects.map((proj, index) => (
@@ -152,7 +164,9 @@ const ATSTemplate: React.FC<TemplateProps> = ({ data, alignment }) => {
       {/* Education */}
       {data?.education && data?.education?.length > 0 && (
         <div className="mb-6">
-          <h2 className="font-bold uppercase mb-2">Education</h2>
+          <h2 className="font-bold uppercase mb-2">Education
+            <hr className="border-t-2 border-black"/>
+          </h2>
 
           {data.education &&
             data.education.map((edu, index) => (
@@ -171,7 +185,9 @@ const ATSTemplate: React.FC<TemplateProps> = ({ data, alignment }) => {
       {/* Skills */}
       {data?.skills && data?.skills?.length > 0 && (
         <div>
-          <h2 className="font-bold uppercase mb-2">Skills</h2>
+          <h2 className="font-bold uppercase mb-2">Skills
+            <hr className="border-t-2 border-black"/>
+          </h2>
 
           <p>{data.skills.join(", ")}</p>
         </div>

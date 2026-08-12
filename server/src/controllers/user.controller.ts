@@ -131,6 +131,9 @@ export const getUserById = async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        portfolio: true,
+      },
     });
 
     if (!user) {
@@ -163,7 +166,7 @@ export const getUserResumes = async (req: Request, res: Response) => {
     const resumes = await prisma.resume.findMany({
       where: { userId },
     });
- console.log(JSON.stringify(resumes, null, 2));
+    console.log(JSON.stringify(resumes, null, 2));
     return res.status(200).json({ resumes });
   } catch (error) {
     console.error("Get User Resumes Error:", error);

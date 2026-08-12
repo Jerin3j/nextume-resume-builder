@@ -5,23 +5,14 @@ import prisma from "./prismaClient.js";
 import userRouter from "./routes/user.route.js";
 import resumeRouter from "./routes/resume.route.js";
 import aiRouter from "./routes/ai.route.js";
-
+import paymentRouter from "./routes/payment.route.js";
+import coverLetterRouter from "./routes/coverletter.route.js";
 const PORT: string | number = process.env.PORT || 3001;
-
-app.get("/", async (_req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.status(200).json(users);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Routes
 app.use("/api/users", userRouter);
 app.use("/api/resumes", resumeRouter);
 app.use("/api/ai", aiRouter);
-
+app.use("/api/payment", paymentRouter);
+app.use("/api/cover-letters", coverLetterRouter);
 app.listen(PORT, () => {
-  console.log(`Server is running on PORT: ${PORT}`);
+    console.log(`Server is running on PORT: ${PORT}`);
 });

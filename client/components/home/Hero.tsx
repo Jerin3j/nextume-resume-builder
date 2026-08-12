@@ -1,14 +1,15 @@
 "use client";
 import { RootState } from "@/lib/redux/store";
+import { ArrowRight, FilePenLine, FileText, Globe, PlayCircle, Sparkles } from "lucide-react";
+import { Play } from "next/font/google";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import heroImage from '../../public/hero-card-imagebg.png'
 
 const Hero = () => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const { user }: { user: any } = useSelector(
-    (state: RootState) => state.authReducer,
-  );
+  const { user }: { user: any } = useSelector((state: RootState) => state.authReducer,);
 
   const companiesLogo = [
     {
@@ -116,7 +117,7 @@ const Hero = () => {
 
   return (
     <>
-      <div className="min-h-screen pb-20">
+      <div className="mn-h-screen lg:pb-20">
         {/* Navbar */}
         <nav className="z-50 flex items-center justify-between w-full py-4 px-6 md:px-16 lg:px-24 xl:px-40 text-sm">
           <Link href="/">
@@ -147,12 +148,15 @@ const Hero = () => {
             <a href="#features" className="hover:text-indigo-600 transition">
               Features
             </a>
-            <a
-              href="#testimonials"
-              className="hover:text-indigo-600 transition"
-            >
-              Testimonials
-            </a>
+            <Link href="/pricing" className="hover:text-indigo-600 transition">
+              Pricing
+            </Link>
+            <Link href="/ats-score" className="hover:text-indigo-600 transition">
+              ATS Checker
+            </Link>
+            <Link href="/cover-letter" className="hover:text-indigo-600 transition">
+              Cover Letter
+            </Link>
             <a href="#cta" className="hover:text-indigo-600 transition">
               Contact
             </a>
@@ -160,7 +164,7 @@ const Hero = () => {
 
           <div className="flex gap-2">
             <Link
-              href="/register"
+              href="/dashboard"
               className="hidden md:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
               hidden={!user}
             >
@@ -202,20 +206,25 @@ const Hero = () => {
 
         {/* Mobile Menu */}
         <div
-          className={`fixed inset-0 z-[100] bg-black/40 text-black backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-300 ${
-            menuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`fixed inset-0 z-[100] bg-black/40 text-black backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
-          <a href="/" className="text-white">
+          <Link href="/" className="text-white" onClick={() => setMenuOpen(false)}>
             Home
-          </a>
-          <a href="/features" className="text-white">
+          </Link>
+          <a href="#features" className="text-white" onClick={() => setMenuOpen(false)}>
             Features
           </a>
-          <a href="/testimonials" className="text-white">
-            Testimonials
-          </a>
-          <a href="/contact" className="text-white">
+          <Link href="/pricing" className="text-white" onClick={() => setMenuOpen(false)}>
+            Pricing
+          </Link>
+          <Link href="/ats-score" className="text-white" onClick={() => setMenuOpen(false)}>
+            ATS Checker
+          </Link>
+          <Link href="/cover-letter" className="text-white" onClick={() => setMenuOpen(false)}>
+            Cover Letter
+          </Link>
+          <a href="#cta" className="text-white" onClick={() => setMenuOpen(false)}>
             Contact
           </a>
           <button
@@ -227,139 +236,193 @@ const Hero = () => {
         </div>
 
         {/* Hero Section */}
-        <div className="relative flex flex-col items-center justify-center text-sm px-4 md:px-16 lg:px-24 xl:px-40 text-black">
-          <div className="absolute top-28 xl:top-10 -z-10 left-1/4 size-72 sm:size-96 xl:size-120 2xl:size-132 bg-violet-300 blur-[100px] opacity-30"></div>
+        <div className="relative overflow-hidden text-black">
+          <div className="mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-12 xl:px-20">
 
-          {/* Avatars + Stars */}
-          <div className="flex items-center mt-24">
-            <div className="flex -space-x-3 pr-3">
-              <img
-                src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200"
-                alt="user3"
-                className="size-8 object-cover rounded-full border-2 border-white hover:-translate-y-0.5 transition z-[1]"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200"
-                alt="user1"
-                className="size-8 object-cover rounded-full border-2 border-white hover:-translate-y-0.5 transition z-2"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200"
-                alt="user2"
-                className="size-8 object-cover rounded-full border-2 border-white hover:-translate-y-0.5 transition z-[3]"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200"
-                alt="user3"
-                className="size-8 object-cover rounded-full border-2 border-white hover:-translate-y-0.5 transition z-[4]"
-              />
-              <img
-                src="https://randomuser.me/api/portraits/men/75.jpg"
-                alt="user5"
-                className="size-8 rounded-full border-2 border-white hover:-translate-y-0.5 transition z-[5]"
-              />
-            </div>
+            {/* Hero */}
+            <div className="grid items-center py-12 lg:min-h-[720px] lg:grid-cols-[46%_54%] lg:gap-6 xl:gap-10">
+              <div className="absolute top-28 md:left-0 xl:top-10 -z-10 left-1/4 size-72 sm:size-96 xl:size-120 2xl:size-132 bg-violet-300 blur-[100px] opacity-30"></div>
 
-            <div>
-              <div className="flex ">
-                {Array(5)
-                  .fill(0)
-                  .map((_, i) => (
-                    <svg
-                      key={i}
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-star text-transparent fill-indigo-600"
-                      aria-hidden="true"
-                    >
-                      <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path>
-                    </svg>
-                  ))}
+              {/* Left */}
+              <div className="max-w-xl">
+
+                {/* Badge */}
+                <div className="mb-8 hidden lg:inline-flex flex-wrap items-center gap-2 rounded-full bg-violet-100 px-5 py-2 text-sm font-medium text-violet-700">
+                  <Sparkles size={16} />
+                  AI Resume Builder
+                  <span>•</span>
+                  ATS Checker
+                  <span>•</span>
+                  Portfolio Builder
+                  <span>•</span>
+                  Cover Letter
+                </div>
+
+                {/* Heading */}
+                <h1 className="text-[42px] text-center md:text-start font-semibold leading-[1.05] tracking-[-0.03em] sm:text-5xl lg:text-[70px] lg:leading-[76px] xl:text-[78px] xl:leading-[84px]">
+                  Build Smarter.
+                  <br />
+                  Optimize Better.
+                  <br />
+                  <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
+                    Get Hired.
+                  </span>
+                </h1>
+
+                {/* Description */}
+                <p className="mt-7 text-center md:text-start max-w-lg text-base leading-8 text-slate-600 lg:text-lg">
+                  Create ATS-friendly resumes with AI, check your score,
+                  and launch your portfolio website in minutes.
+                </p>
+
+                {/* Buttons */}
+                <div className="mt-10 flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
+                  <button className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-4 font-semibold text-white shadow-lg transition hover:scale-[1.02] sm:w-auto">
+                    Go to Dashboard
+                  </button>
+
+                  <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-8 py-4 font-semibold transition hover:bg-slate-50 sm:w-auto">
+                    <PlayCircle size={20} />
+                    Watch Demo
+                  </button>
+                </div>
+
+                {/* Features */}
+                <div className="mt-14 hidden lg:grid grid-cols-4 gap-4">
+                  {[
+                    {
+                      step: "1",
+                      title: "Build Resume",
+                      subtitle: "Create a professional resume with AI",
+                      icon: FileText,
+                    },
+                    {
+                      step: "2",
+                      title: "Customize & Enhance",
+                      subtitle: "Optimize for ATS & improve content",
+                      icon: Sparkles,
+                    },
+                    {
+                      step: "3",
+                      title: "Generate Cover Letter",
+                      subtitle: "Get a tailored cover letter instantly",
+                      icon: FilePenLine,
+                      new: true,
+                    },
+                    {
+                      step: "4",
+                      title: "Launch Portfolio",
+                      subtitle: "Showcase your work with a live portfolio",
+                      icon: Globe,
+                    },
+                  ].map((item, index) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <div key={item.step} className="relative flex items-start">
+                        {/* Step */}
+                        <div className="flex flex-col items-center text-center w-full">
+                          {/* Icon */}
+                          <div
+                            className="
+              relative
+              flex h-12 w-12 gap-4
+              items-center justify-center
+              rounded-full
+              bg-violet-100/80
+              ring-8 ring-violet-50/60
+            "
+                          >
+                            <Icon
+                              size={17}
+                              strokeWidth={1.8}
+                              className="text-violet-600"
+                            />
+
+                            {/* Small sparkle */}
+                            {index === 1 && (
+                              <Sparkles
+                                size={8}
+                                className="absolute -right-1 -top-1 text-violet-500"
+                              />
+                            )}
+                          </div>
+
+                          {/* Step title */}
+                          <div className="mt-4 flex items-center justify-center gap-1">
+                            <p className="text-[10px] font-semibold text-slate-800 whitespace-nowrap">
+                              {item.step}. {item.title}
+                            </p>
+                          </div>
+
+                          {/* Subtitle */}
+                          <p className="mt-2 max-w-[125px] text-[9px] leading-4 text-slate-500">
+                            {item.subtitle}
+                          </p>
+                        </div>
+
+                        {/* Arrow */}
+                        {index < 3 && (
+                          <div className="absolute -right-3 top-5 flex items-center">
+                            <ArrowRight
+                              size={15}
+                              strokeWidth={1.5}
+                              className="text-violet-400"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <p className="text-sm text-gray-700">Used by 10,000+ users</p>
+
+              {/* Right Image */}
+              <div className="relative hidden justify-end lg:flex">
+                {/* Glow */}
+                <div className="absolute left-1/2 top-1/2 h-[540px] w-[540px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-400/20 blur-[140px]" />
+                <img
+                  src={heroImage.src}
+                  alt="Hero"
+                  className="relative z-10 w-[150%] max-w-none object-contain translate-x-32 -translate-y-12 drop-shadow-[0_40px_80px_rgba(80,70,229,.12)]"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Headline + CTA */}
-          <h1 className="text-5xl md:text-6xl font-semibold max-w-5xl text-center mt-4 md:leading-[70px]">
-            Create a Professional{" "}
-            <span className="bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent text-nowrap">
-              AI-Powered Resume{" "}
-            </span>
-            in Minutes.
-          </h1>
+            {/* Stats */}
+            <div className="mx-auto max-w-7xl pb-10">
+              <div className="rounded-[28px] bg-white px-2 py-2 shadow-md ring ring-gray-100">
+                <div className="grid grid-cols-2 lg:grid-cols-4">
+                  {[
+                    ["250+", "Resumes Created"],
+                    ["100+", "Portfolios Published"],
+                    ["4.9/5", "Average Rating"],
+                    ["92%", "ATS Pass Rate"],
+                  ].map(([value, label], index) => (
+                    <div
+                      key={label}
+                      className={`flex items-center justify-center gap-4 py-7
+              ${index !== 3 ? "lg:border-r" : ""}
+              ${index < 2 ? "border-b lg:border-b-0" : ""}
+              border-slate-200`}
+                    >
+                      <div>
+                        <h2 className="text-4xl font-bold text-violet-600">
+                          {value}
+                        </h2>
 
-          <p className="max-w-md text-center text-base my-7">
-            Build, customize, and download professional resumes with AI-powered
-            assistance
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex items-center gap-4 ">
-            <Link
-              href={user ? "/dashboard" : "/login?mode=signup"}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full px-9 h-12 m-1 ring-offset-2 ring-1 ring-indigo-400 flex items-center transition-colors"
-            >
-              {user ? "Go to Dashboard" : "Get started"}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-arrow-right ml-1 size-4"
-                aria-hidden="true"
-              >
-                <path d="M5 12h14"></path>
-                <path d="m12 5 7 7-7 7"></path>
-              </svg>
-            </Link>
-            <button className="flex items-center gap-2 border border-slate-400 hover:bg-indigo-50 transition rounded-full px-7 h-12 text-slate-700">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-video size-5"
-                aria-hidden="true"
-              >
-                <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"></path>
-                <rect x="2" y="6" width="14" height="12" rx="2"></rect>
-              </svg>
-              <span>Try demo</span>
-            </button>
-          </div>
-
-          <p className="py-6 text-slate-600 mt-14">
-            Trusting by leading brands, including
-          </p>
-
-          <div
-            className="flex flex-wrap justify-between max-sm:justify-center gap-6 max-w-3xl w-full mx-auto py-4"
-            id="logo-container"
-          >
-            {companiesLogo.map((company, index) => (
-              <React.Fragment key={index}>{company.logo}</React.Fragment>
-            ))}
+                        <p className="mt-1 text-sm text-slate-600">
+                          {label}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </div >
       <style>
         {`
                     @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
