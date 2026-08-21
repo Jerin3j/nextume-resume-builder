@@ -19,9 +19,8 @@ export const generateCoverLetter = async (req: Request, res: Response) => {
             length = "Medium",
         } = req.body;
 
-        if (!companyName || !jobTitle) {
-            return res.status(400).json({ message: "Company Name and Job Title are required" });
-        }
+        // const companyNameVal = companyName?.trim() || "Hiring Company";
+        // const jobTitleVal = jobTitle?.trim() || "Job Position";
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -35,8 +34,9 @@ export const generateCoverLetter = async (req: Request, res: Response) => {
         // Limit Checks
         if (!user.isPro) {
             // Free Tier limits
-            // 1. Max 2 total cover letters
-            if (user.coverLetters.length >= 2) {
+            // 1. Max 2 total generated cover letters (exclude Uploaded)
+            const generatedCount = user.coverLetters.filter(cl => cl.tone !== "Uploaded").length;
+            if (generatedCount >= 2) {
                 return res.status(403).json({
                     success: false,
                     message: "You have reached the maximum limit of 2 cover letters on the Free plan. Upgrade to Pro to unlock unlimited cover letters."
@@ -128,49 +128,147 @@ export const generateCoverLetter = async (req: Request, res: Response) => {
                 lengthPrompt = "Make the cover letter standard length. Around 250-300 words and 4 paragraphs.";
         }
 
-        const systemPrompt = `You are a world-class professional cover letter writer and career coach.
-Your task is to write a highly tailored, persuasive, and ATS-friendly cover letter for a candidate.
+        const hasSpecificJob = Boolean(companyName?.trim() || jobTitle?.trim());
+        const companyNameVal = companyName?.trim() || "a leading company";
+        const jobTitleVal = jobTitle?.trim() || "the targeted role";
 
-Inputs:
-- Company Name: ${companyName}
-- Job Title: ${jobTitle}
-- Hiring Manager: ${hiringManager || "Hiring Manager"}
-- Candidate Resume details:
+        //         const systemPrompt = `You are a world-class professional cover letter writer and career coach.
+        // Your task is to write a highly tailored, persuasive, and ATS-friendly cover letter for a candidate.
+
+        // Inputs:
+        // - Company Name: ${companyName?.trim() ? companyName.trim() : ""}
+        // - Job Title: ${jobTitle?.trim() ? jobTitle.trim() : ""}
+        // - Hiring Manager: ${hiringManager?.trim() ? hiringManager.trim() : "Hiring Manager"}
+        // - Candidate Resume details:
+        // ${finalResumeText}
+        // ${(user.isPro && jobDescription) ? `- Target Job Description:\n${jobDescription}` : ""}
+
+        // Style Constraints:
+        // - Tone: ${tonePrompt}
+        // - Length: ${lengthPrompt}
+
+        // Important Instructions:
+        // 1. Generate ONLY the cover letter content. Do not include any headers, greeting placeholders like '[Date]', '[Address]', or footers/explanations. Start directly with the greeting (e.g. 'Dear ${hiringManager?.trim() ? hiringManager.trim() : "Hiring Manager"},') and end with the professional sign-off (e.g. 'Sincerely, [Name]' or the candidate name). Include the greeting exactly ONCE at the beginning and do NOT repeat or duplicate it.
+        // 2. ${hasSpecificJob ? `Highlight specific skills and experiences from the resume that directly align with the job title ${jobTitleVal} and company ${companyNameVal}.` : `Write a versatile, high-impact cover letter highlighting the candidate's strongest skills, achievements, and experiences from the resume that demonstrate strong qualification for professional roles.`}
+        // 3. Maintain an ATS-friendly, professional document structure.
+        // 4. Ensure the output is returned as plain text. Do not wrap the response in markdown blocks or json.`;
+
+        // const userMessage = hasSpecificJob
+        //     ? `Please generate the cover letter for the role of ${jobTitleVal} at ${companyNameVal}.`
+        //     : `Please generate a versatile professional cover letter based on my resume qualifications.`;
+
+        const systemPrompt = `You are a world-class professional cover letter writer and career coach.
+
+Your task is to write a highly tailored, persuasive, ATS-friendly cover letter based on the candidate's resume.
+
+Candidate Resume:
 ${finalResumeText}
-${(user.isPro && jobDescription) ? `- Target Job Description:\n${jobDescription}` : ""}
+
+${hasSpecificJob ? `
+TARGETED APPLICATION
+
+The candidate has provided specific job information.
+
+Company Name: ${companyNameVal || "Not provided"}
+Job Title: ${jobTitleVal || "Not provided"}
+Hiring Manager: ${hiringManager?.trim() || "Hiring Manager"}
+
+${(user.isPro && jobDescription?.trim())
+                    ? `Target Job Description:
+${jobDescription.trim()}`
+                    : ""}
+
+Write the cover letter specifically for this opportunity.
+Use only the provided company, job title, and job description.
+Do not invent missing company or job information.
+` : `
+GENERAL APPLICATION
+
+The candidate has NOT provided a specific company, job title, or job description.
+
+This is a general application based ONLY on the candidate's resume.
+
+CRITICAL RULES FOR GENERAL APPLICATION:
+- Do NOT mention any specific company.
+- Do NOT mention any specific job title.
+- Do NOT invent or assume a position or role.
+- Do NOT write phrases such as "the Full Stack Developer position", "the Software Engineer role", or similar.
+- Do NOT mention "your company" or "your organization" as though applying to a specific employer.
+- Focus entirely on the candidate's skills, experience, accomplishments, strengths, and overall professional value.
+- Keep the letter versatile so it can be used when applying to different opportunities.
+`}
 
 Style Constraints:
 - Tone: ${tonePrompt}
 - Length: ${lengthPrompt}
 
 Important Instructions:
-1. Generate ONLY the cover letter content. Do not include any headers, greeting placeholders like '[Date]', '[Address]', or footers/explanations. Start directly with the greeting (e.g. 'Dear Hiring Manager,' or 'Dear ${hiringManager},') and end with the professional sign-off (e.g. 'Sincerely, [Name]' or the candidate name).
-2. Highlight specific skills and experiences from the resume that directly align with the job title ${jobTitle} and company ${companyName}.
-3. Maintain an ATS-friendly, professional document structure.
-4. Ensure the output is returned as plain text. Do not wrap the response in markdown blocks or json.`;
+1. Generate ONLY the cover letter content.
+2. Do not include a date, address, subject line, "To:", headers, placeholders, explanations, or markdown.
+3. ${hasSpecificJob
+                ? `Start exactly with "Dear ${hiringManager?.trim() || "Hiring Manager"},"`
+                : `Start exactly with "Dear Hiring Manager,"`
+            }
+4. Include the greeting exactly once.
+5. End with a professional sign-off.
+6. Do not invent facts, employers, positions, achievements, technologies, or experience that are not supported by the resume.
+7. Return plain text only.`;
+
+        const userMessage = hasSpecificJob
+            ? `Generate a tailored cover letter for ${jobTitleVal || "the provided opportunity"}${companyNameVal ? ` at ${companyNameVal}` : ""}.`
+            : `Generate a general professional cover letter based exclusively on my resume. Do not target any specific job, company, or position.`;
 
         const response = await ai.chat.completions.create({
             model: process.env.OPENAI_MODEL!,
             messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: `Please generate the cover letter for the role of ${jobTitle} at ${companyName}.` },
+                { role: "user", content: userMessage },
             ],
         });
 
-        const content = response.choices[0]?.message?.content;
-        if (!content) {
+        const rawContent = response.choices[0]?.message?.content;
+        if (!rawContent) {
             throw new Error("AI returned empty content");
+        }
+
+        // Sanitize content to ensure no duplicate greetings at start
+        let content = rawContent.trim();
+        const greetingRegex = /^(Dear\s+[^,\n]+[,:]?\s*[\r\n]+)\s*(Dear\s+[^,\n]+[,:]?\s*[\r\n]+)+/i;
+        if (greetingRegex.test(content)) {
+            content = content.replace(greetingRegex, "$1\n");
+        }
+        const contentLines = content.split(/\r?\n/);
+        const firstGreetingIdx = contentLines.findIndex(l => /^Dear\s+/i.test(l.trim()));
+        if (firstGreetingIdx !== -1) {
+            const secondGreetingIdx = contentLines.findIndex((l, idx) => idx > firstGreetingIdx && /^Dear\s+/i.test(l.trim()) && idx - firstGreetingIdx <= 4);
+            if (secondGreetingIdx !== -1) {
+                contentLines.splice(secondGreetingIdx, 1);
+                content = contentLines.join("\n");
+            }
         }
 
         // Save cover letter to database
         const coverLetter = await prisma.coverLetter.create({
             data: {
-                userId,
-                resumeId: finalResumeId,
-                companyName,
-                jobTitle,
-                hiringManager: hiringManager || null,
-                jobDescription: (user.isPro && jobDescription) ? jobDescription : null,
+                user: {
+                    connect: {
+                        id: userId,
+                    },
+                },
+                resume: finalResumeId
+                    ? {
+                        connect: {
+                            id: finalResumeId,
+                        },
+                    }
+                    : undefined,
+                companyName: companyName?.trim() || null,
+                jobTitle: jobTitle?.trim() || null,
+                hiringManager: hiringManager?.trim() || null,
+                jobDescription:
+                    user.isPro && jobDescription?.trim()
+                        ? jobDescription.trim()
+                        : null,
                 tone,
                 length,
                 content,
@@ -290,7 +388,8 @@ export const duplicateCoverLetter = async (req: Request, res: Response) => {
         }
 
         if (!user.isPro) {
-            if (user.coverLetters.length >= 2) {
+            const generatedCount = user.coverLetters.filter(cl => cl.tone !== "Uploaded").length;
+            if (generatedCount >= 2) {
                 return res.status(403).json({
                     success: false,
                     message: "You have reached the maximum limit of 2 cover letters on the Free plan. Upgrade to Pro to clone or create new cover letters."
@@ -360,5 +459,103 @@ export const deleteCoverLetter = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error("Delete Cover Letter Error:", error);
         res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+// POST: /api/cover-letters/upload
+export const uploadExternalCoverLetter = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).userId;
+        const { companyName, jobTitle, hiringManager, content } = req.body;
+
+        if (!content) {
+            return res.status(400).json({ message: "Content is required" });
+        }
+
+        const companyNameVal = companyName?.trim() || "Hiring Company";
+        const jobTitleVal = jobTitle?.trim() || "Job Position";
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Save cover letter to database as "Uploaded" (skips limit validations)
+        const coverLetter = await prisma.coverLetter.create({
+            data: {
+                userId,
+                resumeId: null,
+                companyName: companyNameVal,
+                jobTitle: jobTitleVal,
+                hiringManager: hiringManager || null,
+                jobDescription: null,
+                tone: "Uploaded",
+                length: "Uploaded",
+                content,
+            },
+        });
+
+        res.status(201).json({
+            success: true,
+            coverLetter,
+        });
+    } catch (error: any) {
+        console.error("Upload Cover Letter Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error. Failed to save uploaded cover letter.",
+        });
+    }
+};
+
+// POST: /api/cover-letters/parse
+export const parseUploadedCoverLetter = async (req: Request, res: Response) => {
+    try {
+        const { content } = req.body;
+        if (!content) {
+            return res.status(400).json({ message: "Content is required" });
+        }
+
+        const systemPrompt = `You are an expert AI assistant parsing cover letter text.
+Extract the following details from the cover letter text:
+- Company Name
+- Job Title
+- Hiring Manager Name (if found, otherwise null)
+
+Provide the response in the following JSON format:
+{
+  "companyName": "string or null",
+  "jobTitle": "string or null",
+  "hiringManager": "string or null"
+}
+Do not include any extra text.`;
+
+        const response = await ai.chat.completions.create({
+            model: process.env.OPENAI_MODEL!,
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: `Here is the cover letter text:\n\n${content}` },
+            ],
+            response_format: { type: "json_object" },
+        });
+
+        const message = response.choices[0]?.message?.content;
+        if (!message) {
+            throw new Error("AI returned empty content");
+        }
+
+        const parsed = JSON.parse(message);
+        res.status(200).json({
+            success: true,
+            companyName: parsed.companyName || "",
+            jobTitle: parsed.jobTitle || "",
+            hiringManager: parsed.hiringManager || "",
+        });
+    } catch (error: any) {
+        console.error("Parse Cover Letter Error:", error);
+        res.status(500).json({ success: false, message: "Failed to parse cover letter details" });
     }
 };

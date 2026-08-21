@@ -334,8 +334,8 @@ const Hero = () => {
             "
                           >
                             <Icon
-                              size={17}
-                              strokeWidth={1.8}
+                              size={20}
+                              strokeWidth={1.3}
                               className="text-violet-600"
                             />
 

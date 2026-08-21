@@ -49,8 +49,8 @@ interface Resume {
 
 interface CoverLetter {
   id: number;
-  companyName: string;
-  jobTitle: string;
+  companyName?: string;
+  jobTitle?: string;
   hiringManager?: string;
   jobDescription?: string;
   tone: string;
@@ -82,7 +82,7 @@ export default function CoverLetterPage() {
   const [wizardStep, setWizardStep] = useState(1);
   const [resumeSource, setResumeSource] = useState<"saved" | "upload">("saved");
   const [selectedResumeId, setSelectedResumeId] = useState<number | null>(null);
-  
+
   // Upload states
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedText, setUploadedText] = useState("");
@@ -108,6 +108,16 @@ export default function CoverLetterPage() {
   const [editedContent, setEditedContent] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+
+  // External Upload states
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadText, setUploadText] = useState("");
+  const [isExtractingUpload, setIsExtractingUpload] = useState(false);
+  const [uploadCompanyName, setUploadCompanyName] = useState("");
+  const [uploadJobTitle, setUploadJobTitle] = useState("");
+  const [uploadHiringManager, setUploadHiringManager] = useState("");
+  const [isSavingUpload, setIsSavingUpload] = useState(false);
 
   const generationStepsList = [
     "Analyzing resume details and achievements...",
@@ -180,13 +190,110 @@ export default function CoverLetterPage() {
     }
   };
 
-  // Generate Letter handler
-  const handleGenerate = async () => {
-    if (!companyName.trim() || !jobTitle.trim()) {
-      toast.error("Company Name and Job Title are required!");
+  // External Cover Letter PDF/DOC/DOCX Upload Handler
+  const handleCoverLetterUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    if (extension !== "pdf" && extension !== "docx" && extension !== "doc" && extension !== "txt") {
+      toast.error("Please upload a PDF, DOC, DOCX, or TXT file.");
       return;
     }
 
+    setUploadFile(file);
+    setIsExtractingUpload(true);
+    try {
+      let extractedText = "";
+      if (extension === "pdf") {
+        try {
+          extractedText = await pdfToText(file);
+        } catch (pdfErr) {
+          console.warn("pdfToText fallback to file.text()", pdfErr);
+          extractedText = await file.text();
+        }
+      } else if (extension === "docx" || extension === "doc") {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const mammoth = await import("mammoth");
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          extractedText = result.value;
+        } catch (docxErr) {
+          console.warn("mammoth fallback to file.text()", docxErr);
+          extractedText = await file.text();
+        }
+      } else {
+        extractedText = await file.text();
+      }
+
+      if (!extractedText || !extractedText.trim()) {
+        toast("Could not automatically extract text from this document. You can paste the content directly below.", { icon: "ℹ️" });
+      } else {
+        setUploadText(extractedText);
+        toast.success("Document text extracted successfully!");
+
+        // Attempt AI parsing for fields
+        if (extractedText.trim().length > 20) {
+          toast.loading("Analyzing details from cover letter...", { id: "parse-loading" });
+          try {
+            const response = await axiosInstance.post("/cover-letters/parse", { content: extractedText });
+            toast.dismiss("parse-loading");
+            if (response.data.success) {
+              setUploadCompanyName(response.data.companyName || "");
+              setUploadJobTitle(response.data.jobTitle || "");
+              setUploadHiringManager(response.data.hiringManager || "");
+            }
+          } catch (parseErr) {
+            toast.dismiss("parse-loading");
+          }
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to read file. You can paste your cover letter text manually.");
+    } finally {
+      setIsExtractingUpload(false);
+    }
+  };
+
+  // Save Uploaded Cover Letter
+  const handleSaveUploadedLetter = async () => {
+    if (!uploadText || !uploadText.trim()) {
+      toast.error("Please upload a file or paste your cover letter text.");
+      return;
+    }
+
+    setIsSavingUpload(true);
+    try {
+      const payload = {
+        companyName: uploadCompanyName.trim() || undefined,
+        jobTitle: uploadJobTitle.trim() || undefined,
+        hiringManager: uploadHiringManager.trim() || undefined,
+        content: uploadText.trim(),
+      };
+
+      const response = await axiosInstance.post("/cover-letters/upload", payload);
+      if (response.data.success) {
+        toast.success("Cover letter uploaded successfully!");
+        setCoverLetters([response.data.coverLetter, ...coverLetters]);
+        // Reset states
+        setUploadFile(null);
+        setUploadText("");
+        setUploadCompanyName("");
+        setUploadJobTitle("");
+        setUploadHiringManager("");
+        setShowUploadModal(false);
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to upload cover letter");
+    } finally {
+      setIsSavingUpload(false);
+    }
+  };
+
+  // Generate Letter handler
+  const handleGenerate = async () => {
     if (resumeSource === "saved" && !selectedResumeId) {
       toast.error("Please select a resume to use.");
       return;
@@ -197,15 +304,26 @@ export default function CoverLetterPage() {
       return;
     }
 
+    if (getIsLimitReached()) {
+      toast.error("You have reached the Free Plan limit of 2 cover letters. Please upgrade to Pro.");
+      router.push("/pricing");
+      return;
+    }
+
+    if (getSelectedResumeLimitReached()) {
+      toast.error("Limit reached for the selected resume.");
+      return;
+    }
+
     setIsGenerating(true);
     try {
       const payload = {
         resumeId: resumeSource === "saved" ? selectedResumeId : undefined,
         resumeText: resumeSource === "upload" ? uploadedText : undefined,
-        companyName: companyName.trim(),
-        jobTitle: jobTitle.trim(),
+        companyName: companyName.trim() || undefined,
+        jobTitle: jobTitle.trim() || undefined,
         hiringManager: hiringManager.trim() || undefined,
-        jobDescription: user?.isPro ? jobDescription.trim() : undefined,
+        jobDescription: user?.isPro ? (jobDescription.trim() || undefined) : undefined,
         tone: user?.isPro ? tone : "Professional",
         length: user?.isPro ? length : "Medium",
       };
@@ -224,6 +342,9 @@ export default function CoverLetterPage() {
       console.error(error);
       const msg = error.response?.data?.message || "Failed to generate cover letter.";
       toast.error(msg);
+      if (error.response?.status === 403) {
+        router.push("/pricing");
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -314,8 +435,8 @@ export default function CoverLetterPage() {
     try {
       const payload = {
         resumeId: activeLetter.resumeId || undefined,
-        companyName: activeLetter.companyName,
-        jobTitle: activeLetter.jobTitle,
+        companyName: activeLetter.companyName || undefined,
+        jobTitle: activeLetter.jobTitle || undefined,
         hiringManager: activeLetter.hiringManager || undefined,
         jobDescription: user?.isPro ? activeLetter.jobDescription : undefined,
         tone: activeLetter.tone,
@@ -379,17 +500,15 @@ export default function CoverLetterPage() {
           <body>
             <div class="date">${new Date(activeLetter.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}</div>
             <div class="recipient">
-              ${activeLetter.hiringManager ? `${activeLetter.hiringManager}<br/>` : "Hiring Manager<br/>"}
+              ${activeLetter.hiringManager ? `${activeLetter.hiringManager}<br/>` : ""}
               ${activeLetter.companyName}
             </div>
-            <div class="salutation">Dear ${activeLetter.hiringManager || "Hiring Manager"},</div>
             <div class="body-content">${activeLetter.content}</div>
           </body>
         </html>
       `);
       printWindow.document.close();
       printWindow.focus();
-      // Small timeout to ensure styling is loaded
       setTimeout(() => {
         printWindow.print();
         printWindow.close();
@@ -405,19 +524,16 @@ export default function CoverLetterPage() {
 ${dateStr}
 
 To,
-${activeLetter.hiringManager || "Hiring Manager"}
-${activeLetter.companyName}
-
-Dear ${activeLetter.hiringManager || "Hiring Manager"},
+${activeLetter.hiringManager ? `${activeLetter.hiringManager}\n` : ""}${activeLetter.companyName}
 
 ${activeLetter.content}
 `;
-    
+
     const blob = new Blob([fullText], { type: "application/msword" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${activeLetter.companyName.replace(/\s+/g, "_")}_Cover_Letter.doc`;
+    link.download = `${activeLetter?.companyName?.replace(/\s+/g, "_")}_Cover_Letter.doc`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -448,22 +564,37 @@ ${activeLetter.content}
   // Filter cover letters by searchTerm
   const filteredLetters = coverLetters.filter((cl) => {
     const term = searchTerm.toLowerCase();
-    return cl.companyName.toLowerCase().includes(term) || cl.jobTitle.toLowerCase().includes(term);
+    return cl.companyName?.toLowerCase().includes(term) || cl.jobTitle?.toLowerCase().includes(term);
   });
 
   // Limits Check for generation blocking
   const getIsLimitReached = () => {
     if (!user) return true;
     if (user.isPro) {
-      return false; // Pro users has no global limits (only 3 per resume limit which is checked on step select)
+      return false; // Pro users have no global limits
     }
-    // Free plan: Max 2 total cover letters
-    return coverLetters.length >= 2;
+    // Free plan: Max 2 total generated cover letters (exclude Uploaded)
+    const generatedCount = coverLetters.filter(cl => cl.tone !== "Uploaded").length;
+    return generatedCount >= 2;
+  };
+
+  const getSelectedResumeLimitReached = () => {
+    if (!user) return false;
+    if (resumeSource !== "saved" || !selectedResumeId) return false;
+
+    const count = coverLetters.filter((cl) => cl.resumeId === selectedResumeId && cl.tone !== "Uploaded").length;
+    if (!user.isPro) {
+      // Free plan: Max 1 cover letter per resume
+      return count >= 1;
+    } else {
+      // Pro plan: Max 3 cover letters per resume
+      return count >= 3;
+    }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-16 font-sans">
-      
+
       {/* Top Banner Navigation */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -481,7 +612,7 @@ ${activeLetter.content}
             <ArrowLeft className="w-4 h-4" />
             {view === "dashboard" ? "Back to Dashboard" : "Cancel & Return"}
           </button>
-          
+
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
               Generated: <strong className="text-slate-800">{coverLetters.length}</strong>
@@ -507,7 +638,7 @@ ${activeLetter.content}
       {/* DASHBOARD VIEW */}
       {view === "dashboard" && (
         <div className="max-w-7xl mx-auto px-4 py-8">
-          
+
           {/* Header Card */}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-8 md:p-12 shadow-md mb-8">
             <div className="relative z-10 max-w-3xl">
@@ -522,7 +653,7 @@ ${activeLetter.content}
                 Create highly tailored, professional business cover letters aligned directly with your technical resume profile and job specifications. Stand out to recruitment teams and Applicant Tracking Systems.
               </p>
             </div>
-            
+
             {/* Crown ambient decoration */}
             <div className="absolute right-0 bottom-0 top-0 w-1/4 opacity-15 pointer-events-none hidden md:block">
               <Crown className="w-64 h-64 text-white absolute -right-16 -bottom-16" />
@@ -531,7 +662,7 @@ ${activeLetter.content}
 
           {/* Action Row */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-            
+
             {/* Search */}
             <div className="relative w-full sm:max-w-md">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
@@ -545,20 +676,33 @@ ${activeLetter.content}
             </div>
 
             {/* Create New Trigger */}
-            <button
-              onClick={() => {
-                if (getIsLimitReached()) {
-                  toast.error("You have reached the Free Plan limit of 2 cover letters. Please upgrade to Pro.");
-                  router.push("/pricing");
-                } else {
-                  setView("wizard");
-                }
-              }}
-              className="w-full sm:w-auto px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-violet-200/50 transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Plus className="w-4.5 h-4.5" />
-              Generate Cover Letter
-            </button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="flex-1 sm:flex-initial px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer font-sans"
+              >
+                <Plus className="w-4.5 h-4.5 text-slate-500" />
+                Upload Cover Letter
+              </button>
+              <button
+                disabled={getIsLimitReached()}
+                onClick={() => {
+                  if (getIsLimitReached()) {
+                    toast.error("You have reached the Free Plan limit of 2 cover letters. Please upgrade to Pro.");
+                    router.push("/pricing");
+                  } else {
+                    setView("wizard");
+                  }
+                }}
+                className={`flex-1 sm:flex-initial px-5 py-2.5 text-white rounded-xl text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${getIsLimitReached()
+                  ? "opacity-50 cursor-not-allowed bg-slate-300 shadow-none hover:bg-slate-300"
+                  : "bg-violet-600 hover:bg-violet-700 hover:shadow-violet-200/50"
+                  }`}
+              >
+                <Sparkles className="w-4.5 h-4.5" />
+                Generate Cover Letter
+              </button>
+            </div>
           </div>
 
           {/* Content Loading State */}
@@ -567,7 +711,7 @@ ${activeLetter.content}
               <LoaderCircle className="w-8 h-8 text-violet-600 animate-spin" />
             </div>
           ) : filteredLetters.length === 0 ? (
-            
+
             /* Empty State */
             <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center max-w-lg mx-auto shadow-sm space-y-5">
               <div className="w-16 h-16 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center mx-auto border border-violet-100">
@@ -581,22 +725,34 @@ ${activeLetter.content}
                   Tailor your first ATS-friendly business cover letter for job submissions using your existing resumes or by uploading a PDF document.
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  if (getIsLimitReached()) {
-                    toast.error("You have reached the Free Plan limit of 2 cover letters. Please upgrade to Pro.");
-                    router.push("/pricing");
-                  } else {
-                    setView("wizard");
-                  }
-                }}
-                className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
-              >
-                Create Cover Letter
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <button
+                  onClick={() => setShowUploadModal(true)}
+                  className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  Upload Cover Letter
+                </button>
+                <button
+                  disabled={getIsLimitReached()}
+                  onClick={() => {
+                    if (getIsLimitReached()) {
+                      toast.error("You have reached the Free Plan limit of 2 cover letters. Please upgrade to Pro.");
+                      router.push("/pricing");
+                    } else {
+                      setView("wizard");
+                    }
+                  }}
+                  className={`px-5 py-2.5 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer ${getIsLimitReached()
+                    ? "bg-slate-300 opacity-50 cursor-not-allowed"
+                    : "bg-violet-600 hover:bg-violet-700"
+                    }`}
+                >
+                  Create Cover Letter
+                </button>
+              </div>
             </div>
           ) : (
-            
+
             /* Grid View */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredLetters.map((letter) => (
@@ -608,13 +764,13 @@ ${activeLetter.content}
                     <div className="flex items-start justify-between">
                       <div className="space-y-0.5">
                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                          {letter.companyName}
+                          {letter.companyName ? letter.companyName : "General"}
                         </span>
                         <h3 className="font-bold text-slate-800 text-base group-hover:text-violet-600 transition-colors line-clamp-1">
-                          {letter.jobTitle}
+                          {letter.jobTitle ? letter.jobTitle : "General"}
                         </h3>
                       </div>
-                      
+
                       {/* Tone Badge */}
                       <span className="text-[9px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-slate-200">
                         {letter.tone}
@@ -677,24 +833,22 @@ ${activeLetter.content}
       {/* MULTI-STEP CREATION WIZARD */}
       {view === "wizard" && (
         <div className="max-w-3xl mx-auto px-4 py-8">
-          
+
           {/* Stepper progress indicator */}
           <div className="mb-8 bg-white border border-slate-200 rounded-2xl p-4 flex justify-between items-center shadow-sm">
             {[1, 2, 3, 4, 5].map((step) => (
               <div key={step} className="flex items-center gap-2">
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    wizardStep >= step
-                      ? "bg-violet-600 text-white shadow-sm"
-                      : "bg-slate-100 text-slate-400"
-                  }`}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${wizardStep >= step
+                    ? "bg-violet-600 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-400"
+                    }`}
                 >
                   {step}
                 </div>
                 <span
-                  className={`text-xs font-semibold hidden md:inline ${
-                    wizardStep === step ? "text-slate-800" : "text-slate-400"
-                  }`}
+                  className={`text-xs font-semibold hidden md:inline ${wizardStep === step ? "text-slate-800" : "text-slate-400"
+                    }`}
                 >
                   {step === 1 && "Resume"}
                   {step === 2 && "Job details"}
@@ -728,21 +882,19 @@ ${activeLetter.content}
                 <div className="flex border-b border-slate-100">
                   <button
                     onClick={() => setResumeSource("saved")}
-                    className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-                      resumeSource === "saved"
-                        ? "border-violet-600 text-violet-600"
-                        : "border-transparent text-slate-400 hover:text-slate-600"
-                    }`}
+                    className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${resumeSource === "saved"
+                      ? "border-violet-600 text-violet-600"
+                      : "border-transparent text-slate-400 hover:text-slate-600"
+                      }`}
                   >
                     My Saved Resumes
                   </button>
                   <button
                     onClick={() => setResumeSource("upload")}
-                    className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-                      resumeSource === "upload"
-                        ? "border-violet-600 text-violet-600"
-                        : "border-transparent text-slate-400 hover:text-slate-600"
-                    }`}
+                    className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${resumeSource === "upload"
+                      ? "border-violet-600 text-violet-600"
+                      : "border-transparent text-slate-400 hover:text-slate-600"
+                      }`}
                   >
                     Upload PDF Resume
                   </button>
@@ -778,11 +930,10 @@ ${activeLetter.content}
                               key={res.id}
                               type="button"
                               onClick={() => setSelectedResumeId(res.id)}
-                              className={`flex items-start justify-between p-4 rounded-xl border text-left transition-all hover:shadow-sm cursor-pointer ${
-                                isSelected
-                                  ? "border-violet-600 bg-violet-50/20 ring-1 ring-violet-500"
-                                  : "border-slate-200 bg-white hover:border-slate-300"
-                              }`}
+                              className={`flex items-start justify-between p-4 rounded-xl border text-left transition-all hover:shadow-sm cursor-pointer ${isSelected
+                                ? "border-violet-600 bg-violet-50/20 ring-1 ring-violet-500"
+                                : "border-slate-200 bg-white hover:border-slate-300"
+                                }`}
                             >
                               <div className="space-y-1">
                                 <h3 className="font-bold text-slate-700 line-clamp-1 text-sm">
@@ -803,6 +954,19 @@ ${activeLetter.content}
                             </button>
                           );
                         })}
+                      </div>
+                    )}
+                    {selectedResumeId && getSelectedResumeLimitReached() && (
+                      <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 mt-4 text-amber-800 text-xs">
+                        <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold">Limit Reached for Selected Resume</p>
+                          <p className="mt-1 leading-relaxed">
+                            {!user?.isPro
+                              ? "You have already generated 1 cover letter for this resume on the Free plan. Upgrade to Pro to create multiple versions."
+                              : "You have reached the limit of 3 cover letters for this resume on the Pro plan."}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -854,6 +1018,18 @@ ${activeLetter.content}
                     )}
                   </div>
                 )}
+
+                {getIsLimitReached() && (
+                  <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3 mt-4 text-rose-800 text-xs animate-fadeIn">
+                    <AlertCircle className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold">Cover Letter Limit Reached</p>
+                      <p className="mt-1 leading-relaxed">
+                        You have reached the Free Plan limit of 2 generated cover letters. Please delete an existing cover letter or upgrade to Pro to proceed.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -874,7 +1050,7 @@ ${activeLetter.content}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                        Company Name <span className="text-rose-500">*</span>
+                        Company Name <span className="text-slate-400 font-normal">(Optional)</span>
                       </label>
                       <input
                         type="text"
@@ -887,7 +1063,7 @@ ${activeLetter.content}
 
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                        Job Title <span className="text-rose-500">*</span>
+                        Job Title <span className="text-slate-400 font-normal">(Optional)</span>
                       </label>
                       <input
                         type="text"
@@ -928,7 +1104,7 @@ ${activeLetter.content}
                       Paste the role description here to tailor cover letter keywords directly.
                     </p>
                   </div>
-                  
+
                   {!user?.isPro && (
                     <span className="text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 rounded px-2 py-0.5 uppercase flex items-center gap-0.5">
                       <Crown className="w-3 h-3 fill-amber-700 text-amber-700" /> Pro Feature
@@ -962,9 +1138,8 @@ ${activeLetter.content}
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                     disabled={!user?.isPro}
-                    className={`w-full text-sm p-4 bg-white border border-slate-200 rounded-xl focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none ${
-                      !user?.isPro ? "blur-[2px] pointer-events-none select-none text-slate-300" : ""
-                    }`}
+                    className={`w-full text-sm p-4 bg-white border border-slate-200 rounded-xl focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none ${!user?.isPro ? "blur-[2px] pointer-events-none select-none text-slate-300" : ""
+                      }`}
                   />
                 </div>
               </div>
@@ -996,7 +1171,7 @@ ${activeLetter.content}
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {[
                         { name: "Professional", desc: "Formal & corporate" },
@@ -1014,11 +1189,10 @@ ${activeLetter.content}
                             type="button"
                             disabled={!isUnlocked}
                             onClick={() => setTone(t.name)}
-                            className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
-                              isSelected
-                                ? "border-violet-600 bg-violet-50/20 ring-1 ring-violet-500"
-                                : "border-slate-200 bg-white hover:border-slate-300"
-                            } ${!isUnlocked ? "opacity-60 cursor-not-allowed bg-slate-50" : ""}`}
+                            className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${isSelected
+                              ? "border-violet-600 bg-violet-50/20 ring-1 ring-violet-500"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                              } ${!isUnlocked ? "opacity-60 cursor-not-allowed bg-slate-50" : ""}`}
                           >
                             <div className="space-y-0.5">
                               <h4 className="font-bold text-xs text-slate-700">{t.name}</h4>
@@ -1047,7 +1221,7 @@ ${activeLetter.content}
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="grid grid-cols-3 gap-3">
                       {[
                         { name: "Short", desc: "~150 words" },
@@ -1062,11 +1236,10 @@ ${activeLetter.content}
                             type="button"
                             disabled={!isUnlocked}
                             onClick={() => setLength(l.name)}
-                            className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
-                              isSelected
-                                ? "border-violet-600 bg-violet-50/20 ring-1 ring-violet-500"
-                                : "border-slate-200 bg-white hover:border-slate-300"
-                            } ${!isUnlocked ? "opacity-60 cursor-not-allowed bg-slate-50" : ""}`}
+                            className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${isSelected
+                              ? "border-violet-600 bg-violet-50/20 ring-1 ring-violet-500"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                              } ${!isUnlocked ? "opacity-60 cursor-not-allowed bg-slate-50" : ""}`}
                           >
                             <div className="space-y-0.5">
                               <h4 className="font-bold text-xs text-slate-700">{l.name}</h4>
@@ -1101,11 +1274,11 @@ ${activeLetter.content}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <span className="text-slate-400 block font-semibold mb-0.5">TARGET COMPANY</span>
-                      <span className="font-bold text-slate-700">{companyName}</span>
+                      <span className="font-bold text-slate-700">{companyName || "Hiring Company"}</span>
                     </div>
                     <div>
                       <span className="text-slate-400 block font-semibold mb-0.5">JOB ROLE</span>
-                      <span className="font-bold text-slate-700">{jobTitle}</span>
+                      <span className="font-bold text-slate-700">{jobTitle || "Job Position"}</span>
                     </div>
                     <div>
                       <span className="text-slate-400 block font-semibold mb-0.5">HIRING MANAGER</span>
@@ -1114,8 +1287,8 @@ ${activeLetter.content}
                     <div>
                       <span className="text-slate-400 block font-semibold mb-0.5">SOURCE PROFILE</span>
                       <span className="font-bold text-slate-700">
-                        {resumeSource === "saved" 
-                          ? resumes.find(r => r.id === selectedResumeId)?.title 
+                        {resumeSource === "saved"
+                          ? resumes.find(r => r.id === selectedResumeId)?.title
                           : "Uploaded PDF File"}
                       </span>
                     </div>
@@ -1136,8 +1309,12 @@ ${activeLetter.content}
                 </div>
 
                 <button
+                  disabled={getSelectedResumeLimitReached() || getIsLimitReached()}
                   onClick={handleGenerate}
-                  className="w-full py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-lg hover:shadow-violet-200/50 hover:shadow-xl transition-all flex items-center justify-center gap-3 cursor-pointer"
+                  className={`w-full py-4 text-white rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-3 cursor-pointer ${getSelectedResumeLimitReached() || getIsLimitReached()
+                    ? "bg-slate-300 cursor-not-allowed shadow-none"
+                    : "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 hover:shadow-violet-200/50 hover:shadow-xl"
+                    }`}
                 >
                   <Sparkles className="w-5 h-5 text-violet-200" />
                   Generate Cover Letter
@@ -1160,8 +1337,12 @@ ${activeLetter.content}
               {wizardStep < 5 ? (
                 <button
                   type="button"
+                  disabled={wizardStep === 1 && (getSelectedResumeLimitReached() || getIsLimitReached())}
                   onClick={() => setWizardStep(wizardStep + 1)}
-                  className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                  className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${wizardStep === 1 && (getSelectedResumeLimitReached() || getIsLimitReached())
+                    ? "bg-slate-100 text-slate-300 cursor-not-allowed"
+                    : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                    }`}
                 >
                   Next Step
                   <ChevronRight className="w-4 h-4" />
@@ -1176,7 +1357,7 @@ ${activeLetter.content}
       {isGenerating && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 p-8 text-center space-y-6 animate-scaleIn">
-            
+
             {/* Pulsing loading sphere */}
             <div className="relative w-20 h-20 mx-auto">
               <div className="absolute inset-0 rounded-full border-4 border-slate-100" />
@@ -1200,18 +1381,16 @@ ${activeLetter.content}
               {generationStepsList.map((step, idx) => (
                 <div key={idx} className="flex items-center gap-3">
                   <div
-                    className={`w-2.5 h-2.5 rounded-full flex-none transition-colors ${
-                      idx < generationStep
-                        ? "bg-emerald-500"
-                        : idx === generationStep
+                    className={`w-2.5 h-2.5 rounded-full flex-none transition-colors ${idx < generationStep
+                      ? "bg-emerald-500"
+                      : idx === generationStep
                         ? "bg-violet-600 animate-ping"
                         : "bg-slate-200"
-                    }`}
+                      }`}
                   />
                   <p
-                    className={`text-[11px] transition-colors ${
-                      idx <= generationStep ? "text-slate-700 font-semibold" : "text-slate-400"
-                    }`}
+                    className={`text-[11px] transition-colors ${idx <= generationStep ? "text-slate-700 font-semibold" : "text-slate-400"
+                      }`}
                   >
                     {step}
                   </p>
@@ -1225,7 +1404,7 @@ ${activeLetter.content}
       {/* PREVIEW / EDIT SCREEN */}
       {view === "preview" && activeLetter && (
         <div className="max-w-4xl mx-auto px-4 py-8">
-          
+
           {/* Action Toolbar */}
           <div className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 mb-6 shadow-sm">
             <div className="flex items-center gap-2">
@@ -1236,7 +1415,7 @@ ${activeLetter.content}
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Back
               </button>
-              
+
               <button
                 onClick={copyToClipboard}
                 className="px-3 py-1.5 hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -1296,7 +1475,7 @@ ${activeLetter.content}
 
           {/* Letter Document Canvas */}
           <div className="bg-white border border-slate-200 rounded-2xl p-8 md:p-12 shadow-sm space-y-6 min-h-[700px] relative">
-            
+
             {/* Header info */}
             <div className="border-b border-slate-100 pb-6 text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="space-y-0.5">
@@ -1316,9 +1495,11 @@ ${activeLetter.content}
               <p className="font-bold text-slate-800">
                 To,
               </p>
-              <p className="font-medium text-slate-700">
-                {activeLetter.hiringManager || "Hiring Manager"}
-              </p>
+              {activeLetter.hiringManager && (
+                <p className="font-medium text-slate-700">
+                  {activeLetter.hiringManager}
+                </p>
+              )}
               <p className="font-semibold text-slate-900">
                 {activeLetter.companyName}
               </p>
@@ -1353,12 +1534,161 @@ ${activeLetter.content}
               </div>
             ) : (
               <div className="space-y-6 text-sm text-slate-700 leading-relaxed text-justify">
-                <p>Dear {activeLetter.hiringManager || "Hiring Manager"},</p>
                 <div id="cover-letter-preview" className="white-space-pre-wrap leading-relaxed">
                   <p id="cover-letter-text" className="whitespace-pre-wrap">{activeLetter.content}</p>
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: UPLOAD EXTERNAL COVER LETTER */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 font-sans animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 p-6 space-y-6 animate-scaleIn">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-extrabold text-lg text-slate-800">
+                Upload External Cover Letter
+              </h3>
+              <button
+                onClick={() => {
+                  setShowUploadModal(false);
+                  setUploadFile(null);
+                  setUploadText("");
+                  setUploadCompanyName("");
+                  setUploadJobTitle("");
+                  setUploadHiringManager("");
+                }}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+              {/* File upload box */}
+              {!uploadFile ? (
+                <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-violet-500 rounded-xl p-6 transition-colors bg-slate-50/50 cursor-pointer relative">
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    onChange={handleCoverLetterUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    disabled={isExtractingUpload}
+                  />
+                  <FileText className={`w-8 h-8 text-slate-400 mb-2 ${isExtractingUpload ? "animate-bounce" : ""}`} />
+                  <p className="font-bold text-slate-600 text-xs mb-0.5">
+                    {isExtractingUpload ? "Extracting document text..." : "Choose Cover Letter File (PDF, DOC, DOCX)"}
+                  </p>
+                  <p className="text-[10px] text-slate-400">
+                    Or paste your cover letter text below
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between p-3 bg-violet-50/30 border border-violet-200/80 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-violet-600" />
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-slate-700 max-w-[220px] truncate">
+                        {uploadFile.name}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {(uploadFile.size / 1024).toFixed(1)} KB • {isExtractingUpload ? "Extracting..." : "Ready"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setUploadFile(null);
+                    }}
+                    className="text-slate-400 hover:text-rose-600 cursor-pointer text-xs font-semibold"
+                  >
+                    Change File
+                  </button>
+                </div>
+              )}
+
+              {/* Cover Letter Content (Editable) */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                  <span>Cover Letter Content *</span>
+                  <span className="text-slate-400 font-normal text-[9px]">(Extracted or Pasted)</span>
+                </label>
+                <textarea
+                  rows={6}
+                  placeholder="Paste or edit your cover letter content here..."
+                  value={uploadText}
+                  onChange={(e) => setUploadText(e.target.value)}
+                  className="w-full text-xs p-3 bg-white border border-slate-200 rounded-xl focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none leading-relaxed"
+                />
+              </div>
+
+              {/* Form fields populated by AI or manually */}
+              <div className="space-y-3 pt-1 border-t border-slate-100">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Company Name <span className="text-slate-400 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Google (Optional)"
+                      value={uploadCompanyName}
+                      onChange={(e) => setUploadCompanyName(e.target.value)}
+                      className="w-full text-xs p-2.5 bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 rounded-xl outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Job Title <span className="text-slate-400 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Software Engineer (Optional)"
+                      value={uploadJobTitle}
+                      onChange={(e) => setUploadJobTitle(e.target.value)}
+                      className="w-full text-xs p-2.5 bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 rounded-xl outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    Hiring Manager Name <span className="text-slate-400 font-normal">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Jane Doe (Optional)"
+                    value={uploadHiringManager}
+                    onChange={(e) => setUploadHiringManager(e.target.value)}
+                    className="w-full text-xs p-2.5 bg-white border border-slate-200 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 rounded-xl outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end border-t border-slate-100 pt-3">
+              <button
+                onClick={() => {
+                  setShowUploadModal(false);
+                  setUploadFile(null);
+                  setUploadText("");
+                  setUploadCompanyName("");
+                  setUploadJobTitle("");
+                  setUploadHiringManager("");
+                }}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isSavingUpload || isExtractingUpload || !uploadText.trim()}
+                onClick={handleSaveUploadedLetter}
+                className="px-5 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+              >
+                {isSavingUpload ? "Saving..." : "Save Cover Letter"}
+              </button>
+            </div>
           </div>
         </div>
       )}
