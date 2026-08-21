@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "next/link";
 
 const Footer = () => {
@@ -6,7 +5,7 @@ const Footer = () => {
     <>
       <footer className="flex flex-col justify-center items-center mt-40 overflow-hidden">
         <div className="flex flex-wrap justify-center lg:justify-between gap-5 md:gap-15 pt-8 md:pt-16 px-6 md:px-16 lg:px-24 xl:px-32 text-[13px] text-gray-500 bg-gradient-to-r from-[#FDFEFF] via-violet-600/20 to-[#FDFEFF]">
-          <a href="#" className="self-start">
+          <Link href="/" className="self-start">
             <svg
               width="157"
               height="40"
@@ -25,40 +24,15 @@ const Footer = () => {
                 nextume<tspan fill="#4F39F6">.</tspan>
               </text>
             </svg>
-          </a>
+          </Link>
           <div className="flex flex-wrap items-start gap-10 md:gap-[60px] xl:gap-[140px]">
-            {/* <a href="#" className="hidden md:block">
-              <svg
-                width="157"
-                height="40"
-                viewBox="0 0 157 40"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <text
-                  x="0"
-                  y="28"
-                  fontFamily="Arial, sans-serif"
-                  fontSize="28"
-                  fill="#020618"
-                  fontWeight="600"
-                >
-                  nextume<tspan fill="#4F39F6">.</tspan>
-                </text>
-              </svg>
-            </a> */}
             <div>
               <p className="text-slate-800 font-semibold">Product</p>
               <ul className="mt-2 space-y-2">
                 <li>
-                  <a href="/" className="hover:text-violet-600 transition">
+                  <Link href="/" className="hover:text-violet-600 transition">
                     Home
-                  </a>
-                </li>
-                <li>
-                  <a href="/" className="hover:text-violet-600 transition">
-                    Support
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <Link href="/pricing" className="hover:text-violet-600 transition">
@@ -75,43 +49,20 @@ const Footer = () => {
                     Cover Letter
                   </Link>
                 </li>
-                <li>
-                  <a href="/" className="hover:text-violet-600 transition">
-                    Affiliate
-                  </a>
-                </li>
               </ul>
             </div>
             <div>
               <p className="text-slate-800 font-semibold">Resources</p>
               <ul className="mt-2 space-y-2">
                 <li>
-                  <a href="/" className="hover:text-violet-600 transition">
-                    Company
-                  </a>
-                </li>
-                <li>
-                  <a href="/" className="hover:text-violet-600 transition">
-                    Blogs
-                  </a>
-                </li>
-                <li>
-                  <a href="/" className="hover:text-violet-600 transition">
+                  <Link href="/community" className="hover:text-violet-600 transition">
                     Community
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/" className="hover:text-violet-600 transition">
-                    Careers
-                    <span className="text-xs text-white bg-violet-600 rounded-md ml-2 px-2 py-1">
-                      We’re hiring!
-                    </span>
-                  </a>
-                </li>
-                <li>
-                  <a href="/" className="hover:text-violet-600 transition">
-                    About
-                  </a>
+                  <Link href="/support" className="hover:text-violet-600 transition">
+                    Support
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -119,14 +70,14 @@ const Footer = () => {
               <p className="text-slate-800 font-semibold">Legal</p>
               <ul className="mt-2 space-y-2">
                 <li>
-                  <a href="/" className="hover:text-violet-600 transition">
-                    Privacy
-                  </a>
+                  <Link href="/privacy" className="hover:text-violet-600 transition">
+                    Privacy Policy
+                  </Link>
                 </li>
                 <li>
-                  <a href="/" className="hover:text-violet-600 transition">
-                    Terms
-                  </a>
+                  <Link href="/terms" className="hover:text-violet-600 transition">
+                    Terms & Conditions
+                  </Link>
                 </li>
               </ul>
             </div>
