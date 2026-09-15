@@ -2,55 +2,52 @@
 
 Nextume is a full-stack AI career platform designed to help job seekers, engineers, and professionals build ATS-optimized resumes, calculate ATS compatibility scores, generate tailored cover letters, and launch online developer portfolios in minutes.
 
+**Live Link**: [https://nextume-resume-builder.vercel.app/](https://nextume-resume-builder.vercel.app/)
+
 ---
 
 ## 🌟 Key Features
 
-### 1. AI Cover Letter Generator & Manager (`/cover-letter`)
+### 1. Resume Builder
+* **Dynamic Builder**: Build ATS-friendly resumes with a powerful and easy-to-use interface.
+* **Real-time Preview**: See changes instantly as you type and format your resume.
+* **Export Options**: Download as PDF or DOCX format.
+
+### 2. ATS Score Check
+* **AI Analysis**: Calculate your ATS compatibility score against specific job descriptions.
+* **Actionable Feedback**: Get insights and recommendations to improve your resume's match rate.
+
+### 3. AI Cover Letter Creation (`/cover-letter`)
 * **Resume-Aligned Personalization**: Creates tailored cover letters directly from your saved resume profiles or uploaded PDF resumes.
-* **Optional Job Information**: Company Name, Job Title, and Hiring Manager are completely optional. The platform gracefully applies smart defaults (`"Hiring Company"`, `"Job Position"`, `"Hiring Manager"`) if left blank.
-* **Single Salutation Guarantee**: Eliminates duplicate greetings ("Dear Hiring Manager") across generations, preview canvases, PDF printouts, and DOCX downloads.
-* **Pro Customizations**: Pro users can customize tone (*Professional*, *Friendly*, *Confident*, *Enthusiastic*, *Formal*, *Startup Style*), document depth (*Short*, *Medium*, *Detailed*), and personalize against pasted job descriptions.
-* **Generation Limits**:
-  * **Free Plan**: Up to 2 AI-generated cover letters in total (1 cover letter per resume).
-  * **Pro Plan**: Up to 3 AI-generated cover letters per resume.
-  * Clear UI indicators, disabled states, and upgrade prompts when limits are reached.
-* **Unlimited External Cover Letter Uploads**:
-  * Upload existing cover letters from your device in **PDF, DOC, and DOCX** formats.
-  * Unlimited uploads available on **both Free and Pro plans**.
-  * External uploads do **not** count towards the AI generation limit.
-  * AI automatically parses and extracts Company Name, Job Title, and Hiring Manager from uploaded documents.
+* **Customizations**: Customize tone and document depth, and personalize against pasted job descriptions.
+* **Uploads**: Upload existing cover letters from your device in PDF, DOC, and DOCX formats.
 
----
+### 4. Portfolio Creation
+* **Developer Portfolios**: Launch stunning online portfolios generated automatically from your resume data.
+* **Shareable Links**: Connect and share your portfolio with a unique link.
 
-### 2. Modern Pages & Community Hub
+### 5. Secure Payments & Pro Features
+* **Razorpay Integration**: Seamless payment processing using Razorpay for upgrading to Pro plans.
+* **Pro Benefits**: Unlock additional AI generations, premium templates, and advanced customizations.
 
-* **Community Hub (`/community`)**:
-  * Discussion channels (Resume Reviews, ATS Hacks, Interview Prep, Feature Requests).
-  * Community stats, Discord & LinkedIn community integration, member testimonials, and participation guidelines.
-* **Help & Support Center (`/support`)**:
-  * Searchable FAQ accordion filtered by feature categories (Resume Builder, ATS Checker, Cover Letters, Portfolios, Billing & Pro).
-  * Interactive contact support ticket form and direct support channels (`support@nextume.com`).
-  * System operational status indicator.
-* **Privacy Policy (`/privacy`)**:
-  * Structured legal information layout covering data collection, GDPR & CCPA rights, and data encryption.
-  * Strict AI privacy guarantees (no public model training on personal resumes).
-* **Terms & Conditions (`/terms`)**:
-  * Clean legal agreement covering account terms, intellectual property ownership of user content, Pro lifetime access terms, and liability disclaimers.
+### 6. Authentication & Security
+* **JWT Authentication**: Secure user authentication and authorization using JSON Web Tokens.
+* **Email Setup**: Integrated email notifications and verification workflows.
+* **ImageKit**: Cloud-based image management for profile pictures and portfolio assets.
 
----
-
-### 3. Navigation & Footer
-
-* Global responsive footer linking to all core product areas (`/`, `/support`, `/pricing`, `/ats-score`, `/cover-letter`), resources (`/community`), and legal policies (`/privacy`, `/terms`).
-* Optimized client-side routing via Next.js `Link` components.
+### 7. Modern Pages & Community Hub
+* **Community Hub (`/community`)**: Discussion channels and community stats.
+* **Help & Support Center (`/support`)**: Searchable FAQ and interactive support tickets.
+* **Legal Policies**: Comprehensive Privacy Policy (`/privacy`) and Terms & Conditions (`/terms`).
 
 ---
 
 ## 🛠️ Technology Stack
 
-* **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Redux Toolkit, Tailwind CSS, Lucide Icons, React Hot Toast, Mammoth (DOCX parsing), react-pdftotext (PDF extraction).
-* **Backend**: Node.js, Express, TypeScript, Prisma ORM, PostgreSQL / MySQL / SQLite, OpenAI API, Razorpay Payment Gateway.
+* **Frontend**: Next.js (App Router), React, TypeScript, Redux Toolkit, Tailwind CSS.
+* **Backend**: Node.js, Express, TypeScript, Prisma ORM, PostgreSQL / MySQL / SQLite.
+* **Third-Party Integrations**: OpenAI API, Razorpay, ImageKit, JWT, Email Integration.
+* **Deployment**: Frontend deployed on **Vercel**, Backend deployed on **Render**.
 
 ---
 
@@ -59,9 +56,9 @@ Nextume is a full-stack AI career platform designed to help job seekers, enginee
 ### Prerequisites
 * Node.js 18+
 * PostgreSQL / database configured via Prisma
-* OpenAI API key
+* API Keys for OpenAI, Razorpay, ImageKit, and SMTP for Emails.
 
-### 1. Server Setup
+### 1. Server Setup (Backend)
 ```bash
 cd server
 npm install
@@ -70,14 +67,14 @@ npx prisma db push
 npm run dev
 ```
 
-### 2. Client Setup
+### 2. Client Setup (Frontend)
 ```bash
 cd client
 npm install
 npm run dev
 ```
 
-The application will be accessible at `http://localhost:3000`.
+The application will be accessible locally at `http://localhost:3000`.
 
 ---
 
