@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import axiosInstance from "@/app/utils/axiosInstance";
 import { setUser } from "@/lib/redux/authSlice";
-import { Lock, Mail, User2Icon } from "lucide-react";
+import { Lock, Mail, User2Icon, KeyRound, X, LoaderCircle } from "lucide-react";
 
 type AuthMode = "login" | "register";
 
@@ -27,6 +27,82 @@ const LoginClient = () => {
     email: "",
     password: "",
   });
+
+  // Forgot Password Modal State
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState<1 | 2>(1);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+
+  const handleOpenForgotModal = () => {
+    setForgotEmail(formData.email || "");
+    setForgotStep(1);
+    setOtpCode("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setShowForgotModal(true);
+  };
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await axiosInstance.post("/users/forget-password", {
+        email: forgotEmail,
+      });
+      if (res.data.success) {
+        toast.success(res.data.message || "OTP sent to email");
+        setForgotStep(2);
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to send OTP");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode) {
+      toast.error("Please enter the 6-digit OTP code");
+      return;
+    }
+    if (!newPassword) {
+      toast.error("Please enter a new password");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await axiosInstance.post("/users/reset-password", {
+        email: forgotEmail,
+        code: otpCode,
+        newPassword,
+      });
+      if (res.data.success) {
+        toast.success(res.data.message || "Password reset successful!");
+        setShowForgotModal(false);
+        setForgotStep(1);
+        setOtpCode("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to reset password");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +151,7 @@ const LoginClient = () => {
               type="text"
               name="name"
               placeholder="Name"
-              className="border-none outline-none ring-0"
+              className="border-none outline-none ring-0 text-sm w-full"
               value={formData.name}
               onChange={handleChange}
               required
@@ -88,7 +164,7 @@ const LoginClient = () => {
             type="email"
             name="email"
             placeholder="Email id"
-            className="border-none outline-none ring-0"
+            className="border-none outline-none ring-0 text-sm w-full"
             value={formData.email}
             onChange={handleChange}
             required
@@ -100,7 +176,7 @@ const LoginClient = () => {
             type="password"
             name="password"
             placeholder="Password"
-            className="border-none outline-none ring-0"
+            className="border-none outline-none ring-0 text-sm w-full"
             value={formData.password}
             onChange={handleChange}
             required
@@ -108,7 +184,11 @@ const LoginClient = () => {
         </div>
         {mode === "login" && (
           <div className="mt-4 text-left text-violet-500">
-            <button className="text-sm" type="reset">
+            <button
+              type="button"
+              onClick={handleOpenForgotModal}
+              className="text-sm font-medium hover:underline cursor-pointer"
+            >
               Forget password?
             </button>
           </div>
@@ -116,7 +196,7 @@ const LoginClient = () => {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 w-full h-11 rounded-full text-white bg-violet-500 disabled:opacity-50"
+          className="mt-4 w-full h-11 rounded-full text-white bg-violet-500 hover:bg-violet-600 disabled:opacity-50 cursor-pointer font-medium text-sm transition-colors"
         >
           {loading ? "Please wait..." : mode === "login" ? "Login" : "Sign up"}
         </button>
@@ -124,27 +204,148 @@ const LoginClient = () => {
           onClick={() =>
             router.push(`/login?mode=${isSignup ? "login" : "register"}`)
           }
-          className="text-gray-500 text-sm mt-3 mb-11"
+          className="text-gray-500 text-sm mt-3 mb-11 cursor-pointer"
         >
           {mode === "login"
             ? "Don't have an account?"
             : "Already have an account?"}{" "}
-          <a href="#" className="text-violet-500 hover:underline">
+          <span className="text-violet-500 hover:underline">
             click here
-          </a>
+          </span>
         </p>
-        {/* <button
-          type="button"
-          className=" w-full flex items-center gap-2 justify-center mb-5 bg-white/90 shadow py-2.5 rounded-full text-black"
-        >
-          <img
-            className="h-4 w-4"
-            src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png"
-            alt="appleLogo"
-          />
-          Log in with Google
-        </button> */}
       </form>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div
+          onClick={() => setShowForgotModal(false)}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-white border border-slate-100 shadow-2xl rounded-2xl w-full max-w-sm p-6 space-y-5"
+          >
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            {forgotStep === 1 ? (
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-bold text-slate-800">
+                    Forgot Password
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Enter your registered email address to receive an OTP.
+                  </p>
+                </div>
+
+                <div className="flex items-center w-full bg-slate-50 border border-slate-200 h-11 rounded-xl overflow-hidden px-3.5 gap-2.5 focus-within:border-violet-500 focus-within:bg-white transition-all">
+                  <Mail size={16} className="text-slate-400 flex-shrink-0" />
+                  <input
+                    type="email"
+                    placeholder="Enter email address"
+                    className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                    disabled={forgotLoading}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={forgotLoading}
+                  className="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-violet-100 disabled:opacity-50"
+                >
+                  {forgotLoading && (
+                    <LoaderCircle className="animate-spin w-4 h-4 text-white" />
+                  )}
+                  {forgotLoading ? "Sending OTP..." : "Send OTP"}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-bold text-slate-800">
+                    Reset Password
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Enter the OTP sent to <span className="font-semibold text-slate-700">{forgotEmail}</span> and set your new password.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center w-full bg-slate-50 border border-slate-200 h-11 rounded-xl overflow-hidden px-3.5 gap-2.5 focus-within:border-violet-500 focus-within:bg-white transition-all">
+                    <KeyRound size={16} className="text-slate-400 flex-shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="6-digit OTP code"
+                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                      required
+                      disabled={forgotLoading}
+                    />
+                  </div>
+
+                  <div className="flex items-center w-full bg-slate-50 border border-slate-200 h-11 rounded-xl overflow-hidden px-3.5 gap-2.5 focus-within:border-violet-500 focus-within:bg-white transition-all">
+                    <Lock size={16} className="text-slate-400 flex-shrink-0" />
+                    <input
+                      type="password"
+                      placeholder="New password"
+                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      disabled={forgotLoading}
+                    />
+                  </div>
+
+                  <div className="flex items-center w-full bg-slate-50 border border-slate-200 h-11 rounded-xl overflow-hidden px-3.5 gap-2.5 focus-within:border-violet-500 focus-within:bg-white transition-all">
+                    <Lock size={16} className="text-slate-400 flex-shrink-0" />
+                    <input
+                      type="password"
+                      placeholder="Confirm new password"
+                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={forgotLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setForgotStep(1)}
+                    disabled={forgotLoading}
+                    className="text-xs text-violet-600 hover:underline cursor-pointer"
+                  >
+                    Resend OTP / Change Email
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-violet-100 disabled:opacity-50"
+                  >
+                    {forgotLoading && (
+                      <LoaderCircle className="animate-spin w-4 h-4 text-white" />
+                    )}
+                    {forgotLoading ? "Saving..." : "Save Password"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

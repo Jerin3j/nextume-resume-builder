@@ -154,6 +154,7 @@ export const checkAtsScore = async (req: Request, res: Response) => {
         const userId = (req as any).userId;
 
         let finalResumeText = "";
+        let scannedResumeTitle = "Uploaded Resume";
 
         if (resumeId) {
             const resume = await prisma.resume.findFirst({
@@ -163,10 +164,12 @@ export const checkAtsScore = async (req: Request, res: Response) => {
                 return res.status(404).json({ message: "Selected resume not found" });
             }
             finalResumeText = formatResumeToText(resume);
+            scannedResumeTitle = resume.title || "Untitled Resume";
         } else if (resumeText) {
             // Only use AI to parse when user uploads on these scenarios
             const newResume = await parseAndSaveResume(userId, "Uploaded Resume", resumeText);
             finalResumeText = formatResumeToText(newResume);
+            scannedResumeTitle = newResume.title || "Uploaded Resume";
         } else {
             return res.status(400).json({ message: "Missing resume details to analyze" });
         }
@@ -232,9 +235,49 @@ ${jobDescription ? `TARGET JOB DESCRIPTION:\n${jobDescription}` : "No specific j
             throw new Error("AI returned empty content");
         }
         const analysisResult = JSON.parse(content);
+
+        if (userId) {
+            try {
+                await prisma.atsHistory.create({
+                    data: {
+                        userId,
+                        resumeTitle: scannedResumeTitle,
+                        score: Number(analysisResult.score) || 0,
+                        report: analysisResult,
+                    },
+                });
+            } catch (historyErr) {
+                console.error("Save ATS History Error:", historyErr);
+            }
+        }
+
         return res.status(200).json({ analysisResult });
     } catch (error: any) {
         console.error("Check ATS Score Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error",
+        });
+    }
+};
+
+// GET: /api/ai/ats-history
+export const getAtsHistory = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).userId;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        const history = await prisma.atsHistory.findMany({
+            where: { userId },
+            orderBy: { createdAt: "desc" },
+            take: 5,
+        });
+
+        return res.status(200).json({ success: true, history });
+    } catch (error: any) {
+        console.error("Get ATS History Error:", error);
         return res.status(500).json({
             success: false,
             message: error.message || "Internal server error",

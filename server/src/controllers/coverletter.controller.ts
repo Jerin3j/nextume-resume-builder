@@ -262,8 +262,8 @@ Important Instructions:
                         },
                     }
                     : undefined,
-                companyName: companyName?.trim() || null,
-                jobTitle: jobTitle?.trim() || null,
+                companyName: companyName?.trim() || "General Application",
+                jobTitle: jobTitle?.trim() || "General Application",
                 hiringManager: hiringManager?.trim() || null,
                 jobDescription:
                     user.isPro && jobDescription?.trim()
@@ -472,8 +472,8 @@ export const uploadExternalCoverLetter = async (req: Request, res: Response) => 
             return res.status(400).json({ message: "Content is required" });
         }
 
-        const companyNameVal = companyName?.trim() || "Hiring Company";
-        const jobTitleVal = jobTitle?.trim() || "Job Position";
+        const companyNameVal = companyName?.trim() || "General Application";
+        const jobTitleVal = jobTitle?.trim() || "General Application";
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -490,11 +490,11 @@ export const uploadExternalCoverLetter = async (req: Request, res: Response) => 
                 resumeId: null,
                 companyName: companyNameVal,
                 jobTitle: jobTitleVal,
-                hiringManager: hiringManager || null,
+                hiringManager: hiringManager?.trim() || null,
                 jobDescription: null,
                 tone: "Uploaded",
                 length: "Uploaded",
-                content,
+                content: content.trim(),
             },
         });
 

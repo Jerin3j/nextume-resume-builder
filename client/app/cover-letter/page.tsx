@@ -34,6 +34,7 @@ import {
   ChevronLeft,
   Save,
   HelpCircle,
+  PencilIcon,
 } from "lucide-react";
 import axiosInstance from "@/app/utils/axiosInstance";
 import toast from "react-hot-toast";
@@ -109,6 +110,11 @@ export default function CoverLetterPage() {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
+  // Title editing state
+  const [editingLetterId, setEditingLetterId] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
+
   // External Upload states
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -129,7 +135,6 @@ export default function CoverLetterPage() {
 
   // Fetch resumes and saved cover letters
   const loadData = async () => {
-    if (!user) return;
     setIsLoading(true);
     try {
       const [resumesRes, coverLettersRes] = await Promise.all([
@@ -139,8 +144,7 @@ export default function CoverLetterPage() {
       setResumes(resumesRes.data.resumes || []);
       setCoverLetters(coverLettersRes.data.coverLetters || []);
     } catch (error: any) {
-      console.error(error);
-      toast.error("Failed to load data. Please refresh.");
+      console.error("Load cover letter data error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -149,6 +153,12 @@ export default function CoverLetterPage() {
   useEffect(() => {
     loadData();
   }, [user]);
+
+  useEffect(() => {
+    if (view === "wizard") {
+      loadData();
+    }
+  }, [view]);
 
   // Loading Steps cycle
   useEffect(() => {
@@ -201,16 +211,25 @@ export default function CoverLetterPage() {
       return;
     }
 
+    // File size limit
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File size must be less than 10 MB.");
+      e.target.value = "";
+      return;
+    }
+
     setUploadFile(file);
     setIsExtractingUpload(true);
+    setUploadText(""); // clear previous content
     try {
       let extractedText = "";
       if (extension === "pdf") {
         try {
           extractedText = await pdfToText(file);
         } catch (pdfErr) {
-          console.warn("pdfToText fallback to file.text()", pdfErr);
-          extractedText = await file.text();
+          console.warn("pdfToText failed", pdfErr);
         }
       } else if (extension === "docx" || extension === "doc") {
         try {
@@ -219,15 +238,19 @@ export default function CoverLetterPage() {
           const result = await mammoth.extractRawText({ arrayBuffer });
           extractedText = result.value;
         } catch (docxErr) {
-          console.warn("mammoth fallback to file.text()", docxErr);
-          extractedText = await file.text();
+          console.warn("mammoth extraction failed", docxErr);
         }
       } else {
         extractedText = await file.text();
       }
 
+      // Check for non-printable binary characters
+      if (extractedText && /[\x00-\x08\x0E-\x1F]/.test(extractedText.slice(0, 300))) {
+        extractedText = "";
+      }
+
       if (!extractedText || !extractedText.trim()) {
-        toast("Could not automatically extract text from this document. You can paste the content directly below.", { icon: "ℹ️" });
+        toast("Could not automatically extract readable text from this file. You can paste or type the content below.", { icon: "ℹ️" });
       } else {
         setUploadText(extractedText);
         toast.success("Document text extracted successfully!");
@@ -254,6 +277,19 @@ export default function CoverLetterPage() {
     } finally {
       setIsExtractingUpload(false);
     }
+  };
+
+  // View Cover Letter
+  const handleViewCoverLetter = () => {
+    if (!uploadFile) return;
+
+    const fileUrl = URL.createObjectURL(uploadFile);
+    window.open(fileUrl, "_blank");
+
+    // Clean up after a short delay
+    setTimeout(() => {
+      URL.revokeObjectURL(fileUrl);
+    }, 1000);
   };
 
   // Save Uploaded Cover Letter
@@ -373,6 +409,40 @@ export default function CoverLetterPage() {
     }
   };
 
+  // Update Cover Letter Title
+  const handleSaveTitle = async (id: number, newTitle: string) => {
+    const trimmedTitle = newTitle.trim();
+    if (!trimmedTitle) {
+      toast.error("Title cannot be empty");
+      return;
+    }
+    setIsSavingTitle(true);
+    try {
+      const response = await axiosInstance.put(`/cover-letters/${id}`, {
+        jobTitle: trimmedTitle,
+      });
+      if (response.data.success) {
+        setCoverLetters((prev) =>
+          prev.map((letter) =>
+            letter.id === id ? { ...letter, jobTitle: trimmedTitle } : letter
+          )
+        );
+        if (activeLetter && activeLetter.id === id) {
+          setActiveLetter((prev) =>
+            prev ? { ...prev, jobTitle: trimmedTitle } : null
+          );
+        }
+        toast.success("Cover letter title updated successfully!");
+        setEditingLetterId(null);
+      }
+    } catch (error: any) {
+      console.error("Failed to update cover letter title:", error);
+      toast.error(error.response?.data?.message || "Failed to update title");
+    } finally {
+      setIsSavingTitle(false);
+    }
+  };
+
   // Duplicate Cover Letter
   const handleDuplicate = async (id: number) => {
     try {
@@ -459,15 +529,27 @@ export default function CoverLetterPage() {
     }
   };
 
+  const checkIsGeneralApp = (companyName?: string | null, jobTitle?: string | null) => {
+    const comp = companyName?.trim().toLowerCase();
+    const job = jobTitle?.trim().toLowerCase();
+    if (!comp || comp === "general application" || comp === "general" || comp === "hiring company") {
+      if (!job || job === "general application" || job === "general" || job === "job position" || job === "professional role") {
+        return true;
+      }
+    }
+    return false;
+  };
+
   // Print helper (PDF download)
   const downloadPDF = () => {
     if (!activeLetter) return;
     const printWindow = window.open("", "", "height=700,width=900");
     if (printWindow) {
+      const hasJobDetails = !checkIsGeneralApp(activeLetter.companyName, activeLetter.jobTitle);
       printWindow.document.write(`
         <html>
           <head>
-            <title>${activeLetter.jobTitle} - ${activeLetter.companyName} Cover Letter</title>
+            <title>${hasJobDetails ? `${activeLetter.jobTitle || ""} - ${activeLetter.companyName || ""} ` : ""}Cover Letter</title>
             <style>
               body {
                 font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
@@ -498,11 +580,14 @@ export default function CoverLetterPage() {
             </style>
           </head>
           <body>
-            <div class="date">${new Date(activeLetter.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+             <div class="date">${new Date(activeLetter.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            ${hasJobDetails ? `
             <div class="recipient">
+              To,<br/>
               ${activeLetter.hiringManager ? `${activeLetter.hiringManager}<br/>` : ""}
-              ${activeLetter.companyName}
+              ${activeLetter.companyName || ""}
             </div>
+            ` : ""}
             <div class="body-content">${activeLetter.content}</div>
           </body>
         </html>
@@ -520,20 +605,22 @@ export default function CoverLetterPage() {
   const downloadDOCX = () => {
     if (!activeLetter) return;
     const dateStr = new Date(activeLetter.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+    const hasJobDetails = !checkIsGeneralApp(activeLetter.companyName, activeLetter.jobTitle);
+    const recipientBlock = hasJobDetails
+      ? `To,\n${activeLetter.hiringManager ? `${activeLetter.hiringManager}\n` : ""}${activeLetter.companyName || ""}\n\n`
+      : "";
     const fullText = `
 ${dateStr}
 
-To,
-${activeLetter.hiringManager ? `${activeLetter.hiringManager}\n` : ""}${activeLetter.companyName}
-
-${activeLetter.content}
+${recipientBlock}${activeLetter.content}
 `;
 
     const blob = new Blob([fullText], { type: "application/msword" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${activeLetter?.companyName?.replace(/\s+/g, "_")}_Cover_Letter.doc`;
+    const filenamePrefix = (activeLetter?.companyName || activeLetter?.jobTitle || "Cover_Letter").replace(/\s+/g, "_");
+    link.download = `${filenamePrefix}_Cover_Letter.doc`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -563,8 +650,12 @@ ${activeLetter.content}
 
   // Filter cover letters by searchTerm
   const filteredLetters = coverLetters.filter((cl) => {
+    if (!searchTerm.trim()) return true;
     const term = searchTerm.toLowerCase();
-    return cl.companyName?.toLowerCase().includes(term) || cl.jobTitle?.toLowerCase().includes(term);
+    const company = cl.companyName?.toLowerCase() || "general application";
+    const job = cl.jobTitle?.toLowerCase() || "general application";
+    const content = cl.content?.toLowerCase() || "";
+    return company.includes(term) || job.includes(term) || content.includes(term);
   });
 
   // Limits Check for generation blocking
@@ -762,13 +853,77 @@ ${activeLetter.content}
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 flex-1 pr-2">
                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                          {letter.companyName ? letter.companyName : "General"}
+                          {letter.companyName ? letter.companyName : "General Application"}
                         </span>
-                        <h3 className="font-bold text-slate-800 text-base group-hover:text-violet-600 transition-colors line-clamp-1">
-                          {letter.jobTitle ? letter.jobTitle : "General"}
-                        </h3>
+                        {editingLetterId === letter.id ? (
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <input
+                              type="text"
+                              value={editingTitle}
+                              onChange={(e) => setEditingTitle(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  handleSaveTitle(letter.id, editingTitle);
+                                } else if (e.key === "Escape") {
+                                  setEditingLetterId(null);
+                                }
+                              }}
+                              className="w-full px-2 py-1 text-xs font-semibold border border-violet-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white text-slate-800"
+                              autoFocus
+                              disabled={isSavingTitle}
+                              placeholder="Enter title..."
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveTitle(letter.id, editingTitle)}
+                              disabled={isSavingTitle}
+                              className="p-1 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex-shrink-0"
+                              title="Save Title"
+                            >
+                              {isSavingTitle ? (
+                                <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingLetterId(null)}
+                              disabled={isSavingTitle}
+                              className="p-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex-shrink-0"
+                              title="Cancel"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            className="flex items-center gap-1.5 group/title cursor-pointer"
+                            onClick={() => {
+                              setEditingLetterId(letter.id);
+                              setEditingTitle(letter.jobTitle || "General Application");
+                            }}
+                          >
+                            <h3 className="font-bold text-slate-800 text-base group-hover/title:text-violet-600 transition-colors line-clamp-1">
+                              {letter.jobTitle ? letter.jobTitle : "General Application"}
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingLetterId(letter.id);
+                                setEditingTitle(letter.jobTitle || "General Application");
+                              }}
+                              className="opacity-0 group-hover/title:opacity-100 group-hover:opacity-100 p-1 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded transition-all flex-shrink-0"
+                              title="Edit Title"
+                            >
+                              <PencilIcon className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       {/* Tone Badge */}
@@ -1477,33 +1632,114 @@ ${activeLetter.content}
           <div className="bg-white border border-slate-200 rounded-2xl p-8 md:p-12 shadow-sm space-y-6 min-h-[700px] relative">
 
             {/* Header info */}
-            <div className="border-b border-slate-100 pb-6 text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="space-y-0.5">
-                <span className="font-bold text-slate-500">COVER LETTER TARGET</span>
-                <p className="font-bold text-slate-800 text-sm">{activeLetter.jobTitle} at {activeLetter.companyName}</p>
-              </div>
-              <div className="text-left sm:text-right">
-                <span className="font-bold text-slate-500">DATE GENERATED</span>
-                <p className="font-bold text-slate-800 text-sm">
-                  {new Date(activeLetter.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-                </p>
-              </div>
-            </div>
+            {(() => {
+              const hasJobDetails = !checkIsGeneralApp(activeLetter.companyName, activeLetter.jobTitle);
+              return (
+                <>
+                  <div className="border-b border-slate-100 pb-6 text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    {hasJobDetails ? (
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-slate-500 uppercase tracking-wider">COVER LETTER TARGET</span>
+                        {editingLetterId === activeLetter.id ? (
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <input
+                              type="text"
+                              value={editingTitle}
+                              onChange={(e) => setEditingTitle(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  handleSaveTitle(activeLetter.id, editingTitle);
+                                } else if (e.key === "Escape") {
+                                  setEditingLetterId(null);
+                                }
+                              }}
+                              className="px-2 py-1 text-xs font-semibold border border-violet-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white text-slate-800"
+                              autoFocus
+                              disabled={isSavingTitle}
+                              placeholder="Enter title..."
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveTitle(activeLetter.id, editingTitle)}
+                              disabled={isSavingTitle}
+                              className="p-1 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                              title="Save Title"
+                            >
+                              {isSavingTitle ? (
+                                <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingLetterId(null)}
+                              disabled={isSavingTitle}
+                              className="p-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                              title="Cancel"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            className="flex items-center gap-1.5 group/prevtitle cursor-pointer w-fit"
+                            onClick={() => {
+                              setEditingLetterId(activeLetter.id);
+                              setEditingTitle(activeLetter.jobTitle || "General Application");
+                            }}
+                          >
+                            <p className="font-bold text-slate-800 text-sm group-hover/prevtitle:text-violet-600 transition-colors">
+                              {activeLetter.jobTitle && activeLetter.companyName
+                                ? `${activeLetter.jobTitle} at ${activeLetter.companyName}`
+                                : activeLetter.jobTitle || activeLetter.companyName}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingLetterId(activeLetter.id);
+                                setEditingTitle(activeLetter.jobTitle || "General Application");
+                              }}
+                              className="opacity-0 group-hover/prevtitle:opacity-100 p-1 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded transition-all"
+                              title="Edit Title"
+                            >
+                              <PencilIcon className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+                    <div className={`text-left ${hasJobDetails ? "sm:text-right" : ""}`}>
+                      <span className="font-bold text-slate-500">DATE GENERATED</span>
+                      <p className="font-bold text-slate-800 text-sm">
+                        {new Date(activeLetter.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
 
-            {/* Recipient Details */}
-            <div className="text-xs text-slate-600 space-y-1">
-              <p className="font-bold text-slate-800">
-                To,
-              </p>
-              {activeLetter.hiringManager && (
-                <p className="font-medium text-slate-700">
-                  {activeLetter.hiringManager}
-                </p>
-              )}
-              <p className="font-semibold text-slate-900">
-                {activeLetter.companyName}
-              </p>
-            </div>
+                  {/* Recipient Details */}
+                  {hasJobDetails && (activeLetter.hiringManager || activeLetter.companyName) && (
+                    <div className="text-xs text-slate-600 space-y-1">
+                      <p className="font-bold text-slate-800">
+                        To,
+                      </p>
+                      {activeLetter.hiringManager && (
+                        <p className="font-medium text-slate-700">
+                          {activeLetter.hiringManager}
+                        </p>
+                      )}
+                      {activeLetter.companyName && (
+                        <p className="font-semibold text-slate-900">
+                          {activeLetter.companyName}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
 
             {/* Inline Editor or Display Render */}
             {isPreviewEditing ? (
@@ -1582,15 +1818,15 @@ ${activeLetter.content}
                     {isExtractingUpload ? "Extracting document text..." : "Choose Cover Letter File (PDF, DOC, DOCX)"}
                   </p>
                   <p className="text-[10px] text-slate-400">
-                    Or paste your cover letter text below
+                    Upload your cover letter document
                   </p>
                 </div>
               ) : (
                 <div className="flex items-center justify-between p-3 bg-violet-50/30 border border-violet-200/80 rounded-xl">
                   <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-violet-600" />
+                    <FileText onClick={handleViewCoverLetter} className="w-5 h-5 text-violet-600 cursor-pointer" />
                     <div className="text-left">
-                      <p className="text-xs font-bold text-slate-700 max-w-[220px] truncate">
+                      <p onClick={handleViewCoverLetter} className="text-xs font-bold text-slate-700 max-w-[220px] truncate cursor-pointer">
                         {uploadFile.name}
                       </p>
                       <p className="text-[10px] text-slate-400">
@@ -1601,6 +1837,7 @@ ${activeLetter.content}
                   <button
                     onClick={() => {
                       setUploadFile(null);
+                      setUploadText("");
                     }}
                     className="text-slate-400 hover:text-rose-600 cursor-pointer text-xs font-semibold"
                   >
@@ -1609,15 +1846,17 @@ ${activeLetter.content}
                 </div>
               )}
 
-              {/* Cover Letter Content (Editable) */}
+              {/* Cover Letter Content (Auto-extracted or Editable/Pasteable) */}
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
                   <span>Cover Letter Content *</span>
-                  <span className="text-slate-400 font-normal text-[9px]">(Extracted or Pasted)</span>
+                  <span className="text-slate-400 font-normal text-[9px]">
+                    {uploadFile ? "(Auto-extracted from document)" : "(Upload document or paste text)"}
+                  </span>
                 </label>
                 <textarea
-                  rows={6}
-                  placeholder="Paste or edit your cover letter content here..."
+                  rows={5}
+                  placeholder="Cover letter text content will automatically populate here after document upload, or paste your cover letter text..."
                   value={uploadText}
                   onChange={(e) => setUploadText(e.target.value)}
                   className="w-full text-xs p-3 bg-white border border-slate-200 rounded-xl focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none leading-relaxed"

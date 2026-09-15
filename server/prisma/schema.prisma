@@ -17,6 +17,7 @@ model User {
   resumes      Resume[]
   portfolio    Portfolio?
   coverLetters CoverLetter[]
+  atsHistory   AtsHistory[]
 }
 
 model Resume {
@@ -63,4 +64,21 @@ model CoverLetter {
   content        String   @db.Text
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
+}
+model OTP {
+  id        Int      @id @default(autoincrement())
+  email     String
+  code      String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model AtsHistory {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeTitle String   @default("Scanned Resume")
+  score       Int
+  report      Json
+  createdAt   DateTime @default(now())
 }

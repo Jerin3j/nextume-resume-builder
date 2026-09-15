@@ -6,6 +6,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import heroImage from '../../public/hero-card-imagebg.png'
+import { redirect } from "next/navigation";
 
 const Hero = () => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -277,7 +278,7 @@ const Hero = () => {
 
                 {/* Buttons */}
                 <div className="mt-10 flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
-                  <button className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-4 font-semibold text-white shadow-lg transition hover:scale-[1.02] sm:w-auto">
+                  <button onClick={() => redirect('/dashboard')} className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-4 font-semibold text-white shadow-lg transition hover:scale-[1.02] sm:w-auto">
                     Go to Dashboard
                   </button>
 
