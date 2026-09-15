@@ -531,7 +531,7 @@ const Dashboard = () => {
                       </p>
                     </div>
 
-                    <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-emerald-100 px-3 pt-1 text-xs font-medium text-emerald-700">
+                    <div className="mt-3 inline-flex w-fit items-center justify center py-2 gap-2 rounded-full bg-emerald-100 px-3 pt-1 text-xs font-medium text-emerald-700">
                       <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                       Active Membership
                     </div>
@@ -751,8 +751,9 @@ const Dashboard = () => {
                 value={title}
                 type="text"
                 placeholder="e.g. Senior Frontend Developer"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:bg-white transition-all text-sm"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:bg-white transition-all text-sm disabled:opacity-50"
                 required
+                disabled={isLoading}
               />
 
               <button
@@ -760,7 +761,10 @@ const Dashboard = () => {
                 disabled={isLoading}
                 className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-violet-100 disabled:opacity-50"
               >
-                {isLoading ? "Creating..." : "Launch Builder"}
+                {isLoading && (
+                  <LoaderCircleIcon className="animate-spin w-4 h-4 text-white" />
+                )}
+                {isLoading ? "Creating Resume..." : "Launch Builder"}
               </button>
 
               <XIcon
