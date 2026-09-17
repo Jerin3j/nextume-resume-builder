@@ -140,7 +140,7 @@ export default function CommunityPage() {
 
           <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
             <a
-              href="https://discord.com"
+              href="https://discord.gg/CDdnD2qF4"
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2"
