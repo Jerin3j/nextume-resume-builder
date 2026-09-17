@@ -82,7 +82,7 @@ const Footer = () => {
               </ul>
             </div>
           </div>
-          <div className="flex flex-col max-md:items-center max-md:text-center gap-2 items-end">
+          <div className="flex flex-col max-lg:items-center max-lg:text-center gap-2 items-end">
             <p className="wo-full md:max-w-60">
               Helping professionals create resumes, optimize for ATS, and showcase their work with confidence.
             </p>
@@ -111,7 +111,7 @@ const Footer = () => {
                 </svg>
               </a>
 
-              <a
+              {/* <a
                 href="https://www.youtube.com/"
                 target="_blank"
                 rel="noreferrer"
@@ -132,7 +132,7 @@ const Footer = () => {
                   <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path>
                   <path d="m10 15 5-3-5-3z"></path>
                 </svg>
-              </a>
+              </a> */}
             </div>
             <p className="mt-3 text-center">© 2025 Nextume</p>
           </div>

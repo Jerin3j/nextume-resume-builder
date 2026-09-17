@@ -15,7 +15,7 @@ import {
 import Footer from "@/components/home/Footer";
 
 export default function TermsAndConditionsPage() {
-  const lastUpdated = "August 20, 2025";
+  const lastUpdated = "September 11, 2026";
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between font-sans">

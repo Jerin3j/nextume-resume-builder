@@ -11,7 +11,7 @@ const CallToAction = () => {
             id="cta"
             className="border-y border-dashed border-slate-200 w-full max-w-5xl mx-auto px-10 sm:px-16 mt-28"
         >
-            <div className="flex flex-col md:flex-row text-center md:text-left items-center justify-between gap-8 px-3 md:px-10 border-x border-dashed border-slate-200 py-16 sm:py-20 -mt-10 -mb-10 w-full">
+            <div className="flex flex-col lg:flex-row text-center lg:text-left items-center justify-between gap-8 px-3 md:px-10 border-x border-dashed border-slate-200 py-16 sm:py-20 -mt-10 -mb-10 w-full">
 
                 <div>
                     <h2 className="text-2xl font-semibold text-slate-800">
@@ -25,7 +25,7 @@ const CallToAction = () => {
 
                 <a
                     href="mailto:contact@nextume.com?subject=Nextume%20Inquiry"
-                    className="flex items-center gap-2 rounded-lg bg-violet-600 hover:bg-violet-700 transition text-white px-8 py-3 font-medium"
+                    className="flex items-center text-center gap-2 rounded-lg bg-violet-600 hover:bg-violet-700 transition text-white px-8 py-3 font-medium"
                 >
                     <span>Contact Us</span>
 

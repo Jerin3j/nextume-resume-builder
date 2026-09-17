@@ -142,7 +142,7 @@ const Hero = () => {
             </svg>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8 transition duration-500 text-slate-800">
+          <div className="hidden lg:flex items-center gap-8 transition duration-500 text-slate-800">
             <a href="#" className="hover:text-indigo-600 transition">
               Home
             </a>
@@ -166,21 +166,21 @@ const Hero = () => {
           <div className="flex gap-2">
             <Link
               href="/dashboard"
-              className="hidden md:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
+              className="hidden lg:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
               hidden={!user}
             >
               Dashboard
             </Link>
             <Link
               href="/login?mode=signup"
-              className="hidden md:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
+              className="hidden lg:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
               hidden={user}
             >
               Get started
             </Link>
             <Link
               href="/login"
-              className="hidden md:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
+              className="hidden lg:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
               hidden={user}
             >
               Login
@@ -189,7 +189,7 @@ const Hero = () => {
 
           <button
             onClick={() => setMenuOpen(true)}
-            className="md:hidden active:scale-90 transition"
+            className="lg:hidden active:scale-90 transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -207,7 +207,7 @@ const Hero = () => {
 
         {/* Mobile Menu */}
         <div
-          className={`fixed inset-0 z-[100] bg-black/40 text-black backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"
+          className={`fixed inset-0 z-[100] bg-black/40 text-black backdrop-blur flex flex-col items-center justify-center text-lg gap-8 lg:hidden transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"
             }`}
         >
           <Link href="/" className="text-white" onClick={() => setMenuOpen(false)}>
@@ -245,7 +245,7 @@ const Hero = () => {
               <div className="absolute top-28 md:left-0 xl:top-10 -z-10 left-1/4 size-72 sm:size-96 xl:size-120 2xl:size-132 bg-violet-300 blur-[100px] opacity-30"></div>
 
               {/* Left */}
-              <div className="max-w-xl">
+              <div className="max-w-xl mx-auto lg:mx-0 flex flex-col items-center lg:items-start">
 
                 {/* Badge */}
                 <div className="mb-8 hidden lg:inline-flex flex-wrap items-center gap-2 rounded-full bg-violet-100 px-5 py-2 text-sm font-medium text-violet-700">
@@ -260,7 +260,7 @@ const Hero = () => {
                 </div>
 
                 {/* Heading */}
-                <h1 className="text-[42px] text-center md:text-start font-semibold leading-[1.05] tracking-[-0.03em] sm:text-5xl lg:text-[70px] lg:leading-[76px] xl:text-[78px] xl:leading-[84px]">
+                <h1 className="text-[42px] text-center lg:text-start font-semibold leading-[1.05] tracking-[-0.03em] sm:text-5xl lg:text-[70px] lg:leading-[76px] xl:text-[78px] xl:leading-[84px]">
                   Build Smarter.
                   <br />
                   Optimize Better.
@@ -271,7 +271,7 @@ const Hero = () => {
                 </h1>
 
                 {/* Description */}
-                <p className="mt-7 text-center md:text-start max-w-lg text-base leading-8 text-slate-600 lg:text-lg">
+                <p className="mt-7 text-center lg:text-start max-w-lg text-base leading-8 text-slate-600 lg:text-lg">
                   Create ATS-friendly resumes with AI, check your score,
                   and launch your portfolio website in minutes.
                 </p>
