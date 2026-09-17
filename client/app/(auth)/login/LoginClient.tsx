@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import axiosInstance from "@/app/utils/axiosInstance";
 import { setUser } from "@/lib/redux/authSlice";
-import { Lock, Mail, User2Icon, KeyRound, X, LoaderCircle } from "lucide-react";
+import { Lock, Mail, User2Icon, KeyRound, X, LoaderCircle, Eye, EyeOff } from "lucide-react";
 
 type AuthMode = "login" | "register";
 
@@ -21,6 +21,7 @@ const LoginClient = () => {
   }, [searchParams]);
   const isSignup = mode === "register";
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -36,6 +37,8 @@ const LoginClient = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleOpenForgotModal = () => {
     setForgotEmail(formData.email || "");
@@ -145,42 +148,49 @@ const LoginClient = () => {
         </h1>
         <p className="text-gray-500 text-sm mt-2">Please {mode} to continue</p>
         {mode !== "login" && (
-          <div className="flex items-center mt-6 w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+          <div className="flex items-center mt-6 w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 pr-4 gap-2">
             <User2Icon size={16} color="#6B7280" />
             <input
               type="text"
               name="name"
               placeholder="Name"
-              className="border-none outline-none ring-0 text-sm w-full"
+              className="border-none outline-none ring-0 text-sm w-full pl-2"
               value={formData.name}
               onChange={handleChange}
               required
             />
           </div>
         )}
-        <div className="flex items-center w-full mt-4 bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+        <div className="flex items-center w-full mt-4 bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 pr-4 gap-2">
           <Mail size={13} color="#6B7280" />
           <input
             type="email"
             name="email"
             placeholder="Email id"
-            className="border-none outline-none ring-0 text-sm w-full"
+            className="border-none outline-none ring-0 text-sm w-full pl-2"
             value={formData.email}
             onChange={handleChange}
             required
           />
         </div>
-        <div className="flex items-center mt-4 w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2">
+        <div className="flex items-center mt-4 w-full bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 pr-4 gap-2">
           <Lock size={13} color="#6B7280" />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
-            className="border-none outline-none ring-0 text-sm w-full"
+            className="border-none outline-none ring-0 text-sm w-full pl-2"
             value={formData.password}
             onChange={handleChange}
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
         </div>
         {mode === "login" && (
           <div className="mt-4 text-left text-violet-500">
@@ -249,7 +259,7 @@ const LoginClient = () => {
                   <input
                     type="email"
                     placeholder="Enter email address"
-                    className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none"
+                    className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none pl-2"
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     required
@@ -285,7 +295,7 @@ const LoginClient = () => {
                     <input
                       type="text"
                       placeholder="6-digit OTP code"
-                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none"
+                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none pl-2"
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
                       required
@@ -296,27 +306,41 @@ const LoginClient = () => {
                   <div className="flex items-center w-full bg-slate-50 border border-slate-200 h-11 rounded-xl overflow-hidden px-3.5 gap-2.5 focus-within:border-violet-500 focus-within:bg-white transition-all">
                     <Lock size={16} className="text-slate-400 flex-shrink-0" />
                     <input
-                      type="password"
+                      type={showNewPassword ? "text" : "password"}
                       placeholder="New password"
-                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none"
+                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none pl-2"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
                       disabled={forgotLoading}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                    >
+                      {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
 
                   <div className="flex items-center w-full bg-slate-50 border border-slate-200 h-11 rounded-xl overflow-hidden px-3.5 gap-2.5 focus-within:border-violet-500 focus-within:bg-white transition-all">
                     <Lock size={16} className="text-slate-400 flex-shrink-0" />
                     <input
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm new password"
-                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none"
+                      className="w-full text-sm bg-transparent outline-none ring-0 text-slate-800 border-none pl-2"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       disabled={forgotLoading}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
 
