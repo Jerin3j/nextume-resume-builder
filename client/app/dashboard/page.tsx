@@ -87,6 +87,8 @@ const Dashboard = () => {
   const [activePortfolioId, setActivePortfolioId] = useState<number | null>(
     null,
   );
+  // Track active delete confirmation to prevent multiple alerts and disable buttons
+  const [deletingResumeId, setDeletingResumeId] = useState<number | null>(null);
 
   // Load all resumes and active portfolio configuration
   useEffect(() => {
@@ -182,6 +184,15 @@ const Dashboard = () => {
 
   // Delete resume handler
   const deleteResume = async (resumeId: number, resumeTitle: string) => {
+    // If confirmation is already active, prevent duplicate alerts
+    if (deletingResumeId !== null) return;
+    setDeletingResumeId(resumeId);
+
+    const toastId = `delete-resume-${resumeId}`;
+    const timer = setTimeout(() => {
+      setDeletingResumeId((prev) => (prev === resumeId ? null : prev));
+    }, 6000);
+
     toast(
       (t) => (
         <span className="flex flex-col gap-2">
@@ -190,6 +201,7 @@ const Dashboard = () => {
             <button
               className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
               onClick={async () => {
+                clearTimeout(timer);
                 try {
                   const { data } = await axiosInstance.delete(
                     `/resumes/delete/${resumeId}`,
@@ -210,6 +222,8 @@ const Dashboard = () => {
                   toast.error(
                     error?.response?.data?.message || "Failed to delete resume",
                   );
+                } finally {
+                  setDeletingResumeId(null);
                 }
               }}
             >
@@ -217,14 +231,18 @@ const Dashboard = () => {
             </button>
             <button
               className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
-              onClick={() => toast.dismiss(t.id)}
+              onClick={() => {
+                clearTimeout(timer);
+                setDeletingResumeId(null);
+                toast.dismiss(t.id);
+              }}
             >
               Cancel
             </button>
           </div>
         </span>
       ),
-      { duration: 6000 },
+      { id: toastId, duration: 6000 },
     );
   };
 
@@ -632,8 +650,17 @@ const Dashboard = () => {
                           </button>
                           <button
                             onClick={() => deleteResume(res.id, res.title)}
-                            className="p-1 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded cursor-pointer"
-                            title="Delete"
+                            disabled={deletingResumeId !== null}
+                            className={`p-1 rounded transition-colors ${
+                              deletingResumeId !== null
+                                ? "opacity-30 cursor-not-allowed text-slate-300"
+                                : "hover:bg-red-50 text-slate-400 hover:text-red-500 cursor-pointer"
+                            }`}
+                            title={
+                              deletingResumeId !== null
+                                ? "Confirmation alert already open"
+                                : "Delete"
+                            }
                           >
                             <TrashIcon className="w-3 h-3" />
                           </button>

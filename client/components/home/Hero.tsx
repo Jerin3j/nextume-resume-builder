@@ -1,6 +1,22 @@
 "use client";
 import { RootState } from "@/lib/redux/store";
-import { ArrowRight, FilePenLine, FileText, Globe, PlayCircle, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronRight,
+  CreditCard,
+  FileCheck2,
+  FilePenLine,
+  FileText,
+  Globe,
+  Home,
+  LayoutGrid,
+  LogIn,
+  Mail,
+  PlayCircle,
+  Sparkles,
+  User as UserIcon,
+  X,
+} from "lucide-react";
 import { Play } from "next/font/google";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -120,7 +136,7 @@ const Hero = () => {
     <>
       <div className="mn-h-screen lg:pb-20">
         {/* Navbar */}
-        <nav className="z-50 flex items-center justify-between w-full py-4 px-6 md:px-16 lg:px-24 xl:px-40 text-sm">
+        <nav className="z-50 flex items-center justify-between w-full py-4 px-6 sm:px-8 md:px-16 lg:px-24 xl:px-40 text-sm">
           <Link href="/">
             <svg
               width="157"
@@ -189,12 +205,13 @@ const Hero = () => {
 
           <button
             onClick={() => setMenuOpen(true)}
-            className="lg:hidden active:scale-90 transition"
+            className="lg:hidden p-2 rounded-xl text-slate-700 hover:text-indigo-600 hover:bg-slate-100 active:scale-90 transition"
+            aria-label="Open mobile menu"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="26"
-              height="26"
+              width="24"
+              height="24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -205,36 +222,202 @@ const Hero = () => {
           </button>
         </nav>
 
-        {/* Mobile Menu */}
+        {/* Mobile Sidebar Menu (Drawer) */}
+        {/* Backdrop Overlay */}
         <div
-          className={`fixed inset-0 z-[100] bg-black/40 text-black backdrop-blur flex flex-col items-center justify-center text-lg gap-8 lg:hidden transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+          className={`fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+            menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
+
+        {/* Sidebar Panel */}
+        <aside
+          className={`fixed top-0 right-0 z-[101] h-full w-[85%] max-w-[340px] bg-white text-slate-800 shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-out lg:hidden ${
+            menuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+          aria-label="Mobile Navigation Drawer"
         >
-          <Link href="/" className="text-white" onClick={() => setMenuOpen(false)}>
-            Home
-          </Link>
-          <a href="#features" className="text-white" onClick={() => setMenuOpen(false)}>
-            Features
-          </a>
-          <Link href="/pricing" className="text-white" onClick={() => setMenuOpen(false)}>
-            Pricing
-          </Link>
-          <Link href="/ats-score" className="text-white" onClick={() => setMenuOpen(false)}>
-            ATS Checker
-          </Link>
-          <Link href="/cover-letter" className="text-white" onClick={() => setMenuOpen(false)}>
-            Cover Letter
-          </Link>
-          <a href="#cta" className="text-white" onClick={() => setMenuOpen(false)}>
-            Contact
-          </a>
-          <button
-            onClick={() => setMenuOpen(false)}
-            className="active:ring-3 active:ring-white aspect-square size-10 p-1 items-center justify-center bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md flex"
-          >
-            X
-          </button>
-        </div>
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+            <Link href="/" onClick={() => setMenuOpen(false)}>
+              <svg
+                width="140"
+                height="36"
+                viewBox="0 0 157 40"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <text
+                  x="0"
+                  y="28"
+                  fontFamily="Arial, sans-serif"
+                  fontSize="28"
+                  fill="#020618"
+                  fontWeight="600"
+                >
+                  nextume<tspan fill="#4F39F6">.</tspan>
+                </text>
+              </svg>
+            </Link>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 active:scale-95 transition"
+              aria-label="Close menu"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Nav Items */}
+          <div className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-1.5">
+            <p className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              Navigation
+            </p>
+
+            <Link
+              href="/"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-indigo-100 text-slate-600 group-hover:text-indigo-600 transition">
+                  <Home size={16} />
+                </div>
+                <span>Home</span>
+              </div>
+              <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition" />
+            </Link>
+
+            <a
+              href="#features"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-indigo-100 text-slate-600 group-hover:text-indigo-600 transition">
+                  <LayoutGrid size={16} />
+                </div>
+                <span>Features</span>
+              </div>
+              <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition" />
+            </a>
+
+            <Link
+              href="/pricing"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-indigo-100 text-slate-600 group-hover:text-indigo-600 transition">
+                  <CreditCard size={16} />
+                </div>
+                <span>Pricing</span>
+              </div>
+              <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition" />
+            </Link>
+
+            <Link
+              href="/ats-score"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-indigo-100 text-slate-600 group-hover:text-indigo-600 transition">
+                  <FileCheck2 size={16} />
+                </div>
+                <span>ATS Checker</span>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
+                AI
+              </span>
+            </Link>
+
+            <Link
+              href="/cover-letter"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-indigo-100 text-slate-600 group-hover:text-indigo-600 transition">
+                  <FilePenLine size={16} />
+                </div>
+                <span>Cover Letter</span>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                New
+              </span>
+            </Link>
+
+            <a
+              href="#cta"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-indigo-100 text-slate-600 group-hover:text-indigo-600 transition">
+                  <Mail size={16} />
+                </div>
+                <span>Contact</span>
+              </div>
+              <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition" />
+            </a>
+          </div>
+
+          {/* Footer Auth Section */}
+          <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex flex-col gap-3">
+            {user ? (
+              <>
+                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-xs">
+                  <div className="size-9 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white font-semibold text-xs flex items-center justify-center uppercase">
+                    {user?.name ? user.name[0] : "U"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-900 truncate">
+                      {user?.name}
+                    </p>
+                    <p className="text-[11px] text-slate-500 truncate">
+                      {user?.email || "Account Active"}
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 active:scale-[0.98] transition-all text-white text-center font-semibold text-sm shadow-md shadow-indigo-100 flex items-center justify-center gap-2"
+                >
+                  <span>Go to Dashboard</span>
+                  <ArrowRight size={16} />
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login?mode=signup"
+                  onClick={() => setMenuOpen(false)}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 active:scale-[0.98] transition-all text-white text-center font-semibold text-sm shadow-md shadow-indigo-100 flex items-center justify-center gap-2"
+                >
+                  <span>Get started</span>
+                  <ArrowRight size={16} />
+                </Link>
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="w-full py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-white active:scale-[0.98] transition-all text-slate-700 text-center font-medium text-sm flex items-center justify-center gap-2"
+                >
+                  <LogIn size={16} />
+                  <span>Login</span>
+                </Link>
+              </>
+            )}
+
+            <p className="text-center text-[10px] text-slate-400 mt-1">
+              Craft your dream career with nextume.
+            </p>
+          </div>
+        </aside>
 
         {/* Hero Section */}
         <div className="relative overflow-hidden text-black">

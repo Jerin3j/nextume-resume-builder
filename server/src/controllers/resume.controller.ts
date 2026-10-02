@@ -210,11 +210,11 @@ export const uploadResume = async (req: Request, res: Response) => {
         }
         const newResume = await parseAndSaveResume(userId, title, resumeText);
         res.status(200).json(newResume);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Upload Resume Error:", error);
         return res.status(500).json({
             success: false,
-            message: "Internal server error",
+            message: error?.message || "Internal server error",
         });
     }
 };
