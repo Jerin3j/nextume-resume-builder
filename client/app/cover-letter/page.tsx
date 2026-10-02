@@ -124,6 +124,7 @@ export default function CoverLetterPage() {
   const [uploadJobTitle, setUploadJobTitle] = useState("");
   const [uploadHiringManager, setUploadHiringManager] = useState("");
   const [isSavingUpload, setIsSavingUpload] = useState(false);
+  const [deletingLetterId, setDeletingLetterId] = useState<number | null>(null);
 
   const generationStepsList = [
     "Analyzing resume details and achievements...",
@@ -459,6 +460,14 @@ export default function CoverLetterPage() {
 
   // Delete Cover Letter
   const handleDelete = async (letter: CoverLetter) => {
+    if (deletingLetterId !== null) return;
+    setDeletingLetterId(letter.id);
+
+    const toastId = `delete-cover-letter-${letter.id}`;
+    const timer = setTimeout(() => {
+      setDeletingLetterId((prev) => (prev === letter.id ? null : prev));
+    }, 5000);
+
     toast((t) => (
       <div className="flex flex-col gap-2">
         <p className="text-xs font-semibold text-slate-800">
@@ -468,6 +477,7 @@ export default function CoverLetterPage() {
           <button
             className="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer"
             onClick={async () => {
+              clearTimeout(timer);
               try {
                 const response = await axiosInstance.delete(`/cover-letters/${letter.id}`);
                 if (response.data.success) {
@@ -482,6 +492,8 @@ export default function CoverLetterPage() {
               } catch (error: any) {
                 console.error(error);
                 toast.error("Failed to delete cover letter.");
+              } finally {
+                setDeletingLetterId(null);
               }
             }}
           >
@@ -489,13 +501,17 @@ export default function CoverLetterPage() {
           </button>
           <button
             className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer"
-            onClick={() => toast.dismiss(t.id)}
+            onClick={() => {
+              clearTimeout(timer);
+              setDeletingLetterId(null);
+              toast.dismiss(t.id);
+            }}
           >
             Cancel
           </button>
         </div>
       </div>
-    ), { duration: 5000 });
+    ), { id: toastId, duration: 5000 });
   };
 
   // Regenerate Cover Letter
@@ -971,8 +987,17 @@ ${recipientBlock}${activeLetter.content}
                       </button>
                       <button
                         onClick={() => handleDelete(letter)}
-                        title="Delete"
-                        className="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-rose-600 transition-colors cursor-pointer"
+                        disabled={deletingLetterId !== null}
+                        title={
+                          deletingLetterId !== null
+                            ? "Confirmation alert already open"
+                            : "Delete"
+                        }
+                        className={`p-1.5 rounded transition-colors ${
+                          deletingLetterId !== null
+                            ? "opacity-30 cursor-not-allowed text-slate-300"
+                            : "hover:bg-slate-100 text-slate-600 hover:text-rose-600 cursor-pointer"
+                        }`}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
