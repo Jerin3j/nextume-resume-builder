@@ -32,6 +32,7 @@ import axiosInstance from "../utils/axiosInstance";
 import toast from "react-hot-toast";
 import pdfToText from "react-pdftotext";
 import Link from "next/link";
+import { sanitizeUsername, getUserPortfolioUrl } from "@/lib/domains";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -42,6 +43,8 @@ const Dashboard = () => {
   const [editedHtml, setEditedHtml] = useState<string>("");
   const [isSavingHtml, setIsSavingHtml] = useState<boolean>(false);
   const [editorTab, setEditorTab] = useState<"code" | "preview">("code");
+
+  const [customSubdomain, setCustomSubdomain] = useState<string>("");
 
   const handleOpenHtmlEditor = () => {
     setEditedHtml(user?.portfolio?.html || "");
@@ -288,6 +291,7 @@ const Dashboard = () => {
       toast.error("Please select a resume first");
       return;
     }
+    const finalSubdomain = sanitizeUsername(customSubdomain || user?.name || "portfolio");
     try {
       setIsGeneratingPortfolio(true);
       const selectedResume = allResumes.find(
@@ -298,27 +302,29 @@ const Dashboard = () => {
         toast.error("Resume not found");
         return;
       }
-      // Send resumeId only
+      
       const { data } = await axiosInstance.post("/ai/generate-portfolio", {
         resumeId: selectedPortfolioResumeId,
-        username: selectedResume?.title,
+        username: finalSubdomain,
       });
 
       setPortfolioId(data.portfolioId);
-
       setActivePortfolioId(selectedPortfolioResumeId);
-
       localStorage.setItem(
         "activePortfolioResumeId",
         selectedPortfolioResumeId.toString(),
       );
 
-      toast.success("Portfolio generated successfully 🚀");
+      // Refresh user profile in redux
+      const profileRes = await axiosInstance.get("/users/me");
+      if (profileRes.data?.user) {
+        dispatch(setUser(profileRes.data.user));
+      }
 
+      toast.success(`Portfolio published at ${finalSubdomain}.nextume.in 🚀`);
       setShowPortfolioModal(false);
     } catch (error: any) {
       console.error(error);
-
       toast.error(
         error.response?.data?.message || "Failed generating portfolio",
       );
@@ -333,6 +339,8 @@ const Dashboard = () => {
     (res) => res.id === activePortfolioId,
   );
 
+  const activeSubdomain = user?.portfolio?.username || sanitizeUsername(user?.name || "portfolio");
+  const portfolioLiveUrl = getUserPortfolioUrl(activeSubdomain);
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-16 text-slate-800">
@@ -345,7 +353,7 @@ const Dashboard = () => {
             </h1>
             <p className="text-sm text-indigo-100/90 leading-relaxed max-w-xl">
               Create professional resumes, scan them for ATS compatibility, and
-              deploy your personal portfolio website.
+              deploy your personal portfolio website on your custom subdomain.
             </p>
           </div>
           {/* Subtle logo texture background decoration */}
@@ -364,8 +372,7 @@ const Dashboard = () => {
                 Personal Portfolio Website
               </h2>
               <p className="text-xs text-slate-400">
-                You can host exactly one portfolio page based on one active
-                resume document.
+                Hosted publicly on your dedicated custom subdomain at <span className="font-semibold text-violet-600">{activeSubdomain}.nextume.in</span>
               </p>
             </div>
             {/* Preview of current portfolio */}
@@ -385,28 +392,28 @@ const Dashboard = () => {
               </div>
             )}
 
-            {activePortfolioResume ? (
+            {activePortfolioResume || user?.portfolio ? (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 border border-slate-100 rounded-xl p-4">
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="inline-block text-[10px] uppercase font-bold tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                      Live website
+                      Live Subdomain
                     </span>
-                    <h3 className="font-bold text-sm text-slate-700">
-                      {activePortfolioResume.title}
-                    </h3>
+                    <span className="text-xs font-mono font-bold text-violet-600">
+                      {activeSubdomain}.nextume.in
+                    </span>
                   </div>
+                  <h3 className="font-bold text-sm text-slate-700">
+                    {activePortfolioResume?.title || "Active Portfolio"}
+                  </h3>
                   <p className="text-xs text-slate-400">
-                    Template: {activePortfolioResume.template} • Updated{" "}
-                    {new Date(
-                      activePortfolioResume.updatedAt,
-                    ).toLocaleDateString()}
+                    Direct URL: <span className="text-slate-600 font-medium">{portfolioLiveUrl}</span>
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                   <a
-                    href={`portfolio/${portfolioId || user?.portfolio?.id}`}
+                    href={portfolioLiveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm shadow-violet-100"
@@ -414,6 +421,18 @@ const Dashboard = () => {
                     <span>View Website</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
+
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(portfolioLiveUrl);
+                      toast.success("Subdomain link copied to clipboard!");
+                    }}
+                    className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100 transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Copy Subdomain Link"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Link</span>
+                  </button>
 
                   <button
                     onClick={() => {
@@ -426,6 +445,7 @@ const Dashboard = () => {
                         return;
                       }
                       setSelectedPortfolioResumeId(activePortfolioId);
+                      setCustomSubdomain(user?.portfolio?.username || sanitizeUsername(user?.name || ""));
                       setShowPortfolioModal(true);
                     }}
                     className={`px-3 py-2 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 cursor-pointer ${user?.isPro && !(user.portfolio && user.portfolio.regenCount >= 3)
@@ -464,7 +484,7 @@ const Dashboard = () => {
             ) : (
               <div className="text-center py-6 border border-dashed border-slate-200 rounded-xl space-y-3">
                 <p className="text-xs text-slate-400">
-                  No active portfolio website linked to your account.
+                  No active portfolio website linked to your account yet.
                 </p>
                 <button
                   onClick={() => {
@@ -472,11 +492,12 @@ const Dashboard = () => {
                       toast.error("Please create a resume first.");
                       return;
                     }
+                    setCustomSubdomain(sanitizeUsername(user?.name || ""));
                     setShowPortfolioModal(true);
                   }}
                   className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-sm shadow-violet-100"
                 >
-                  Link Portfolio Resume
+                  Create & Link Subdomain Portfolio
                 </button>
               </div>
             )}
@@ -898,7 +919,7 @@ const Dashboard = () => {
           </form>
         )}
 
-        {/* MODAL: PUBLISH PORTFOLIO (SELECT RESUME TO LINK) */}
+        {/* MODAL: PUBLISH PORTFOLIO (SELECT RESUME TO LINK & SUBDOMAIN) */}
         {showPortfolioModal && (
           <div
             onClick={() => setShowPortfolioModal(false)}
@@ -910,65 +931,88 @@ const Dashboard = () => {
             >
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-slate-800">
-                  Link Portfolio Website
+                  Deploy Subdomain Portfolio
                 </h2>
                 <p className="text-xs text-slate-400">
-                  Choose one resume below to turn into your public online
-                  portfolio website.
+                  Choose a resume and claim your personal <span className="text-violet-600 font-semibold">.nextume.in</span> subdomain handle.
                 </p>
               </div>
 
-              <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
-                {allResumes.map((res) => (
-                  <div
-                    key={res.id}
-                    className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
-                  >
-                    <div>
-                      <h4 className="font-semibold text-sm text-slate-700 line-clamp-1">
-                        {res.title}
-                      </h4>
-                      <p className="text-[10px] text-slate-400 mt-0.5">
-                        Template: {res.template} • Updated{" "}
-                        {new Date(res.updatedAt).toLocaleDateString()}
-                      </p>
-                    </div>
+              {/* Subdomain Handle Input Field */}
+              <div className="space-y-1.5 bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                <label className="text-xs font-semibold text-slate-700">
+                  Portfolio Subdomain Handle
+                </label>
+                <div className="flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 focus-within:border-violet-500 focus-within:ring-1 focus-within:ring-violet-500 transition">
+                  <span className="text-xs font-semibold text-slate-400">https://</span>
+                  <input
+                    type="text"
+                    value={customSubdomain}
+                    onChange={(e) => setCustomSubdomain(sanitizeUsername(e.target.value))}
+                    placeholder="jerin"
+                    className="w-full bg-transparent text-xs font-bold text-violet-600 outline-none px-1 lowercase"
+                  />
+                  <span className="text-xs font-bold text-slate-600">.nextume.in</span>
+                </div>
+                <p className="text-[10px] text-slate-400">
+                  Live URL: <span className="font-semibold text-violet-600">{customSubdomain || sanitizeUsername(user?.name || "portfolio")}.nextume.in</span>
+                </p>
+              </div>
 
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">
+                  Select Resume Document
+                </label>
+                <div className="max-h-52 overflow-y-auto space-y-2 pr-1">
+                  {allResumes.map((res) => (
                     <div
                       key={res.id}
                       onClick={() => setSelectedPortfolioResumeId(res.id)}
-                      className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition
- ${selectedPortfolioResumeId === res.id
-                          ? "border-violet-600 bg-violet-50"
-                          : "border-slate-200"
-                        }
- `}
+                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
+                        selectedPortfolioResumeId === res.id
+                          ? "border-violet-600 bg-violet-50/70 shadow-xs"
+                          : "border-slate-200 bg-white hover:bg-slate-50"
+                      }`}
                     >
+                      <div>
+                        <h4 className="font-semibold text-xs text-slate-700 line-clamp-1">
+                          {res.title}
+                        </h4>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          Template: {res.template} • Updated {new Date(res.updatedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+
                       <input
                         type="radio"
                         checked={selectedPortfolioResumeId === res.id}
                         onChange={() => setSelectedPortfolioResumeId(res.id)}
+                        className="text-violet-600 focus:ring-violet-500"
                       />
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+
               <button
                 disabled={!selectedPortfolioResumeId || isGeneratingPortfolio}
                 onClick={handleGeneratePortfolio}
-                className="w-full py-3 mt-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold disabled:opacity-50"
+                className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-violet-100"
               >
+                {isGeneratingPortfolio && (
+                  <LoaderCircleIcon className="animate-spin w-4 h-4 text-white" />
+                )}
                 {isGeneratingPortfolio
-                  ? "Generating Portfolio..."
-                  : "Continue & Generate Portfolio"}
+                  ? "Generating & Hosting Subdomain..."
+                  : `Launch ${customSubdomain || sanitizeUsername(user?.name || "portfolio")}.nextume.in`}
               </button>
 
-              <div className="pt-2">
+              <div className="pt-1">
                 <button
                   onClick={() => setShowPortfolioModal(false)}
-                  className="w-full py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                  className="w-full py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
                 >
-                  Close
+                  Cancel
                 </button>
               </div>
 
