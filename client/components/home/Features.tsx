@@ -91,9 +91,9 @@ const Features = () => {
             </div>
           </div>
           <div className="flex items-center justify-center gap-6 max-w-md group cursor-pointer">
-            <div className="p-6 group-hover:bg-orange-100 border border-transparent group-hover:border-orange-300 flex gap-4 rounded-xl transition-colors">
+            <div className="p-6 group-hover:bg-violet-100 border border-transparent group-hover:border-violet-300 flex gap-4 rounded-xl transition-colors">
               <svg
-                className="size-6 stroke-orange-600"
+                className="size-6 stroke-violet-600"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
@@ -104,16 +104,16 @@ const Features = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M12 15V3" />
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="m7 10 5 5 5-5" />
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                <path d="M2 12h20" />
               </svg>
               <div className="space-y-2">
                 <h3 className="text-base font-semibold text-slate-700">
-                  Portfolio Builder
+                  Custom Subdomain Portfolios
                 </h3>
                 <p className="text-sm text-slate-600 max-w-xs">
-                  Turn your resume into a modern portfolio website and share it with a single link.
+                  Turn your resume into a live personal portfolio website hosted on your custom subdomain (e.g. <b>jerin.nextume.in</b>) in 1-click.
                 </p>
               </div>
             </div>

@@ -64,6 +64,11 @@ const Footer = () => {
                     Support
                   </Link>
                 </li>
+                <li>
+                  <Link href="/sitemap" className="hover:text-violet-600 transition">
+                    Site Map & Subdomains
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
@@ -110,31 +115,8 @@ const Footer = () => {
                   <circle cx="4" cy="4" r="2"></circle>
                 </svg>
               </a>
-
-              {/* <a
-                href="https://www.youtube.com/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-youtube size-6 hover:text-indigo-500"
-                  aria-hidden="true"
-                >
-                  <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path>
-                  <path d="m10 15 5-3-5-3z"></path>
-                </svg>
-              </a> */}
             </div>
-            <p className="mt-3 text-center">© 2025 Nextume</p>
+            <p className="mt-3 text-center">© 2026 Nextume.in</p>
           </div>
           <p className="w-full py-3 text-center text-sm text-gray-500">
             Made with <span className="text-red-500">❤️</span> by{" "}

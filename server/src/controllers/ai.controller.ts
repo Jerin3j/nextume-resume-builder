@@ -376,10 +376,10 @@ Design:
 - Recruiter friendly
 - Clean and premium UI.
 - Footer should include branding text like:
-"Built with Nextume.app"
+"Built with Nextume.in"
 - Add copyright text.
 - Make footer match the overall portfolio design.
-The output will be directly saved as an HTML file and hosted publicly.
+The output will be directly saved as an HTML file and hosted publicly on ${username}.nextume.in.
 `
                     },
                     {
@@ -398,6 +398,12 @@ The output will be directly saved as an HTML file and hosted publicly.
                 "AI generated empty html"
             );
         }
+        const sanitizedUsername = username
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, "")
+            .replace(/[^a-z0-9_-]/g, "") || `user${userId}`;
+
         const portfolio =
             await prisma.portfolio.upsert({
                 where: {
@@ -405,11 +411,12 @@ The output will be directly saved as an HTML file and hosted publicly.
                 },
                 update: {
                     html,
+                    username: sanitizedUsername,
                     regenCount: user.portfolio ? { increment: 1 } : 0
                 },
                 create: {
                     userId: userId,
-                    username: username,
+                    username: sanitizedUsername,
                     html,
                     regenCount: 0
                 }
@@ -417,7 +424,9 @@ The output will be directly saved as an HTML file and hosted publicly.
         res.status(200).json({
             success: true,
             portfolioId: portfolio.id,
-            url: `/portfolio/${portfolio.id}`
+            username: portfolio.username,
+            subdomainUrl: `https://${portfolio.username}.nextume.in`,
+            url: `/portfolio/${portfolio.username}`
         });
     } catch (error: any) {
         console.log(
@@ -430,28 +439,54 @@ The output will be directly saved as an HTML file and hosted publicly.
         });
     }
 };
-//Controller for getting portfolio based on portfolioId
+//Controller for getting portfolio based on portfolioId or username
 // GET /api/portfolio/:id
 export const getPortfolio = async (
     req: Request,
     res: Response
 ) => {
     try {
-        const id = Number(req.params.id);
-        console.log("req.params.id", req.params.id);
-        const portfolio =
-            await prisma.portfolio.findUnique({
+        const param = req.params.id;
+        if (!param) {
+            return res.status(400).json({ message: "Portfolio identifier is required" });
+        }
+        const isNumeric = /^\d+$/.test(param);
+        const portfolio = isNumeric
+            ? await prisma.portfolio.findFirst({
                 where: {
-                    id: id,
+                    OR: [
+                        { id: Number(param) },
+                        { username: param.toLowerCase() }
+                    ]
+                },
+                include: {
+                    user: {
+                        select: { name: true, email: true }
+                    }
+                }
+            })
+            : await prisma.portfolio.findFirst({
+                where: {
+                    username: param.toLowerCase()
+                },
+                include: {
+                    user: {
+                        select: { name: true, email: true }
+                    }
                 }
             });
+
         if (!portfolio) {
             return res.status(404).json({
                 message: "Portfolio not found"
             });
         }
         return res.status(200).json({
-            html: portfolio.html
+            success: true,
+            id: portfolio.id,
+            username: portfolio.username,
+            html: portfolio.html,
+            user: portfolio.user
         });
     } catch (error) {
         return res.status(500).json({
