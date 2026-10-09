@@ -292,6 +292,7 @@ const Dashboard = () => {
       return;
     }
     const finalSubdomain = sanitizeUsername(customSubdomain || user?.name || "portfolio");
+
     try {
       setIsGeneratingPortfolio(true);
       const selectedResume = allResumes.find(
@@ -302,10 +303,11 @@ const Dashboard = () => {
         toast.error("Resume not found");
         return;
       }
-      
+
       const { data } = await axiosInstance.post("/ai/generate-portfolio", {
         resumeId: selectedPortfolioResumeId,
-        username: finalSubdomain,
+        username: user?.name,
+        subdomain: finalSubdomain,
       });
 
       setPortfolioId(data.portfolioId);
@@ -339,8 +341,10 @@ const Dashboard = () => {
     (res) => res.id === activePortfolioId,
   );
 
-  const activeSubdomain = user?.portfolio?.username || sanitizeUsername(user?.name || "portfolio");
+  const activeSubdomain = user?.portfolio?.subdomain || sanitizeUsername(user?.name || "portfolio");
   const portfolioLiveUrl = getUserPortfolioUrl(activeSubdomain);
+  console.log("portfolioLiveUrl", portfolioLiveUrl);
+
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-16 text-slate-800">
@@ -353,7 +357,7 @@ const Dashboard = () => {
             </h1>
             <p className="text-sm text-indigo-100/90 leading-relaxed max-w-xl">
               Create professional resumes, scan them for ATS compatibility, and
-              deploy your personal portfolio website on your custom subdomain.
+              deploy your personal portfolio website.
             </p>
           </div>
           {/* Subtle logo texture background decoration */}
@@ -372,7 +376,8 @@ const Dashboard = () => {
                 Personal Portfolio Website
               </h2>
               <p className="text-xs text-slate-400">
-                Hosted publicly on your dedicated custom subdomain at <span className="font-semibold text-violet-600">{activeSubdomain}.nextume.in</span>
+                You can host exactly one portfolio page based on one active
+                resume document.
               </p>
             </div>
             {/* Preview of current portfolio */}
@@ -397,10 +402,7 @@ const Dashboard = () => {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="inline-block text-[10px] uppercase font-bold tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                      Live Subdomain
-                    </span>
-                    <span className="text-xs font-mono font-bold text-violet-600">
-                      {activeSubdomain}.nextume.in
+                      Live
                     </span>
                   </div>
                   <h3 className="font-bold text-sm text-slate-700">
@@ -425,10 +427,10 @@ const Dashboard = () => {
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(portfolioLiveUrl);
-                      toast.success("Subdomain link copied to clipboard!");
+                      toast.success("Link copied to clipboard!");
                     }}
                     className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100 transition-all flex items-center gap-1.5 cursor-pointer"
-                    title="Copy Subdomain Link"
+                    title="Copy Link"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span>Copy Link</span>
@@ -672,11 +674,10 @@ const Dashboard = () => {
                           <button
                             onClick={() => deleteResume(res.id, res.title)}
                             disabled={deletingResumeId !== null}
-                            className={`p-1 rounded transition-colors ${
-                              deletingResumeId !== null
-                                ? "opacity-30 cursor-not-allowed text-slate-300"
-                                : "hover:bg-red-50 text-slate-400 hover:text-red-500 cursor-pointer"
-                            }`}
+                            className={`p-1 rounded transition-colors ${deletingResumeId !== null
+                              ? "opacity-30 cursor-not-allowed text-slate-300"
+                              : "hover:bg-red-50 text-slate-400 hover:text-red-500 cursor-pointer"
+                              }`}
                             title={
                               deletingResumeId !== null
                                 ? "Confirmation alert already open"
@@ -931,7 +932,7 @@ const Dashboard = () => {
             >
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-slate-800">
-                  Deploy Subdomain Portfolio
+                  Deploy Portfolio
                 </h2>
                 <p className="text-xs text-slate-400">
                   Choose a resume and claim your personal <span className="text-violet-600 font-semibold">.nextume.in</span> subdomain handle.
@@ -950,9 +951,9 @@ const Dashboard = () => {
                     value={customSubdomain}
                     onChange={(e) => setCustomSubdomain(sanitizeUsername(e.target.value))}
                     placeholder="jerin"
-                    className="w-full bg-transparent text-xs font-bold text-violet-600 outline-none px-1 lowercase"
+                    className="w-full bg-transparent text-xs font-semibold text-violet-600 outline-none px-1 lowercase"
                   />
-                  <span className="text-xs font-bold text-slate-600">.nextume.in</span>
+                  <span className="text-xs font-semibold text-slate-600">.nextume.in</span>
                 </div>
                 <p className="text-[10px] text-slate-400">
                   Live URL: <span className="font-semibold text-violet-600">{customSubdomain || sanitizeUsername(user?.name || "portfolio")}.nextume.in</span>
@@ -968,11 +969,10 @@ const Dashboard = () => {
                     <div
                       key={res.id}
                       onClick={() => setSelectedPortfolioResumeId(res.id)}
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
-                        selectedPortfolioResumeId === res.id
-                          ? "border-violet-600 bg-violet-50/70 shadow-xs"
-                          : "border-slate-200 bg-white hover:bg-slate-50"
-                      }`}
+                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${selectedPortfolioResumeId === res.id
+                        ? "border-violet-600 bg-violet-50/70 shadow-xs"
+                        : "border-slate-200 bg-white hover:bg-slate-50"
+                        }`}
                     >
                       <div>
                         <h4 className="font-semibold text-xs text-slate-700 line-clamp-1">
