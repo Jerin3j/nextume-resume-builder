@@ -43,6 +43,7 @@ model Portfolio {
   id         Int      @id @default(autoincrement())
   userId     Int      @unique
   username   String   @unique
+  subdomain  String   @unique
   html       String   @db.Text
   regenCount Int      @default(0)
   createdAt  DateTime @default(now())
@@ -65,6 +66,7 @@ model CoverLetter {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
 }
+
 model OTP {
   id        Int      @id @default(autoincrement())
   email     String

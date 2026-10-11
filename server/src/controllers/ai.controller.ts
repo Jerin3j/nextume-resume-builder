@@ -399,6 +399,7 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             );
         }
         const sanitizedUsername = username
+
             .toLowerCase()
             .trim()
             .replace(/\s+/g, "")
