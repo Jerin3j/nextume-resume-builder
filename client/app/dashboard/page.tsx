@@ -292,7 +292,7 @@ const Dashboard = () => {
       return;
     }
     const finalSubdomain = sanitizeUsername(customSubdomain || user?.name || "portfolio");
-
+    
     try {
       setIsGeneratingPortfolio(true);
       const selectedResume = allResumes.find(
@@ -306,8 +306,7 @@ const Dashboard = () => {
 
       const { data } = await axiosInstance.post("/ai/generate-portfolio", {
         resumeId: selectedPortfolioResumeId,
-        username: user?.name,
-        subdomain: finalSubdomain,
+        username: finalSubdomain,
       });
 
       setPortfolioId(data.portfolioId);
@@ -341,11 +340,9 @@ const Dashboard = () => {
     (res) => res.id === activePortfolioId,
   );
 
-  const activeSubdomain = user?.portfolio?.subdomain || sanitizeUsername(user?.name || "portfolio");
+  const activeSubdomain = user?.portfolio?.username || sanitizeUsername(user?.name || "portfolio");
   const portfolioLiveUrl = getUserPortfolioUrl(activeSubdomain);
-  console.log("portfolioLiveUrl", portfolioLiveUrl);
-
-
+  
   return (
     <div className="min-h-screen bg-slate-50/50 pb-16 text-slate-800">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
@@ -357,7 +354,7 @@ const Dashboard = () => {
             </h1>
             <p className="text-sm text-indigo-100/90 leading-relaxed max-w-xl">
               Create professional resumes, scan them for ATS compatibility, and
-              deploy your personal portfolio website.
+              deploy your personal portfolio website on your custom subdomain.
             </p>
           </div>
           {/* Subtle logo texture background decoration */}
@@ -376,8 +373,7 @@ const Dashboard = () => {
                 Personal Portfolio Website
               </h2>
               <p className="text-xs text-slate-400">
-                You can host exactly one portfolio page based on one active
-                resume document.
+                Hosted publicly on your dedicated custom subdomain at <span className="font-semibold text-violet-600">{activeSubdomain}.nextume.in</span>
               </p>
             </div>
             {/* Preview of current portfolio */}
@@ -402,7 +398,7 @@ const Dashboard = () => {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="inline-block text-[10px] uppercase font-bold tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                      Live
+                      Live Portfolio
                     </span>
                   </div>
                   <h3 className="font-bold text-sm text-slate-700">
@@ -431,6 +427,7 @@ const Dashboard = () => {
                     }}
                     className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100 transition-all flex items-center gap-1.5 cursor-pointer"
                     title="Copy Link"
+
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span>Copy Link</span>
@@ -969,10 +966,12 @@ const Dashboard = () => {
                     <div
                       key={res.id}
                       onClick={() => setSelectedPortfolioResumeId(res.id)}
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${selectedPortfolioResumeId === res.id
-                        ? "border-violet-600 bg-violet-50/70 shadow-xs"
-                        : "border-slate-200 bg-white hover:bg-slate-50"
-                        }`}
+
+                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
+                        selectedPortfolioResumeId === res.id
+                          ? "border-violet-600 bg-violet-50/70 shadow-xs"
+                          : "border-slate-200 bg-white hover:bg-slate-50"
+                      }`}
                     >
                       <div>
                         <h4 className="font-semibold text-xs text-slate-700 line-clamp-1">

@@ -399,15 +399,11 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             );
         }
         const sanitizedUsername = username
-            .normalize("NFKD")
+
             .toLowerCase()
             .trim()
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\bresume\b/g, "")
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "")
-            .slice(0, 63)
-            .replace(/-+$/g, "") || `user${userId}`;
+            .replace(/\s+/g, "")
+            .replace(/[^a-z0-9_-]/g, "") || `user${userId}`;
 
         const portfolio =
             await prisma.portfolio.upsert({
@@ -416,14 +412,12 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
                 },
                 update: {
                     html,
-                    username: username,
-                    subdomain: sanitizedUsername,
+                    username: sanitizedUsername,
                     regenCount: user.portfolio ? { increment: 1 } : 0
                 },
                 create: {
                     userId: userId,
-                    username: username,
-                    subdomain: sanitizedUsername,
+                    username: sanitizedUsername,
                     html,
                     regenCount: 0
                 }
@@ -432,8 +426,8 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             success: true,
             portfolioId: portfolio.id,
             username: portfolio.username,
-            subdomainUrl: `https://${portfolio.subdomain}.nextume.in`,
-            url: `/portfolio/${portfolio.id}`
+            subdomainUrl: `https://${portfolio.username}.nextume.in`,
+            url: `/portfolio/${portfolio.username}`
         });
     } catch (error: any) {
         console.log(
@@ -446,21 +440,40 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
         });
     }
 };
-//Controller for getting portfolio based on portfolioId
+//Controller for getting portfolio based on portfolioId or username
 // GET /api/portfolio/:id
 export const getPortfolio = async (
     req: Request,
     res: Response
 ) => {
     try {
-        // const id = Number(req.params.id);
-        const subdomain = req.params.subdomain as string
-        console.log("req.params.id", req.params.id);
-        const portfolio =
-            await prisma.portfolio.findUnique({
+        const param = req.params.id;
+        if (!param) {
+            return res.status(400).json({ message: "Portfolio identifier is required" });
+        }
+        const isNumeric = /^\d+$/.test(param);
+        const portfolio = isNumeric
+            ? await prisma.portfolio.findFirst({
                 where: {
-                    // id: id,
-                    subdomain,
+                    OR: [
+                        { id: Number(param) },
+                        { username: param.toLowerCase() }
+                    ]
+                },
+                include: {
+                    user: {
+                        select: { name: true, email: true }
+                    }
+                }
+            })
+            : await prisma.portfolio.findFirst({
+                where: {
+                    username: param.toLowerCase()
+                },
+                include: {
+                    user: {
+                        select: { name: true, email: true }
+                    }
                 }
             });
 
@@ -474,7 +487,7 @@ export const getPortfolio = async (
             id: portfolio.id,
             username: portfolio.username,
             html: portfolio.html,
-            // user: portfolio.user
+            user: portfolio.user
         });
     } catch (error) {
         return res.status(500).json({
