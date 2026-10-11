@@ -399,10 +399,15 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             );
         }
         const sanitizedUsername = username
+            .normalize("NFKD")
             .toLowerCase()
             .trim()
-            .replace(/\s+/g, "")
-            .replace(/[^a-z0-9_-]/g, "") || `user${userId}`;
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/\bresume\b/g, "")
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 63)
+            .replace(/-+$/g, "") || `user${userId}`;
 
         const portfolio =
             await prisma.portfolio.upsert({
@@ -411,12 +416,14 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
                 },
                 update: {
                     html,
-                    username: sanitizedUsername,
+                    username: username,
+                    subdomain: sanitizedUsername,
                     regenCount: user.portfolio ? { increment: 1 } : 0
                 },
                 create: {
                     userId: userId,
-                    username: sanitizedUsername,
+                    username: username,
+                    subdomain: sanitizedUsername,
                     html,
                     regenCount: 0
                 }
@@ -425,8 +432,8 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             success: true,
             portfolioId: portfolio.id,
             username: portfolio.username,
-            subdomainUrl: `https://${portfolio.username}.nextume.in`,
-            url: `/portfolio/${portfolio.username}`
+            subdomainUrl: `https://${portfolio.subdomain}.nextume.in`,
+            url: `/portfolio/${portfolio.id}`
         });
     } catch (error: any) {
         console.log(
@@ -439,7 +446,7 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
         });
     }
 };
-//Controller for getting portfolio based on portfolioId or username
+//Controller for getting portfolio based on portfolioId
 // GET /api/portfolio/:id
 export const getPortfolio = async (
     req: Request,
@@ -487,7 +494,7 @@ export const getPortfolio = async (
             id: portfolio.id,
             username: portfolio.username,
             html: portfolio.html,
-            user: portfolio.user
+            // user: portfolio.user
         });
     } catch (error) {
         return res.status(500).json({
