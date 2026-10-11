@@ -10,8 +10,8 @@ const Navbar = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const logoutUser = () => {
-    router.push("/");
     dispatch(logout());
+    router.push("/");
   };
   return (
     <div className="shadow bg-white">

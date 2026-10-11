@@ -178,8 +178,8 @@ export default function PrivacyPolicyPage() {
               If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact our Data Protection Officer at:
             </p>
             <p className="font-semibold text-violet-600">
-              <a href="mailto:privacy@nextume.com" className="hover:underline">
-                privacy@nextume.com
+              <a href="mailto:privacy@nextume.in" className="hover:underline">
+                privacy@nextume.in
               </a>
             </p>
           </section>

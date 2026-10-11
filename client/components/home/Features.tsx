@@ -113,7 +113,7 @@ const Features = () => {
                   Custom Subdomain Portfolios
                 </h3>
                 <p className="text-sm text-slate-600 max-w-xs">
-                  Turn your resume into a live personal portfolio website hosted on your custom subdomain (e.g. <b>jerin.nextume.in</b>) in 1-click.
+                  Turn your resume into a live personal portfolio website hosted on your custom subdomainS in 1-click.
                 </p>
               </div>
             </div>

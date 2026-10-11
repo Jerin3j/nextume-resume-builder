@@ -2,7 +2,7 @@
 
 Nextume is a full-stack AI career platform designed to help job seekers, engineers, and professionals build ATS-optimized resumes, calculate ATS compatibility scores, generate tailored cover letters, and launch online developer portfolios in minutes.
 
-**Live Link**: [https://nextume-resume-builder.vercel.app/](https://nextume-resume-builder.vercel.app/)
+**Live Link**: [https://nextume.in/](https://nextume.in/)
 
 ---
 
@@ -24,7 +24,7 @@ Nextume is a full-stack AI career platform designed to help job seekers, enginee
 
 ### 4. Portfolio Creation
 * **Developer Portfolios**: Launch stunning online portfolios generated automatically from your resume data.
-* **Shareable Links**: Connect and share your portfolio with a unique link.
+* **Shareable Links**: Connect and share your portfolio with a customized subdomain link.
 
 ### 5. Secure Payments & Pro Features
 * **Razorpay Integration**: Seamless payment processing using Razorpay for upgrading to Pro plans.

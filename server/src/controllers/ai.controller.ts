@@ -375,8 +375,8 @@ Design:
 - Professional colors
 - Recruiter friendly
 - Clean and premium UI.
-- Footer should include branding text like:
-"Built with Nextume.in"
+- Footer should include branding like:  
+"Built with <a href="https://nextume.in" target="_blank">nextume.in</a>"
 - Add copyright text.
 - Make footer match the overall portfolio design.
 The output will be directly saved as an HTML file and hosted publicly on ${username}.nextume.in.
@@ -450,13 +450,14 @@ export const getPortfolio = async (
         if (!param) {
             return res.status(400).json({ message: "Portfolio identifier is required" });
         }
+
         const isNumeric = /^\d+$/.test(param);
         const portfolio = isNumeric
             ? await prisma.portfolio.findFirst({
                 where: {
                     OR: [
                         { id: Number(param) },
-                        { username: param.toLowerCase() }
+                        { username: param?.toLowerCase() }
                     ]
                 },
                 include: {

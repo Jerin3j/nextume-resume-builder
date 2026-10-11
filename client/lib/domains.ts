@@ -85,7 +85,6 @@ export function getSubdomainUrl(subdomain?: string | null, path = ""): string {
 
 /**
  * Generates user portfolio URL on their custom subdomain
- * Example: "jerin" -> "https://jerin.nextume.in"
  */
 export function getUserPortfolioUrl(username: string): string {
   const cleanUsername = sanitizeUsername(username);
@@ -94,12 +93,11 @@ export function getUserPortfolioUrl(username: string): string {
 
 /**
  * Generates a clean URL-safe subdomain handle from a user's full name or custom input.
- * Example: "Jerin Jerome Justin" -> "jerin"
  */
 export function sanitizeUsername(name: string): string {
   if (!name) return "user";
 
-  // If multiple words (like "Jerin Jerome Justin"), take the first name as default subdomain handle
+  // If multiple words, take the first name as default subdomain handle
   const firstWord = name.trim().split(/\s+/)[0];
 
   const cleaned = firstWord

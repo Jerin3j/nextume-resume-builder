@@ -137,7 +137,13 @@ const Hero = () => {
       <div className="mn-h-screen lg:pb-20">
         {/* Navbar */}
         <nav className="z-50 flex items-center justify-between w-full py-4 px-6 sm:px-8 md:px-16 lg:px-24 xl:px-40 text-sm">
-          <Link href="/">
+          <Link href="/" className="inline-flex items-center gap-0.5">
+            <img
+              src="/logo.png"
+              alt="Nextume logo"
+              className="h-8 w-8 object-contain"
+            />
+
             <svg
               width="157"
               height="40"
@@ -225,18 +231,16 @@ const Hero = () => {
         {/* Mobile Sidebar Menu (Drawer) */}
         {/* Backdrop Overlay */}
         <div
-          className={`fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
-            menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
+          className={`fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            }`}
           onClick={() => setMenuOpen(false)}
           aria-hidden="true"
         />
 
         {/* Sidebar Panel */}
         <aside
-          className={`fixed top-0 right-0 z-[101] h-full w-[85%] max-w-[340px] bg-white text-slate-800 shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-out lg:hidden ${
-            menuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`fixed top-0 right-0 z-[101] h-full w-[85%] max-w-[340px] bg-white text-slate-800 shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-out lg:hidden ${menuOpen ? "translate-x-0" : "translate-x-full"
+            }`}
           aria-label="Mobile Navigation Drawer"
         >
           {/* Header */}

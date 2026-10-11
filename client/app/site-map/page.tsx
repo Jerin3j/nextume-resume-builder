@@ -56,25 +56,25 @@ export default function SitemapPage() {
         {
           name: "Dashboard & Builder App",
           path: "/dashboard",
-          subdomain: "app.nextume.in",
+          subdomain: "nextume.in/dashboard",
           desc: "Manage resumes, edit sections in real-time, and download PDF",
         },
         {
           name: "ATS Resume Checker",
           path: "/ats-score",
-          subdomain: "ats.nextume.in",
+          subdomain: "nextume.in/ats-score",
           desc: "Scan resumes for ATS compliance score and keyword analysis",
         },
         {
           name: "AI Cover Letter Generator",
           path: "/cover-letter",
-          subdomain: "coverletter.nextume.in",
+          subdomain: "nextume.in/cover-letter",
           desc: "Tailor personalized cover letters matching specific job descriptions",
         },
         {
           name: "Pro Pricing & Plans",
           path: "/pricing",
-          subdomain: "pricing.nextume.in",
+          subdomain: "nextume.in/pricing",
           desc: "Compare Free and Pro plan features with instant unlock",
         },
         {
@@ -124,7 +124,7 @@ export default function SitemapPage() {
         {
           name: "Nextume Community",
           path: "/community",
-          subdomain: "community.nextume.in",
+          subdomain: "nextume.in/community",
           desc: "Connect with developers, share resumes, and give feedback",
         },
         {
@@ -251,7 +251,7 @@ export default function SitemapPage() {
                 Next-Gen AI Resume & Subdomain Portfolio Platform
               </h2>
               <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
-                Empowering candidates worldwide with 95%+ ATS-compatible resumes and personal developer portfolios hosted directly on custom handles like <span className="text-violet-400 font-mono font-semibold">jerin.nextume.in</span>.
+                Empowering candidates worldwide with 95%+ ATS-compatible resumes and personal developer portfolios hosted directly on custom handles.
               </p>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Link
@@ -275,7 +275,7 @@ export default function SitemapPage() {
               <div className="relative group rounded-xl overflow-hidden border border-slate-700/80 shadow-2xl bg-slate-950">
                 <img
                   src="/demo-img.png"
-                  alt="Nextume.in AI Resume Builder and Subdomain Portfolio Demo Preview"
+                  alt="Nextume.in AI Resume Builder and Portfolio Demo Preview"
                   className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">

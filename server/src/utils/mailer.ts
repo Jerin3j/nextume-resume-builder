@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY!);
 export const sendOTP = async (email: string, code: string) => {
   try {
     const data = await resend.emails.send({
-      from: 'Nextume <onboarding@resend.dev>',
+      from: 'Nextume <jerinthefounder@nextume.in>',
       to: [email],
       subject: 'Password Reset OTP - Nextume',
       html: `

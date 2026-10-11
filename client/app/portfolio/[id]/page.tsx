@@ -77,7 +77,7 @@ export default function PublicPortfolio() {
           <div className="space-y-2">
             <h1 className="text-2xl font-black tracking-tight text-white">Portfolio Not Found</h1>
             <p className="text-sm text-slate-400 leading-relaxed">
-              The portfolio subdomain <span className="text-violet-400 font-semibold">{id}.nextume.in</span> has not been claimed or published yet.
+              The portfolio <span className="text-violet-400 font-semibold">{id}.nextume.in</span> has not been claimed or published yet.
             </p>
           </div>
 
@@ -87,7 +87,7 @@ export default function PublicPortfolio() {
               className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-violet-600/20"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Claim Your Free Subdomain on Nextume</span>
+              <span>Go back to Nextume</span>
             </a>
 
             <Link
