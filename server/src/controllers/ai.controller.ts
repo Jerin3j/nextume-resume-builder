@@ -416,14 +416,12 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
                 },
                 update: {
                     html,
-                    username: username,
-                    subdomain: sanitizedUsername,
+                    username: sanitizedUsername,
                     regenCount: user.portfolio ? { increment: 1 } : 0
                 },
                 create: {
                     userId: userId,
-                    username: username,
-                    subdomain: sanitizedUsername,
+                    username: sanitizedUsername,
                     html,
                     regenCount: 0
                 }
@@ -432,7 +430,7 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             success: true,
             portfolioId: portfolio.id,
             username: portfolio.username,
-            subdomainUrl: `https://${portfolio.subdomain}.nextume.in`,
+            subdomainUrl: `https://${portfolio.username}.nextume.in`,
             url: `/portfolio/${portfolio.id}`
         });
     } catch (error: any) {

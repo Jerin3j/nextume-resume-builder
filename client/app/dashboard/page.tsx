@@ -432,7 +432,6 @@ const Dashboard = () => {
                     }}
                     className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100 transition-all flex items-center gap-1.5 cursor-pointer"
                     title="Copy Link"
-                    title="Copy Link"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span>Copy Link</span>
@@ -676,10 +675,6 @@ const Dashboard = () => {
                           <button
                             onClick={() => deleteResume(res.id, res.title)}
                             disabled={deletingResumeId !== null}
-                            className={`p-1 rounded transition-colors ${deletingResumeId !== null
-                              ? "opacity-30 cursor-not-allowed text-slate-300"
-                              : "hover:bg-red-50 text-slate-400 hover:text-red-500 cursor-pointer"
-                              }`}
                             className={`p-1 rounded transition-colors ${deletingResumeId !== null
                               ? "opacity-30 cursor-not-allowed text-slate-300"
                               : "hover:bg-red-50 text-slate-400 hover:text-red-500 cursor-pointer"
@@ -977,10 +972,6 @@ const Dashboard = () => {
                     <div
                       key={res.id}
                       onClick={() => setSelectedPortfolioResumeId(res.id)}
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${selectedPortfolioResumeId === res.id
-                        ? "border-violet-600 bg-violet-50/70 shadow-xs"
-                        : "border-slate-200 bg-white hover:bg-slate-50"
-                        }`}
                       className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${selectedPortfolioResumeId === res.id
                         ? "border-violet-600 bg-violet-50/70 shadow-xs"
                         : "border-slate-200 bg-white hover:bg-slate-50"
