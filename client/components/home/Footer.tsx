@@ -122,6 +122,7 @@ const Footer = () => {
               </a>
             </div>
             <p className="mt-3 text-center">© 2026 Nextume.in</p>
+            <p className="mt-3 text-center">© 2026 Nextume.in</p>
           </div>
           <p className="w-full py-3 text-center text-sm text-gray-500">
             Made with <span className="text-red-500">❤️</span> by{" "}

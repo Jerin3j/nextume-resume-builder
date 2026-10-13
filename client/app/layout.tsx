@@ -8,6 +8,8 @@ const outfitFont = Outfit({
   subsets: ["latin"],
 });
 
+
+
 export const viewport: Viewport = {
   themeColor: "#4F39F6",
   width: "device-width",
@@ -112,6 +114,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   // Global Structured Data (Schema.org) for Search Engines
   const jsonLd = {
     "@context": "https://schema.org",

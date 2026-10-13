@@ -105,16 +105,5 @@ export function sanitizeUsername(name: string): string {
     .replace(/[^a-z0-9_-]/g, "")
     .trim();
 
-  // const sanitizedUsername = username
-  //         .normalize("NFKD")
-  //         .toLowerCase()
-  //         .trim()
-  //         .replace(/[\u0300-\u036f]/g, "")
-  //         .replace(/\bresume\b/g, "")
-  //         .replace(/[^a-z0-9]+/g, "-")
-  //         .replace(/^-+|-+$/g, "")
-  //         .slice(0, 63)
-  //         .replace(/-+$/g, "") || `user${userId}`;
-
   return cleaned || "user";
 }

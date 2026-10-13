@@ -377,8 +377,11 @@ Design:
 - Clean and premium UI.
 - Footer should include branding like:  
 "Built with <a href="https://nextume.in" target="_blank">nextume.in</a>"
+- Footer should include branding text like:
+"Built with Nextume.in"
 - Add copyright text.
 - Make footer match the overall portfolio design.
+The output will be directly saved as an HTML file and hosted publicly on ${username}.nextume.in.
 The output will be directly saved as an HTML file and hosted publicly on ${username}.nextume.in.
 `
                     },
@@ -398,16 +401,13 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
                 "AI generated empty html"
             );
         }
+
         const sanitizedUsername = username
-            .normalize("NFKD")
+
             .toLowerCase()
             .trim()
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\bresume\b/g, "")
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "")
-            .slice(0, 63)
-            .replace(/-+$/g, "") || `user${userId}`;
+            .replace(/\s+/g, "")
+            .replace(/[^a-z0-9_-]/g, "") || `user${userId}`;
 
         const portfolio =
             await prisma.portfolio.upsert({
@@ -444,7 +444,7 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
         });
     }
 };
-//Controller for getting portfolio based on portfolioId
+//Controller for getting portfolio based on portfolioId or username
 // GET /api/portfolio/:id
 export const getPortfolio = async (
     req: Request,
@@ -455,14 +455,13 @@ export const getPortfolio = async (
         if (!param) {
             return res.status(400).json({ message: "Portfolio identifier is required" });
         }
-
         const isNumeric = /^\d+$/.test(param);
         const portfolio = isNumeric
             ? await prisma.portfolio.findFirst({
                 where: {
                     OR: [
                         { id: Number(param) },
-                        { username: param?.toLowerCase() }
+                        { username: param.toLowerCase() }
                     ]
                 },
                 include: {
@@ -492,7 +491,7 @@ export const getPortfolio = async (
             id: portfolio.id,
             username: portfolio.username,
             html: portfolio.html,
-            // user: portfolio.user
+            user: portfolio.user
         });
     } catch (error) {
         return res.status(500).json({
