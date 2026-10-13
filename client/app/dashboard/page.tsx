@@ -304,6 +304,7 @@ const Dashboard = () => {
         return;
       }
 
+
       const { data } = await axiosInstance.post("/ai/generate-portfolio", {
         resumeId: selectedPortfolioResumeId,
         username: finalSubdomain,
@@ -399,6 +400,7 @@ const Dashboard = () => {
                   <div className="flex items-center gap-2">
                     <span className="inline-block text-[10px] uppercase font-bold tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
                       Live Portfolio
+                      Live Portfolio
                     </span>
                   </div>
                   <h3 className="font-bold text-sm text-slate-700">
@@ -427,6 +429,7 @@ const Dashboard = () => {
                     }}
                     className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100 transition-all flex items-center gap-1.5 cursor-pointer"
                     title="Copy Link"
+
 
                   >
                     <Copy className="w-3.5 h-3.5" />

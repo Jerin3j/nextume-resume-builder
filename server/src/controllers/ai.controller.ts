@@ -404,6 +404,7 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
 
         const sanitizedUsername = username
 
+
             .toLowerCase()
             .trim()
             .replace(/\s+/g, "")
@@ -432,6 +433,7 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             username: portfolio.username,
             subdomainUrl: `https://${portfolio.username}.nextume.in`,
             url: `/portfolio/${portfolio.id}`
+            url: `/portfolio/${portfolio.username}`
         });
     } catch (error: any) {
         console.log(

@@ -71,6 +71,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link href="/site-map" className="hover:text-violet-600 transition">
+
                     Site Map & Subdomains
                   </Link>
                 </li>
