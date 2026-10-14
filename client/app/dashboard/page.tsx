@@ -292,7 +292,7 @@ const Dashboard = () => {
       return;
     }
     const finalSubdomain = sanitizeUsername(customSubdomain || user?.name || "portfolio");
-    
+
     try {
       setIsGeneratingPortfolio(true);
       const selectedResume = allResumes.find(
@@ -303,6 +303,7 @@ const Dashboard = () => {
         toast.error("Resume not found");
         return;
       }
+
 
       const { data } = await axiosInstance.post("/ai/generate-portfolio", {
         resumeId: selectedPortfolioResumeId,
@@ -342,7 +343,7 @@ const Dashboard = () => {
 
   const activeSubdomain = user?.portfolio?.username || sanitizeUsername(user?.name || "portfolio");
   const portfolioLiveUrl = getUserPortfolioUrl(activeSubdomain);
-  
+
   return (
     <div className="min-h-screen bg-slate-50/50 pb-16 text-slate-800">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
@@ -399,6 +400,7 @@ const Dashboard = () => {
                   <div className="flex items-center gap-2">
                     <span className="inline-block text-[10px] uppercase font-bold tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
                       Live Portfolio
+                      Live Portfolio
                     </span>
                   </div>
                   <h3 className="font-bold text-sm text-slate-700">
@@ -427,6 +429,7 @@ const Dashboard = () => {
                     }}
                     className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100 transition-all flex items-center gap-1.5 cursor-pointer"
                     title="Copy Link"
+
 
                   >
                     <Copy className="w-3.5 h-3.5" />
@@ -496,7 +499,7 @@ const Dashboard = () => {
                   }}
                   className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-sm shadow-violet-100"
                 >
-                  Create & Link Subdomain Portfolio
+                  Create Portfolio
                 </button>
               </div>
             )}
@@ -967,11 +970,10 @@ const Dashboard = () => {
                       key={res.id}
                       onClick={() => setSelectedPortfolioResumeId(res.id)}
 
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
-                        selectedPortfolioResumeId === res.id
-                          ? "border-violet-600 bg-violet-50/70 shadow-xs"
-                          : "border-slate-200 bg-white hover:bg-slate-50"
-                      }`}
+                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${selectedPortfolioResumeId === res.id
+                        ? "border-violet-600 bg-violet-50/70 shadow-xs"
+                        : "border-slate-200 bg-white hover:bg-slate-50"
+                        }`}
                     >
                       <div>
                         <h4 className="font-semibold text-xs text-slate-700 line-clamp-1">

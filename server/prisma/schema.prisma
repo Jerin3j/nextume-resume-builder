@@ -10,33 +10,33 @@ model User {
   id           Int           @id @default(autoincrement())
   name         String
   email        String        @unique
-  password     String?
-  isPro        Boolean       @default(false)
   createdAt    DateTime      @default(now())
+  password     String?
   updatedAt    DateTime      @default(now()) @updatedAt
-  resumes      Resume[]
-  portfolio    Portfolio?
-  coverLetters CoverLetter[]
+  isPro        Boolean       @default(false)
   atsHistory   AtsHistory[]
+  coverLetters CoverLetter[]
+  portfolio    Portfolio?
+  resumes      Resume[]
 }
 
 model Resume {
   id                  Int           @id @default(autoincrement())
   userId              Int
-  user                User          @relation(fields: [userId], references: [id])
   title               String        @default("Untitled Resume")
   public              Boolean       @default(false)
   template            String        @default("classic")
   accentColor         String        @default("#3B82F6")
   professionalSummary String?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @default(now()) @updatedAt
   skills              String[]      @default([])
   personalInfo        Json?
   workExperience      Json[]        @default([])
   education           Json[]        @default([])
   projects            Json[]        @default([])
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @default(now()) @updatedAt
   coverLetters        CoverLetter[]
+  user                User          @relation(fields: [userId], references: [id])
 }
 
 model Portfolio {
@@ -53,18 +53,18 @@ model Portfolio {
 model CoverLetter {
   id             Int      @id @default(autoincrement())
   userId         Int
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   resumeId       Int?
-  resume         Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
   companyName    String?
   jobTitle       String?
   hiringManager  String?
-  jobDescription String?  @db.Text
+  jobDescription String?
   tone           String
   length         String
-  content        String   @db.Text
+  content        String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
+  resume         Resume?  @relation(fields: [resumeId], references: [id])
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model OTP {
@@ -78,9 +78,9 @@ model OTP {
 model AtsHistory {
   id          Int      @id @default(autoincrement())
   userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   resumeTitle String   @default("Scanned Resume")
   score       Int
   report      Json
   createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

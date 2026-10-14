@@ -24,7 +24,7 @@ const CallToAction = () => {
                 </div>
 
                 <a
-                    href="mailto:contact@nextume.com?subject=Nextume%20Inquiry"
+                    href="mailto:contact@nextume.in?subject=Nextume%20Inquiry"
                     className="flex items-center text-center gap-2 rounded-lg bg-violet-600 hover:bg-violet-700 transition text-white px-8 py-3 font-medium"
                 >
                     <span>Contact Us</span>

@@ -177,10 +177,10 @@ export default function SupportPage() {
               Send us an email anytime and our team will get back to you within 24 hours.
             </p>
             <a
-              href="mailto:support@nextume.com"
+              href="mailto:support@nextume.in"
               className="inline-block text-xs font-bold text-violet-600 hover:text-violet-700 pt-1"
             >
-              support@nextume.com &rarr;
+              support@nextume.in &rarr;
             </a>
           </div>
 

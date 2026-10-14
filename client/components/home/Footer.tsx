@@ -5,7 +5,12 @@ const Footer = () => {
     <>
       <footer className="flex flex-col justify-center items-center mt-40 overflow-hidden">
         <div className="flex flex-wrap justify-center lg:justify-between gap-5 md:gap-15 pt-8 md:pt-16 px-6 md:px-16 lg:px-24 xl:px-32 text-[13px] text-gray-500 bg-gradient-to-r from-[#FDFEFF] via-violet-600/20 to-[#FDFEFF]">
-          <Link href="/" className="self-start">
+          <Link href="/" className="self-start inline-flex items-center">
+            <img
+              src="/logo.png"
+              alt="Nextume logo"
+              className="h-8 w-8 object-contain"
+            />
             <svg
               width="157"
               height="40"
@@ -117,6 +122,7 @@ const Footer = () => {
                 </svg>
               </a>
             </div>
+            <p className="mt-3 text-center">© 2026 Nextume.in</p>
             <p className="mt-3 text-center">© 2026 Nextume.in</p>
           </div>
           <p className="w-full py-3 text-center text-sm text-gray-500">

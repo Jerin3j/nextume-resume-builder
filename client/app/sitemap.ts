@@ -12,6 +12,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/dashboard`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 1.0,
+    },
+    {
       url: `${baseUrl}/ats-score`,
       lastModified: now,
       changeFrequency: "daily" as const,

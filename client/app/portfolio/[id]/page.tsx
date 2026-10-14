@@ -18,10 +18,38 @@ export default function PublicPortfolio() {
 
   useEffect(() => {
     if (!id) return;
+    useEffect(() => {
+      if (!id) return;
 
-    setLoading(true);
-    setNotFound(false);
+      setLoading(true);
+      setNotFound(false);
+      setLoading(true);
+      setNotFound(false);
 
+      axiosInstance
+        .get(`/ai/portfolio/${id}`)
+        .then((res) => {
+          if (res.data?.html) {
+            setHtml(res.data.html);
+            setUsername(res.data.username || id);
+            if (res.data.user?.name) {
+              setUserName(res.data.user.name);
+              document.title = `${res.data.user.name} | Portfolio - Nextume`;
+            } else {
+              document.title = `${res.data.username || id} | Portfolio - Nextume`;
+            }
+          } else {
+            setNotFound(true);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load portfolio:", err);
+          setNotFound(true);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }, [id]);
     axiosInstance
       .get(`/ai/portfolio/${id}`)
       .then((res) => {
@@ -77,7 +105,7 @@ export default function PublicPortfolio() {
           <div className="space-y-2">
             <h1 className="text-2xl font-black tracking-tight text-white">Portfolio Not Found</h1>
             <p className="text-sm text-slate-400 leading-relaxed">
-              The portfolio subdomain <span className="text-violet-400 font-semibold">{id}.nextume.in</span> has not been claimed or published yet.
+              The portfolio <span className="text-violet-400 font-semibold">{id}.nextume.in</span> has not been claimed or published yet.
             </p>
           </div>
 
@@ -87,7 +115,7 @@ export default function PublicPortfolio() {
               className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-violet-600/20"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Claim Your Free Subdomain on Nextume</span>
+              <span>Go back to Nextume</span>
             </a>
 
             <Link

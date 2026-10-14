@@ -375,10 +375,13 @@ Design:
 - Professional colors
 - Recruiter friendly
 - Clean and premium UI.
+- Footer should include branding like:  
+"Built with <a href="https://nextume.in" target="_blank">nextume.in</a>"
 - Footer should include branding text like:
 "Built with Nextume.in"
 - Add copyright text.
 - Make footer match the overall portfolio design.
+The output will be directly saved as an HTML file and hosted publicly on ${username}.nextume.in.
 The output will be directly saved as an HTML file and hosted publicly on ${username}.nextume.in.
 `
                     },
@@ -398,7 +401,9 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
                 "AI generated empty html"
             );
         }
+
         const sanitizedUsername = username
+
 
             .toLowerCase()
             .trim()

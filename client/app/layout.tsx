@@ -8,6 +8,8 @@ const outfitFont = Outfit({
   subsets: ["latin"],
 });
 
+
+
 export const viewport: Viewport = {
   themeColor: "#4F39F6",
   width: "device-width",
@@ -18,11 +20,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://nextume.in"),
   title: {
-    default: "Nextume | AI Resume Builder, ATS Score Scanner & Subdomain Portfolios",
+    default: "Nextume | AI Resume Builder, ATS Score Scanner & Portfolio Builder",
     template: "%s | Nextume.in",
   },
   description:
-    "Build ATS-friendly resumes in minutes, get instant AI ATS compatibility scores with missing keyword feedback, and deploy personal developer portfolio websites on your custom subdomain (yourname.nextume.in).",
+    "Build ATS-friendly resumes in minutes, get instant AI ATS compatibility scores with missing keyword feedback, Build cover letter with some features, and deploy personal developer portfolio websites on your custom subdomain (yourname.nextume.in).",
   applicationName: "Nextume AI Resume Platform",
   authors: [{ name: "Jerin Jerome Justin", url: "https://nextume.in" }],
   generator: "Next.js",
@@ -31,12 +33,14 @@ export const metadata: Metadata = {
     "Nextume",
     "Nextume.in",
     "nextume",
+    "Ats resume builder",
     "ATS Resume Checker",
     "ATS Score Scanner",
     "Free AI Resume Generator",
-    "Subdomain Portfolio Builder",
+    "Free Portfolio Builder",
     "Personal Developer Portfolio",
     "AI Cover Letter Generator",
+    "Free cover letter creator",
     "Resume to Website Converter",
     "Best Resume Builder 2026",
     "ATS Friendly Resume Maker",
@@ -58,7 +62,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://nextume.in",
     siteName: "Nextume.in",
-    title: "Nextume | AI Resume Builder, ATS Score Scanner & Subdomain Portfolios",
+    title: "Nextume | AI Resume Builder, ATS Score Scanner & Portfolio Builder",
     description:
       "Build ATS-friendly resumes in minutes, get instant AI ATS compatibility scores, and deploy your personal portfolio on your custom subdomain (yourname.nextume.in).",
     images: [
@@ -66,7 +70,7 @@ export const metadata: Metadata = {
         url: "/site-preview.png",
         width: 1200,
         height: 630,
-        alt: "Nextume.in - AI Resume Builder and Subdomain Portfolios",
+        alt: "Nextume.in - AI Resume Builder and  Portfolio Builder",
         type: "image/png",
       },
       {
@@ -110,6 +114,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   // Global Structured Data (Schema.org) for Search Engines
   const jsonLd = {
     "@context": "https://schema.org",

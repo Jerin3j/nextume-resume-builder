@@ -68,7 +68,6 @@ export default function proxy(req: NextRequest) {
   }
 
   // Any other subdomain is treated as a User Personal Portfolio subdomain!
-  // e.g. jerin.nextume.in -> rewrites to /portfolio/jerin
   if (url.pathname === "/" || url.pathname === "") {
     return NextResponse.rewrite(new URL(`/portfolio/${subdomain}`, req.url));
   }

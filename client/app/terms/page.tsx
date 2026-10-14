@@ -176,8 +176,8 @@ export default function TermsAndConditionsPage() {
               For legal notices, billing inquiries, or questions about these Terms & Conditions, please contact us at:
             </p>
             <p className="font-semibold text-violet-600">
-              <a href="mailto:legal@nextume.com" className="hover:underline">
-                legal@nextume.com
+              <a href="mailto:legal@nextume.in" className="hover:underline">
+                legal@nextume.in
               </a>
             </p>
           </section>
