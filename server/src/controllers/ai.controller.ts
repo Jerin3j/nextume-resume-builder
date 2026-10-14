@@ -432,7 +432,6 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             portfolioId: portfolio.id,
             username: portfolio.username,
             subdomainUrl: `https://${portfolio.username}.nextume.in`,
-            url: `/portfolio/${portfolio.id}`
             url: `/portfolio/${portfolio.username}`
         });
     } catch (error: any) {
