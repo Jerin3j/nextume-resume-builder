@@ -9,7 +9,6 @@ import { Globe, ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 export default function PublicPortfolio() {
   const params = useParams();
   const id = params?.id as string;
-
   const [html, setHtml] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -17,35 +16,8 @@ export default function PublicPortfolio() {
 
   useEffect(() => {
     if (!id) return;
-    useEffect(() => {
-      if (!id) return;
-
     let isMounted = true;
 
-      axiosInstance
-        .get(`/ai/portfolio/${id}`)
-        .then((res) => {
-          if (res.data?.html) {
-            setHtml(res.data.html);
-            setUsername(res.data.username || id);
-            if (res.data.user?.name) {
-              setUsername(res.data.user.name);
-              document.title = `${res.data.user.name} | Portfolio - Nextume`;
-            } else {
-              document.title = `${res.data.username || id} | Portfolio - Nextume`;
-            }
-          } else {
-            setNotFound(true);
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to load portfolio:", err);
-          setNotFound(true);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, [id]);
     axiosInstance
       .get(`/ai/portfolio/${id}`)
       .then((res) => {
