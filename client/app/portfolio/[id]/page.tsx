@@ -29,7 +29,7 @@ export default function PublicPortfolio() {
             setHtml(res.data.html);
             setUsername(res.data.username || id);
             if (res.data.user?.name) {
-              setUserName(res.data.user.name);
+              setUsername(res.data.user.name);
               document.title = `${res.data.user.name} | Portfolio - Nextume`;
             } else {
               document.title = `${res.data.username || id} | Portfolio - Nextume`;
