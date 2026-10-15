@@ -12,52 +12,22 @@ export default function PublicPortfolio() {
 
   const [html, setHtml] = useState<string>("");
   const [username, setUsername] = useState<string>("");
-  const [userName, setUserName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) return;
-    useEffect(() => {
-      if (!id) return;
 
-      setLoading(true);
-      setNotFound(false);
-      setLoading(true);
-      setNotFound(false);
+    let isMounted = true;
 
-      axiosInstance
-        .get(`/ai/portfolio/${id}`)
-        .then((res) => {
-          if (res.data?.html) {
-            setHtml(res.data.html);
-            setUsername(res.data.username || id);
-            if (res.data.user?.name) {
-              setUserName(res.data.user.name);
-              document.title = `${res.data.user.name} | Portfolio - Nextume`;
-            } else {
-              document.title = `${res.data.username || id} | Portfolio - Nextume`;
-            }
-          } else {
-            setNotFound(true);
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to load portfolio:", err);
-          setNotFound(true);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, [id]);
     axiosInstance
       .get(`/ai/portfolio/${id}`)
       .then((res) => {
+        if (!isMounted) return;
         if (res.data?.html) {
           setHtml(res.data.html);
           setUsername(res.data.username || id);
           if (res.data.user?.name) {
-            setUserName(res.data.user.name);
             document.title = `${res.data.user.name} | Portfolio - Nextume`;
           } else {
             document.title = `${res.data.username || id} | Portfolio - Nextume`;
@@ -67,12 +37,19 @@ export default function PublicPortfolio() {
         }
       })
       .catch((err) => {
+        if (!isMounted) return;
         console.error("Failed to load portfolio:", err);
         setNotFound(true);
       })
       .finally(() => {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   if (loading) {

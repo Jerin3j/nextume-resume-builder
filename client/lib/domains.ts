@@ -23,12 +23,12 @@ export const SYSTEM_SUBDOMAINS = [
 export type SystemSubdomain = (typeof SYSTEM_SUBDOMAINS)[number];
 
 /**
- * Extracts subdomain from a hostname (e.g. "jerin.nextume.in" -> "jerin")
+ * Extracts subdomain from a hostname 
  */
 export function extractSubdomain(host: string | null): string | null {
   if (!host) return null;
 
-  // Remove port if present (e.g. "jerin.localhost:3000" -> "jerin.localhost")
+  // Remove port if present
   const hostname = host.split(":")[0].toLowerCase();
 
   // If IP address or plain localhost
@@ -41,19 +41,19 @@ export function extractSubdomain(host: string | null): string | null {
     return null;
   }
 
-  // Handle localhost subdomains: e.g. "jerin.localhost"
+  // Handle localhost subdomains
   if (hostname.endsWith(".localhost")) {
     const sub = hostname.replace(".localhost", "");
     return sub && sub !== "www" ? sub : null;
   }
 
-  // Handle production root domain subdomains: e.g. "jerin.nextume.in"
+  // Handle production root domain subdomains
   if (hostname.endsWith(`.${ROOT_DOMAIN.toLowerCase()}`)) {
     const sub = hostname.replace(`.${ROOT_DOMAIN.toLowerCase()}`, "");
     return sub && sub !== "www" ? sub : null;
   }
 
-  // Handle Vercel preview URLs (e.g. "subdomain---preview.vercel.app")
+  // Handle Vercel preview URLs 
   if (hostname.includes("vercel.app") && hostname.includes("---")) {
     const parts = hostname.split("---");
     return parts[0] || null;
