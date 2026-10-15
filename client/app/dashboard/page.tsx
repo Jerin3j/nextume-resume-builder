@@ -950,7 +950,7 @@ const Dashboard = () => {
                     type="text"
                     value={customSubdomain}
                     onChange={(e) => setCustomSubdomain(sanitizeUsername(e.target.value))}
-                    placeholder="jerin"
+                    placeholder="John"
                     className="w-full bg-transparent text-xs font-semibold text-violet-600 outline-none px-1 lowercase"
                   />
                   <span className="text-xs font-semibold text-slate-600">.nextume.in</span>
