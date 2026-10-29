@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { ArrowLeftIcon, Loader } from "lucide-react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { dummyResumeData } from "@/assets/assets";
 import ResumePreview from "@/components/ResumePreview";
 import axiosInstance from "@/app/utils/axiosInstance";
 

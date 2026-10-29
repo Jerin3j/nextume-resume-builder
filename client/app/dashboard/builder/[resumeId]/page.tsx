@@ -109,7 +109,6 @@ const ResumeBuilder = () => {
         JSON.stringify({ public: !resumeData.public }),
       );
       const { data } = await axiosInstance.put(`/resumes/update`, formData);
-      console.log("dataa", data);
       setResumeData({ ...resumeData, public: !resumeData.public });
       toast.success(data.message);
     } catch (error: any) {

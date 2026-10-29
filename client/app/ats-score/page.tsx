@@ -7,13 +7,10 @@ import {
     FileText,
     UploadCloud,
     CheckCircle2,
-    AlertTriangle,
-    TrendingUp,
     Sparkles,
     X,
     ArrowLeft,
     Info,
-    Layers,
     Activity,
     FileCheck2,
     Search,
@@ -23,7 +20,6 @@ import {
     Lock,
     History,
     Calendar,
-    LoaderCircle,
 } from "lucide-react";
 import axiosInstance from "@/app/utils/axiosInstance";
 import toast from "react-hot-toast";

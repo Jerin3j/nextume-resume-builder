@@ -14,7 +14,6 @@ import {
   Mail,
   PlayCircle,
   Sparkles,
-  User as UserIcon,
   X,
 } from "lucide-react";
 import { Play } from "next/font/google";

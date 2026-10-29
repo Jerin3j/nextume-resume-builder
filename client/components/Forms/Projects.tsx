@@ -174,7 +174,6 @@ const ProjectCard = ({
       }
 
       const data = response.data.enhancedContent;
-      console.log("fss", data);
       
       if (data?.description) {
         onUpdate(project.id, "description", data?.description);

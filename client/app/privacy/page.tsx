@@ -4,10 +4,6 @@ import React from "react";
 import Link from "next/link";
 import {
   Shield,
-  Lock,
-  Eye,
-  FileCheck,
-  Globe,
   ArrowLeft,
   Calendar,
   CheckCircle2,
