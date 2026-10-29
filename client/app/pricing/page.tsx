@@ -7,12 +7,8 @@ import { RootState } from "@/lib/redux/store";
 import { setUser } from "@/lib/redux/authSlice";
 import {
   Check,
-  ShieldAlert,
   Sparkles,
   Zap,
-  Globe,
-  FileText,
-  Code2,
   Lock,
   ArrowRight,
   ArrowLeft,

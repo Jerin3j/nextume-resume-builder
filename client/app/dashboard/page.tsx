@@ -11,15 +11,12 @@ import {
   LoaderCircleIcon,
   PencilIcon,
   PlusIcon,
-  ShieldCheckIcon,
   TrashIcon,
   UploadCloudIcon,
   XIcon,
   Globe,
-  ArrowUpRight,
   Calendar,
   Activity,
-  Link as LinkIcon,
   Share2,
   Copy,
   ExternalLink,
@@ -399,7 +396,6 @@ const Dashboard = () => {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="inline-block text-[10px] uppercase font-bold tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                      Live Portfolio
                       Live Portfolio
                     </span>
                   </div>

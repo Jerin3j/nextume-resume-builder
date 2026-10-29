@@ -403,8 +403,6 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
         }
 
         const sanitizedUsername = username
-
-
             .toLowerCase()
             .trim()
             .replace(/\s+/g, "")
@@ -418,13 +416,11 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
                 update: {
                     html,
                     username: sanitizedUsername,
-                    subdomain: sanitizedUsername,
                     regenCount: user.portfolio ? { increment: 1 } : 0
                 },
                 create: {
                     userId: userId,
                     username: sanitizedUsername,
-                    subdomain: sanitizedUsername,
                     html,
                     regenCount: 0
                 }
@@ -433,7 +429,6 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
             success: true,
             portfolioId: portfolio.id,
             username: portfolio.username,
-            subdomain: portfolio.subdomain,
             subdomainUrl: `https://${portfolio.username}.nextume.in`,
             url: `/portfolio/${portfolio.username}`
         });
@@ -466,7 +461,6 @@ export const getPortfolio = async (
                     OR: [
                         { id: Number(param) },
                         { username: param.toLowerCase() },
-                        { subdomain: param.toLowerCase() }
                     ]
                 },
                 include: {
@@ -479,7 +473,6 @@ export const getPortfolio = async (
                 where: {
                     OR: [
                         { username: param.toLowerCase() },
-                        { subdomain: param.toLowerCase() }
                     ]
                 },
                 include: {
@@ -498,7 +491,6 @@ export const getPortfolio = async (
             success: true,
             id: portfolio.id,
             username: portfolio.username,
-            subdomain: portfolio.subdomain,
             html: portfolio.html,
             user: portfolio.user
         });

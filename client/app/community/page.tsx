@@ -10,17 +10,11 @@ import {
   MessageSquare,
   Sparkles,
   ArrowLeft,
-  Share2,
-  Heart,
   TrendingUp,
   Award,
-  Globe,
   ExternalLink,
-  Github,
   Linkedin,
-  Twitter,
   Send,
-  CheckCircle2,
 } from "lucide-react";
 import Footer from "@/components/home/Footer";
 

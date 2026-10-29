@@ -128,7 +128,6 @@ export const loginUser = async (req: Request, res: Response) => {
 export const getUserById = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {

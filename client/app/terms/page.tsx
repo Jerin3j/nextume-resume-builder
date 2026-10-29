@@ -3,14 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import {
-  FileText,
   Scale,
-  CheckCircle2,
-  AlertTriangle,
   ArrowLeft,
   Calendar,
-  CreditCard,
-  Sparkles,
 } from "lucide-react";
 import Footer from "@/components/home/Footer";
 

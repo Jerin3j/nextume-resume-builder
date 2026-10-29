@@ -5,18 +5,12 @@ import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import {
-  HelpCircle,
   Search,
   MessageSquare,
   Mail,
-  FileText,
-  Sparkles,
   ArrowLeft,
   ChevronDown,
   ChevronUp,
-  CheckCircle2,
-  AlertCircle,
-  Zap,
   ShieldCheck,
   Send,
   LifeBuoy,
