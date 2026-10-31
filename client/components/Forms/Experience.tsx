@@ -36,20 +36,43 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
     onChange(updated);
   };
 
-  const generateDescription = async( index: number) => {
-    setGeneratingIndex(index);
-    const experience = data[index];
-    const prompt = `enhance this job description ${experience.description} for the position of ${experience.position} at ${experience.company}.`
+  const handleStartDateChange = (index: number, newStartDate: string) => {
+    const updated = [...data];
+    const currentItem = updated[index];
+    const currentEnd = toMonthInputValue(currentItem?.endDate);
+    const startFormatted = toMonthInputValue(newStartDate);
 
-    try{
-      const {data} = await axiosInstance.post('/ai/enhance-description', {userContext: prompt})
-      updateExperience(index, "description", data.enhancedContent)
-    }catch(error:any){
-      toast.error(error?.response?.data?.message || error.message)
-    }finally{
+    // If current endDate is earlier than the new startDate, reset endDate so start date is never longer
+    if (currentEnd && startFormatted && currentEnd < startFormatted) {
+      updated[index] = { ...currentItem, startDate: newStartDate, endDate: "" };
+    } else {
+      updated[index] = { ...currentItem, startDate: newStartDate };
+    }
+    onChange(updated);
+  };
+
+  const generateDescription = async(index: number) => {
+    const experience = data[index];
+    if (!experience?.description?.trim()) {
+      toast.error("Please enter a job description before enhancing.");
+      return;
+    }
+
+    setGeneratingIndex(index);
+    const prompt = `enhance this job description ${experience.description} for the position of ${experience.position || ""} at ${experience.company || ""}.`;
+
+    try {
+      const { data: resData } = await axiosInstance.post('/ai/enhance-description', { userContext: prompt });
+      if (resData?.enhancedContent) {
+        updateExperience(index, "description", resData.enhancedContent);
+        toast.success("Description enhanced!");
+      }
+    } catch(error: any) {
+      toast.error(error?.response?.data?.message || error.message);
+    } finally {
       setGeneratingIndex(-1);
     }
-  }
+  };
 
   const toMonthInputValue = (value?: string): string => {
     if (!value) return "";
@@ -98,108 +121,126 @@ const Experience = ({ data, onChange }: ExperienceProps) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {data?.map((workExperience: any, index: any) => (
-            <div
-              key={index}
-              className="p-4 border border-gray-200 rounded-lg space-y-3"
-            >
-              <div className="flex justify-between items-start">
-                <h4>Experience #{index + 1}</h4>
-                <button
-                  onClick={() => removeExperience(index)}
-                  className="transition-colors text-red-500 hover:text-red-700"
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              </div>
-              <div className="grid md:grid-cols-2 gap-3">
-                {/* Company name */}
-                <input
-                  type="text"
-                  value={workExperience.company || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "company", e.target.value)
-                  }
-                  placeholder="Company Name"
-                  className="px-3 py-2 text-sm rounded-lg"
-                />
-                {/* Position / Job title */}
-                <input
-                  type="text"
-                  value={workExperience.position || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "position", e.target.value)
-                  }
-                  placeholder="Job Title"
-                  className="px-3 py-2 text-sm rounded-lg"
-                />
-                {/* Start date */}
-                <input
-                  type="month"
-                  value={toMonthInputValue(workExperience?.startDate) || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "startDate", e.target.value)
-                  }
-                  className="px-3 py-2 text-sm rounded-lg"
-                />
-                {/* End date */}
-                <input
-                  type="month"
-                  value={toMonthInputValue(workExperience?.endDate) || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "endDate", e.target.value)
-                  }
-                  disabled={workExperience.isCurrent}
-                  className="px-3 py-2 text-sm rounded-lg disabled:bg-gray-100"
-                />
-              </div>
-              {/* Currently working or not*/}
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={workExperience.isCurrent || false}
-                  onChange={(e) =>
-                    updateExperience(
-                      index,
-                      "isCurrent",
-                      e.target.checked ? true : false,
-                    )
-                  }
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700">
-                  Currently working here
-                </span>
-              </label>
-              {/* Job description */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">
-                    Job Description
-                  </label>
-                  <button onClick={()=> generateDescription(index)} disabled={generatingIndex === index || !workExperience.position || !workExperience.company} className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50">
-                   {generatingIndex === index ? (
-                    <Loader2 className="w-3 h-3 animate-spin"/>
-                   ) : (
-                    <Sparkles className="w-3 h-3" />
-                   )}
-                    Enhance with AI
+          {data?.map((workExperience: any, index: any) => {
+            const isDescEmpty = !workExperience.description || !workExperience.description.trim();
+            const startVal = toMonthInputValue(workExperience?.startDate);
+            const endVal = toMonthInputValue(workExperience?.endDate);
+
+            return (
+              <div
+                key={index}
+                className="p-4 border border-gray-200 rounded-lg space-y-3"
+              >
+                <div className="flex justify-between items-start">
+                  <h4>Experience #{index + 1}</h4>
+                  <button
+                    onClick={() => removeExperience(index)}
+                    className="transition-colors text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="size-4" />
                   </button>
                 </div>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {/* Company name */}
+                  <input
+                    type="text"
+                    value={workExperience.company || ""}
+                    onChange={(e) =>
+                      updateExperience(index, "company", e.target.value)
+                    }
+                    placeholder="Company Name"
+                    className="px-3 py-2 text-sm rounded-lg"
+                  />
+                  {/* Position / Job title */}
+                  <input
+                    type="text"
+                    value={workExperience.position || ""}
+                    onChange={(e) =>
+                      updateExperience(index, "position", e.target.value)
+                    }
+                    placeholder="Job Title"
+                    className="px-3 py-2 text-sm rounded-lg"
+                  />
+                  {/* Start date */}
+                  <input
+                    type="month"
+                    value={startVal}
+                    max={!workExperience.isCurrent && endVal ? endVal : undefined}
+                    onChange={(e) =>
+                      handleStartDateChange(index, e.target.value)
+                    }
+                    className="px-3 py-2 text-sm rounded-lg"
+                  />
+                  {/* End date - restricted so previous months in the same year or before start date are not selectable */}
+                  <input
+                    type="month"
+                    value={endVal}
+                    min={startVal || undefined}
+                    onChange={(e) =>
+                      updateExperience(index, "endDate", e.target.value)
+                    }
+                    disabled={workExperience.isCurrent}
+                    className="px-3 py-2 text-sm rounded-lg disabled:bg-gray-100"
+                  />
+                </div>
+                {/* Currently working or not*/}
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={workExperience.isCurrent || false}
+                    onChange={(e) =>
+                      updateExperience(
+                        index,
+                        "isCurrent",
+                        e.target.checked ? true : false,
+                      )
+                    }
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">
+                    Currently working here
+                  </span>
+                </label>
+                {/* Job description */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-gray-700">
+                      Job Description
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => generateDescription(index)}
+                      disabled={
+                        generatingIndex === index ||
+                        isDescEmpty ||
+                        !workExperience.position?.trim() ||
+                        !workExperience.company?.trim()
+                      }
+                      className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {generatingIndex === index ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3 h-3" />
+                      )}
+                      {generatingIndex === index ? "Enhancing..." : "AI Enhance"}
+                    </button>
+                  </div>
 
-                <textarea
-                  value={workExperience.description || ""}
-                  onChange={(e) =>
-                    updateExperience(index, "description", e.target.value)
-                  }
-                  rows={4}
-                  disabled={generatingIndex === index}
-                  placeholder="Describe your key responsibilities and achievements.."
-                  className={`w-full text-sm py-2 px-3 rounded-lg resize-none ${generatingIndex === index ? "opacity-80 cursor-not-allowed blur-[1px] animate-pulse" : "text-gray-900"}`}
-                />
+                  <textarea
+                    value={workExperience.description || ""}
+                    onChange={(e) =>
+                      updateExperience(index, "description", e.target.value)
+                    }
+                    rows={4}
+                    disabled={generatingIndex === index}
+                    placeholder="Describe your key responsibilities and achievements.."
+                    className={`w-full text-sm py-2 px-3 rounded-lg resize-none ${generatingIndex === index ? "opacity-70 cursor-not-allowed blur-[1px] animate-pulse" : "text-gray-900"}`}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

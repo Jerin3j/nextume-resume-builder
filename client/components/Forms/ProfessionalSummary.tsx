@@ -42,6 +42,8 @@ const ProfessionalSummary = ({ data, onChange }: ProfessionalSummaryProps) => {
     }
   };
 
+  const isInputEmpty = !data || !data.trim();
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -56,9 +58,9 @@ const ProfessionalSummary = ({ data, onChange }: ProfessionalSummaryProps) => {
 
         <button
           type="button"
-          disabled={isGenerating}
+          disabled={isGenerating || isInputEmpty}
           onClick={generateSummary}
-          className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isGenerating ? (
             <Loader2 className="size-4 animate-spin" />
