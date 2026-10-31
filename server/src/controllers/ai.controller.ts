@@ -92,7 +92,7 @@ Instructions:
 export const enhanceProject = async (req: Request, res: Response) => {
     try {
         const { description, name, type } = req.body;
-        if (!description || !name || !type) {
+        if (!description || !description.trim()) {
             return res.status(400).json({ message: "Missing required fields" });
         }
         const response = await ai.chat.completions.create({
@@ -128,15 +128,15 @@ Return only valid JSON. No explanations. No extra text.
                     role: "user",
                     content: `
 Description: ${description}
-Name: ${name}
-Type: ${type}
+Name: ${name || "Project"}
+Type: ${type || "Full-Stack Project"}
 `,
                 },
             ],
         });
         const enhancedContent = response.choices[0]?.message?.content;
         res.status(200).json({
-            enhancedContent: JSON.parse(enhancedContent || "{}"),
+            enhancedContent: JSON.parse((enhancedContent || "{}").replace(/```json\s*|\s*```/g, "")),
         });
     } catch (error) {
         console.error("Enhance Project Error:", error);
@@ -403,6 +403,8 @@ The output will be directly saved as an HTML file and hosted publicly on ${usern
         }
 
         const sanitizedUsername = username
+
+
             .toLowerCase()
             .trim()
             .replace(/\s+/g, "")
@@ -491,8 +493,7 @@ export const getPortfolio = async (
             success: true,
             id: portfolio.id,
             username: portfolio.username,
-            html: portfolio.html,
-            user: portfolio.user
+            html: portfolio.html
         });
     } catch (error) {
         return res.status(500).json({

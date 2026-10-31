@@ -11,11 +11,17 @@ const Preview = () => {
 
   const [resumeData, setResumeData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const loadResume = async () => {
       try {
         const data = await axiosInstance.get(`/resumes/public/${resumeId}`);
-        setResumeData(data.data.resume);
+        if (data.data?.resume) {
+          setResumeData(data.data.resume);
+          if (data.data.resume.title) {
+            document.title = data.data.resume.title;
+          }
+        }
       } catch (error: any) {
         console.log(error.message);
       } finally {
@@ -23,33 +29,36 @@ const Preview = () => {
       }
     };
     loadResume();
-  }, []);
+  }, [resumeId]);
+
   return resumeData ? (
-    <div className="bg-slate-100">
-      <div className="max-w-3xl mx-auto py-10">
+    <div className="bg-slate-100 min-h-screen">
+      <div className="max-w-3xl mx-auto py-10 px-4">
         <ResumePreview
           data={resumeData}
-          accentColor={resumeData.accent_color}
-          template={resumeData.template}
-          classes="py-4 bg-white"
+          accentColor={resumeData.accentColor || resumeData.accent_color || "#3B82F6"}
+          template={resumeData.template || "classic"}
+          classes="py-4 bg-white shadow-md rounded-lg"
         />
       </div>
     </div>
   ) : (
     <div>
       {isLoading ? (
-        <Loader />
+        <div className="flex items-center justify-center h-screen">
+          <Loader className="size-8 animate-spin text-violet-500" />
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-screen">
-          <p className="text-center text-6xl text-slate-400 font-medium">
+          <p className="text-center text-4xl md:text-6xl text-slate-400 font-medium">
             Resume not found
           </p>
           <Link
             href="/"
-            className="mt-6 bg-violet-500 hover:bg-green-600 text-white rounded-full px-6 h-9 m-1 ring-offset-1 ring-1 ring-violet-400 flex items-center transition-colors"
+            className="mt-6 bg-violet-500 hover:bg-violet-600 text-white rounded-full px-6 h-9 m-1 ring-offset-1 ring-1 ring-violet-400 flex items-center transition-colors text-sm"
           >
             <ArrowLeftIcon className="size-4 mr-2" />
-            go to home page
+            Go to Home Page
           </Link>
         </div>
       )}

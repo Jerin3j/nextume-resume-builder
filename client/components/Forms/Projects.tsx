@@ -16,6 +16,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripHorizontal, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
+import toast from "react-hot-toast";
 
 type Project = {
   id: string;
@@ -56,9 +57,19 @@ const Projects = ({ data, onChange }: ProjectsProps) => {
     onChange(data.filter((p) => p.id !== id));
   };
 
-  const updateProject = (id: string, field: keyof Project, value: string) => {
+  const updateProject = (
+    id: string,
+    fieldOrUpdates: keyof Project | Partial<Project>,
+    value?: string
+  ) => {
     onChange(
-      data?.map((p) => (p.id === id ? { ...p, [field]: value } : p))
+      data?.map((p) => {
+        if (p.id !== id) return p;
+        if (typeof fieldOrUpdates === "object") {
+          return { ...p, ...fieldOrUpdates };
+        }
+        return { ...p, [fieldOrUpdates]: value as string };
+      })
     );
   };
 
@@ -145,7 +156,7 @@ const SortableProject = ({
   );
 };
 
-/*  The editable project UI (same design as before) */
+/*  The editable project UI */
 const ProjectCard = ({
   index,
   project,
@@ -155,54 +166,76 @@ const ProjectCard = ({
   index: number;
   project: Project;
   onRemove: (id: string) => void;
-  onUpdate: (id: string, field: keyof Project, value: string) => void;
+  onUpdate: (
+    id: string,
+    fieldOrUpdates: keyof Project | Partial<Project>,
+    value?: string
+  ) => void;
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
- const generateEnhancement = async () => {
+  const generateEnhancement = async () => {
+    if (!project.description?.trim()) {
+      toast.error("Please describe your project before enhancing.");
+      return;
+    }
+
     try {
       setIsGenerating(true);
 
       const response = await axiosInstance.post("/ai/enhance-project", {
-          name: project.name,
-          type: project.type,
-          description: project.description,
+        name: project.name || "Project",
+        type: project.type || "Full-Stack Project",
+        description: project.description,
       });
 
       if (!response.data) {
         throw new Error("Failed to enhance project");
       }
 
-      const data = response.data.enhancedContent;
-      
-      if (data?.description) {
-        onUpdate(project.id, "description", data?.description);
-      }   if (data?.name ) {
-        onUpdate(project.id, "name", data?.name);
-      }   if (data?.type) {
-        onUpdate(project.id, "type", data?.type);
+      let data = response.data.enhancedContent;
+      if (typeof data === "string") {
+        try {
+          const cleaned = data.replace(/```json\s*|\s*```/g, "").trim();
+          data = JSON.parse(cleaned);
+        } catch {
+          data = { description: data };
+        }
       }
-    } catch (error) {
+
+      const updates: Partial<Project> = {};
+      if (data?.description) updates.description = data.description;
+      if (data?.name) updates.name = data.name;
+      if (data?.type) updates.type = data.type;
+
+      if (Object.keys(updates).length > 0) {
+        onUpdate(project.id, updates);
+        toast.success("Project enhanced successfully!");
+      } else {
+        toast.error("Could not extract enhanced content.");
+      }
+    } catch (error: any) {
       console.error("Enhancement error:", error);
+      toast.error(error?.response?.data?.message || "Failed to enhance project");
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const isDescEmpty = !project.description || !project.description.trim();
+
   return (
     <>
       {/* Top row */}
       <div className="flex gap-3 items-center justify-between w-full">
-        <h4 className="flex-1 font-medium">
-          Project #{index + 1}
-        </h4>
+        <h4 className="flex-1 font-medium">Project #{index + 1}</h4>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
-            disabled={isGenerating}
+            disabled={isGenerating || isDescEmpty}
             onClick={generateEnhancement}
-            className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -227,30 +260,45 @@ const ProjectCard = ({
         <input
           type="text"
           value={project.name}
+          disabled={isGenerating}
           onChange={(e) => onUpdate(project.id, "name", e.target.value)}
           onPointerDown={(e) => e.stopPropagation()}
           placeholder="Project Name"
-          className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className={`px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+            isGenerating
+              ? "opacity-70 cursor-not-allowed blur-[1px] animate-pulse"
+              : "text-gray-900"
+          }`}
         />
 
         <input
           type="text"
           value={project.type}
+          disabled={isGenerating}
           onChange={(e) => onUpdate(project.id, "type", e.target.value)}
           onPointerDown={(e) => e.stopPropagation()}
           placeholder="Project Type"
-          className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className={`px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+            isGenerating
+              ? "opacity-70 cursor-not-allowed blur-[1px] animate-pulse"
+              : "text-gray-900"
+          }`}
         />
 
         <textarea
           rows={4}
           value={project.description}
+          disabled={isGenerating}
           onChange={(e) =>
             onUpdate(project.id, "description", e.target.value)
           }
           onPointerDown={(e) => e.stopPropagation()}
           placeholder="Describe Your Project"
-          className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className={`px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-all ${
+            isGenerating
+              ? "opacity-70 cursor-not-allowed blur-[1px] animate-pulse"
+              : "text-gray-900"
+          }`}
         />
       </div>
     </>
