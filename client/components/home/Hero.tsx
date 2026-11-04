@@ -20,7 +20,7 @@ import { Play } from "next/font/google";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import heroImage from '../../public/hero-card-imagebg.png'
+import heroImage from '../../public/hero-card-image.png'
 import { redirect } from "next/navigation";
 
 const Hero = () => {
@@ -571,7 +571,7 @@ const Hero = () => {
                 <img
                   src={heroImage.src}
                   alt="Hero"
-                  className="relative z-10 w-[150%] max-w-none object-contain translate-x-32 -translate-y-12 drop-shadow-[0_40px_80px_rgba(80,70,229,.12)]"
+                  className="relative z-10 w-[135%] max-w-none object-contain translate-x-20 -translate-y-12 drop-shadow-[0_40px_80px_rgba(80,70,229,.12)]"
                 />
               </div>
             </div>
