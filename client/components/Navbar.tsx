@@ -4,15 +4,28 @@ import { RootState } from "@/lib/redux/store";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
+import { getSubdomainUrl } from "@/lib/domains";
 
 const Navbar = () => {
   const { user } = useSelector((state: RootState) => state.authReducer);
   const router = useRouter();
   const dispatch = useDispatch();
+
   const logoutUser = () => {
     dispatch(logout());
-    router.push("/");
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname.toLowerCase();
+      // If on subdomain (e.g. app.nextume.in), cleanly navigate to root domain landing page
+      if (hostname.startsWith("app.") || hostname.includes(".localhost")) {
+        window.location.href = getSubdomainUrl(null, "/");
+      } else {
+        window.location.href = "/";
+      }
+    } else {
+      router.push("/");
+    }
   };
+
   return (
     <div className="shadow bg-white">
       <nav className="flex items-center justify-between max-w-7xl mx-auto px-4 py-3.5 text-slate-800 transition-all">

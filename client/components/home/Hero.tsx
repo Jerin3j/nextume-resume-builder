@@ -16,12 +16,10 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { Play } from "next/font/google";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import heroImage from '../../public/hero-card-image.png'
-import { redirect } from "next/navigation";
 
 const Hero = () => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -185,27 +183,29 @@ const Hero = () => {
           </div>
 
           <div className="flex gap-2">
-            <Link
-              href="/dashboard"
-              className="hidden lg:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
-              hidden={!user}
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/login?mode=signup"
-              className="hidden lg:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
-              hidden={user}
-            >
-              Get started
-            </Link>
-            <Link
-              href="/login"
-              className="hidden lg:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
-              hidden={user}
-            >
-              Login
-            </Link>
+            {user ? (
+              <Link
+                href="/dashboard"
+                className="hidden lg:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login?mode=signup"
+                  className="hidden lg:block px-6 py-2 bg-indigo-500 hover:bg-indigo-700 active:scale-95 transition-all rounded-full text-white"
+                >
+                  Get started
+                </Link>
+                <Link
+                  href="/login"
+                  className="hidden lg:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
 
           <button
@@ -464,14 +464,14 @@ const Hero = () => {
 
                 {/* Buttons */}
                 <div className="mt-10 flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
-                  <button onClick={() => redirect('/dashboard')} className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-4 font-semibold text-white shadow-lg transition hover:scale-[1.02] sm:w-auto">
+                  <Link href="/dashboard" className="w-full text-center rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-4 font-semibold text-white shadow-lg transition hover:scale-[1.02] sm:w-auto">
                     Go to Dashboard
-                  </button>
+                  </Link>
 
-                  <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-8 py-4 font-semibold transition hover:bg-slate-50 sm:w-auto">
+                  <a href="https://youtu.be/QChp7SNsDf0" target="_blank" rel="noopener noreferrer" className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-8 py-4 font-semibold transition hover:bg-slate-50 sm:w-auto text-slate-800">
                     <PlayCircle size={20} />
                     Watch Demo
-                  </button>
+                  </a>
                 </div>
 
                 {/* Features */}
